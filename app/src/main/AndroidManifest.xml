@@ -14,8 +14,9 @@
             android:parentActivityName=".ClientDataActivity"/>
         <activity
             android:name=".ClientDataActivity"
-            android:label="Client Data"
-            android:parentActivityName=".MainActivity" />
+            android:label="Client Datahedowehfiowehfowihfowhefow"
+            android:parentActivityName=".MainActivity" >
+        </activity>
         <activity
             android:name=".AddClientAvtivity"
             android:label="Add Client"
@@ -26,7 +27,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

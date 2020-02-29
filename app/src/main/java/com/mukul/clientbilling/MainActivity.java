@@ -1,9 +1,11 @@
 package com.mukul.clientbilling;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -95,16 +97,34 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.delete) {
             Log.i(MainActivity.class.getSimpleName(),"Delete button clicked");
-            try {
-                DBServices.deleteClient(clientsList.get(index).getId());
-                clientsList.remove(index);
-                adapter.notifyDataSetChanged();
-                Toast.makeText(this, "Done !!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
 
+            AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle("Bhai pakka delete kar du !!");
+            builder.setMessage("All data related to client will deleted.\n" +
+                    "Do you want to continue ?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        DBServices.deleteClient(clientsList.get(index).getId());
+                        clientsList.remove(index);
+                        adapter.notifyDataSetChanged();
+                        clientsList=DBServices.getClientsList();
+                        Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
+                        total_balance.setText(getTotalBalance(clientsList)+" Rs");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
             return true;
         }else if(id == R.id.edit){
             Intent intent = new Intent(MainActivity.this,
@@ -120,11 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -137,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.i(MainActivity.class.getSimpleName(),"In restart");
         clientsList=DBServices.getClientsList();
+        total_balance.setText(getTotalBalance(clientsList)+" Rs");
         adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
         listView.setAdapter(adapter);
     }

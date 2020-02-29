@@ -83,6 +83,20 @@ public class DBServices {
             stm.executeUpdate("DELETE * FROM Client WHERE ClientID="+id+"");
             con.commit();
             con.close();
+            deleteAllTransectionOFClient(id);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new Exception("Could not delete: Some error occurred !!");
+        }
+    }
+
+    public static void deleteAllTransectionOFClient(Integer clientID) throws Exception{
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            stm.executeUpdate("DELETE * FROM ClientTransection WHERE ClientID="+clientID+"");
+            con.commit();
+            con.close();
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Could not delete: Some error occurred !!");
@@ -124,8 +138,44 @@ public class DBServices {
             stm.executeUpdate(query);
             con.commit();
             con.close();
+            if(type.equals("Credit"))
+                updateClientBalance(clientId,amount,1);
+            else
+                updateClientBalance(clientId,amount,-1);
         }catch (Exception e){
             throw new Exception(e.getMessage());
+        }
+    }
+
+    public static void updateClientBalance(Integer clientId,Integer amount,Integer operator) throws Exception{
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            Integer current_balance=getClientBalance(clientId);
+            Integer updated_balance=current_balance+(amount*operator);
+            stm.executeUpdate("UPDATE Client SET Client.Balance = '"+updated_balance+"' WHERE Client.ClientID="+clientId+"");
+            con.commit();
+            con.close();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public static int getClientBalance(Integer clientId){
+        try {
+            Integer balance=0;
+            Connection con = DBConnect.getConnection();
+            Statement st=con.createStatement();
+            ResultSet rs=st.executeQuery("select Balance from Client where ClientID='"+clientId+"'");
+            while (rs.next()){
+                balance=rs.getInt("Balance");
+                Log.i(DBServices.class.getSimpleName(),"inside getClientBalance method");
+            }
+            con.close();
+            return  balance;
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0;
         }
     }
 
@@ -153,16 +203,101 @@ public class DBServices {
         return list;
     }
 
-    public static void deleteTransection(int id) throws Exception{
+    public static void deleteTransection(Client client,Transection transection) throws Exception{
         try{
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
-            stm.executeUpdate("DELETE * FROM ClientTransection WHERE TransectionID="+id+"");
+            stm.executeUpdate("DELETE * FROM ClientTransection WHERE TransectionID="+transection.getTransecId()+"");
             con.commit();
             con.close();
+            updateClientBalance(client.getId(),
+                    transection.getAmount(),
+                    transection.getTransecType().equals("Credit")?-1:1);
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Could not delete: Some error occurred !!");
         }
+    }
+
+    public static void updateTransection(Integer amount, Integer trasectionId, String desc, String date,String type,Integer clientId) throws Exception{
+        try{
+            if(!date.matches("[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}"))
+                throw new Exception("Invalid date formate!!");
+            if(!type.equals("Credit") && !type.equals("Debit"))
+                throw new Exception("Invalid transection type");
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            stm.executeUpdate("UPDATE ClientTransection SET " +
+                    "ClientTransection.ClientID = '"+clientId+"', " +
+                    "ClientTransection.TransectionType = '"+type+"', " +
+                    "ClientTransection.Amount = '"+amount+"', " +
+                    "ClientTransection.TransectionDate = '"+date+"', " +
+                    "ClientTransection.Description = '"+desc+"' " +
+                    "WHERE ClientTransection.TransectionID="+trasectionId+"");
+            con.commit();
+            con.close();
+            updateClientBalance(clientId);
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public static void updateClientBalance(Integer clientId) throws Exception{
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            int balance=getTransectionsSumOfClient(clientId);
+            stm.executeUpdate("UPDATE Client SET Client.Balance = '"+balance+"' WHERE Client.ClientID="+clientId+"");
+            con.commit();
+            con.close();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public static int getTransectionsSumOfClient(Integer clientId){
+        try{
+            int total_balance=0;
+            Connection con=DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String query="select * from ClientTransection where ClientID='"+clientId+"'";
+            ResultSet rs=stm.executeQuery(query);
+            while (rs.next()){
+                if(rs.getString("TransectionType").equals("Credit"))
+                    total_balance+=rs.getInt("Amount");
+                else
+                    total_balance-=rs.getInt("Amount");
+            }
+            return total_balance;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            return 0;
+        }
+    }
+
+    public static Transection getTransection(int transectionID) {
+        Transection transection = new Transection();
+        try {
+            Connection con = DBConnect.getConnection();
+            Statement stm = con.createStatement();
+            String query = "select * from ClientTransection where TransectionID='"+transectionID+"'";
+            ResultSet rs = stm.executeQuery(query);
+            while (rs.next()) {
+                transection.setTransecId(rs.getInt("TransectionID"));
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date date = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                transection.setDate(date);
+
+                transection.setClientId(rs.getInt("ClientID"));
+                transection.setAmount(rs.getInt("Amount"));
+                transection.setDesc(rs.getString("Description"));
+                transection.setTransecType(rs.getString("TransectionType"));
+                return transection;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return  transection;
     }
 }
