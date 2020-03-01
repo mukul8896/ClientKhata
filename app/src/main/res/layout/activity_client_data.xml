@@ -15,12 +15,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Name:"
+            android:text="@string/name"
             android:layout_margin="10dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mukul"
+            android:text="@string/na"
             android:id="@+id/client_name_data"
             android:layout_margin="10dp"/>
     </LinearLayout>
@@ -31,12 +31,12 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Contact No:"
+            android:text="@string/contact_no"
             android:layout_margin="10dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mukul"
+            android:text="@string/na"
             android:id="@+id/client_contact_data"
             android:layout_margin="10dp"/>
     </LinearLayout>
@@ -47,20 +47,20 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Adress:"
+            android:text="@string/adress"
             android:layout_margin="10dp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mukul"
+            android:text="@string/na"
             android:id="@+id/client_address_data"
             android:layout_margin="10dp"/>
     </LinearLayout>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Transections"
-        android:textSize="14dp"
+        android:text="@string/transections"
+        android:textSize="14sp"
         android:textAlignment="center"
         android:textStyle="bold"
         android:textColor="@color/colorPrimary"/>
@@ -74,10 +74,9 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Transection"
+        android:text="@string/add_transection"
         android:id="@+id/add_transection_btn"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="10dp"/>
-
 </LinearLayout>

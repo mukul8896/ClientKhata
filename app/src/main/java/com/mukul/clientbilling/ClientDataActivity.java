@@ -1,36 +1,25 @@
 package com.mukul.clientbilling;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
-import AdapterClasses.ClientListAdapter;
 import AdapterClasses.TransectionListAdapter;
 import BeanClasses.Client;
 import BeanClasses.Transection;
@@ -101,12 +90,9 @@ public class ClientDataActivity extends AppCompatActivity {
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.delete) {
-            Log.i(MainActivity.class.getSimpleName(),"Delete button clicked");
             try {
                 DBServices.deleteTransection(client,transectionList.get(index));
-                Log.i(MainActivity.class.getSimpleName(),"Delete button clicked"+transectionList.size());
                 transectionList.remove(index);
-                Log.i(MainActivity.class.getSimpleName(),"Delete button clicked"+transectionList.size());
                 adapter.notifyDataSetChanged();
                 Toast.makeText(this, "Done !!", Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
@@ -133,6 +119,7 @@ public class ClientDataActivity extends AppCompatActivity {
         client_id=getIntent().getIntExtra("id",0);
         toolbar.setTitle(getIntent().getStringExtra("Client Name"));
         transectionList= DBServices.getClientsTransections(client_id);
+        Collections.sort(transectionList);
         Log.i(ClientDataActivity.class.getSimpleName(),transectionList.size()+"::"+client_id);
         adapter=new TransectionListAdapter(this,R.layout.transection_list_item,transectionList);
         transection_lstView.setAdapter(adapter);

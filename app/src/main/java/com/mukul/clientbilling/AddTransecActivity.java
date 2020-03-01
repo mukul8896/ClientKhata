@@ -2,8 +2,8 @@ package com.mukul.clientbilling;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import BeanClasses.Transection;
-import DbConnect.DBConnect;
 import DbConnect.DBServices;
 
 public class AddTransecActivity extends AppCompatActivity {

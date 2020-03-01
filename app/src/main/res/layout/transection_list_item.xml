@@ -16,17 +16,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Date:"
+            android:text="@string/date"
             android:layout_margin="5dp"
             android:textColor="@color/cardview_dark_background"
-            android:textSize="15dp"/>
+            android:textSize="15sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="01/01/2020"
+            android:text="@string/na"
             android:id="@+id/transection_date"
             android:layout_margin="5dp"
-            android:textSize="15dp"
+            android:textSize="15sp"
             android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
     </LinearLayout>
     <LinearLayout
@@ -36,28 +36,27 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Amount:"
+            android:text="@string/amount"
             android:layout_margin="5dp"
             android:textColor="@color/cardview_dark_background"
-            android:textSize="15dp"/>
+            android:textSize="15sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="01/01/2020"
+            android:text="@string/na"
             android:id="@+id/transection_amount"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
-            android:textSize="15dp"/>
+            android:textSize="15sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/debit_credit"
-            android:text="Dr"
+            android:text="@string/dr"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
+            android:layout_marginBottom="5dp" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -66,18 +65,16 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description:"
+            android:text="@string/description"
             android:layout_margin="5dp"
             android:textColor="@color/cardview_dark_background"
-            android:textSize="15dp"/>
+            android:textSize="15sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="GST Q3 2019"
+            android:text="@string/na"
             android:id="@+id/transection_desc"
             android:layout_margin="5dp"
-            android:textSize="15dp"
-            android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
+            android:textSize="15sp" />
     </LinearLayout>
-
 </LinearLayout>

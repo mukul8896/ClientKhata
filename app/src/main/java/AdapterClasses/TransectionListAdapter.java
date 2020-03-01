@@ -11,12 +11,9 @@ import android.widget.TextView;
 
 import com.mukul.clientbilling.R;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
-import BeanClasses.ClientAndBalance;
 import BeanClasses.Transection;
 
 public class TransectionListAdapter extends ArrayAdapter<Transection> {

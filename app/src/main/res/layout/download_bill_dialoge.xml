@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="From Date: "
+        android:text="@string/from_date"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp" />
     <DatePicker
@@ -23,7 +23,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="To Date: "
+        android:text="@string/to_date"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_marginTop="20dp"/>
@@ -38,23 +38,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="right"
+        android:gravity="end"
         android:layout_marginBottom="15dp"
-        android:layout_marginRight="10dp">
+        android:layout_marginEnd="10dp">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:layout_marginRight="15dp"
+            android:text="@string/cancel"
+            android:layout_marginEnd="15dp"
             android:id="@+id/bill_dialoge_cancel"
             android:textColor="@color/debit"
             android:textStyle="bold"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Submit"
+            android:text="@string/submit"
             android:id="@+id/bill_doigole_submit"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:textColor="@color/debit"
             android:textStyle="bold"/>
     </LinearLayout>
