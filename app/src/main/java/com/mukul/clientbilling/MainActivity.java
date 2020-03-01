@@ -1,9 +1,13 @@
 package com.mukul.clientbilling;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private int index;
     private ClientListAdapter adapter;
     private TextView total_balance;
+    private static int read_request_code=1;
+    private static int write_request_code=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +41,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Log.i(MainActivity.class.getSimpleName(),"In MainActivity oncreate");
+
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},read_request_code);
+            onRestart();
+        }
+        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},write_request_code);
+            onRestart();
+        }
 
         clientsList=DBServices.getClientsList();
         Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
@@ -150,6 +165,8 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainActivity.class.getSimpleName(),"In restart");
         clientsList=DBServices.getClientsList();
         total_balance.setText(getTotalBalance(clientsList)+" Rs");
+        if(listView==null)
+            listView= findViewById(R.id.client_list);
         adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
         listView.setAdapter(adapter);
     }

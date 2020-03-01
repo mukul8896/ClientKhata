@@ -24,9 +24,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/amount"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"/>
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/text_black"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,44 +35,45 @@
         android:id="@+id/transec_amount"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"/>
+        android:paddingTop="5sp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/description"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="15dp"
+        android:textColor="@color/text_black"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"
         android:id="@+id/transec_desc"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginRight="10dp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/credit_debit"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginTop="10dp"
+        android:textColor="@color/text_black"/>
     <Spinner
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/transec_type"
         android:spinnerMode="dropdown"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginRight="5dp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/date"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="10dp"
+        android:textColor="@color/text_black"/>
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,16 +81,20 @@
         android:inputType="none"
         android:focusableInTouchMode="false"
         android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"/>
+        android:layout_marginRight="10dp" />
     <Button
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
         android:text="@string/submit"
-        android:id="@+id/add_transec_submit_btn"/>
+        android:layout_gravity="center"
+        android:paddingRight="35sp"
+        android:paddingTop="7sp"
+        android:paddingBottom="7sp"
+        android:paddingLeft="35sp"
+        android:textSize="@dimen/fab_margin"
+        android:id="@+id/add_transec_submit_btn"
+        android:background="@drawable/button_submit"/>
 
 </LinearLayout>
 </ScrollView>

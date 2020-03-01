@@ -7,6 +7,7 @@
     tools:context=".ClientDataActivity"
     android:orientation="vertical"
     android:padding="5dp"
+    android:background="@drawable/transection_list_item"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
     <LinearLayout
@@ -17,7 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/date"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
             android:textColor="@color/cardview_dark_background"
             android:textSize="15sp"/>
         <TextView
@@ -25,7 +27,8 @@
             android:layout_height="wrap_content"
             android:text="@string/na"
             android:id="@+id/transection_date"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
             android:textSize="15sp"
             android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
     </LinearLayout>
@@ -37,7 +40,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/amount"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
             android:textColor="@color/cardview_dark_background"
             android:textSize="15sp"/>
         <TextView
@@ -45,18 +49,16 @@
             android:layout_height="wrap_content"
             android:text="@string/na"
             android:id="@+id/transection_amount"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
             android:textSize="15sp"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/debit_credit"
             android:text="@string/dr"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp" />
+            android:layout_marginStart="3sp"
+            android:layout_marginTop="5dp"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -66,7 +68,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/description"
-            android:layout_margin="5dp"
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
             android:textColor="@color/cardview_dark_background"
             android:textSize="15sp"/>
         <TextView
@@ -74,7 +77,9 @@
             android:layout_height="wrap_content"
             android:text="@string/na"
             android:id="@+id/transection_desc"
-            android:layout_margin="5dp"
-            android:textSize="15sp" />
+            android:layout_marginStart="5sp"
+            android:layout_marginTop="5sp"
+            android:textSize="15sp"
+            android:layout_marginBottom="5sp"/>
     </LinearLayout>
 </LinearLayout>

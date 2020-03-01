@@ -5,4 +5,10 @@
     <color name="colorAccent">#D81B60</color>
     <color name="debit">#FF0000</color>
     <color name="credit">#33cc5a</color>
+    <color name="text_black">#333333</color>
+    <color name="edittext_background">#f2f2f2</color>
+    <color name="total_balance_lbl">#ff0066</color>
+    <color name="client_list_balane">#009900</color>
+    <color name="light_grey">#cccccc</color>
+    <color name="dark_blue">#0047b3</color>
 </resources>
