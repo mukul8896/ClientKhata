@@ -1,4 +1,4 @@
-package DbConnect;
+package db_services;
 
 import android.util.Log;
 

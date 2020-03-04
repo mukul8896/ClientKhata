@@ -24,7 +24,7 @@ import java.util.List;
 
 import AdapterClasses.ClientListAdapter;
 import BeanClasses.Client;
-import DbConnect.DBServices;
+import db_services.DBServices;
 
 public class MainActivity extends AppCompatActivity {
     private List<Client> clientsList;

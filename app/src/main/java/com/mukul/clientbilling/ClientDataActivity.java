@@ -23,7 +23,7 @@ import java.util.List;
 import AdapterClasses.TransectionListAdapter;
 import BeanClasses.Client;
 import BeanClasses.Transection;
-import DbConnect.DBServices;
+import db_services.DBServices;
 
 public class ClientDataActivity extends AppCompatActivity {
     private ListView transection_lstView;

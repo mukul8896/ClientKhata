@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import BeanClasses.Client;
-import DbConnect.DBServices;
+import db_services.DBServices;
 
 public class AddClientAvtivity extends AppCompatActivity {
     EditText client_name;

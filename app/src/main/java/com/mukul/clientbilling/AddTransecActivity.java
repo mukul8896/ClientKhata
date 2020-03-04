@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import BeanClasses.Transection;
-import DbConnect.DBServices;
+import db_services.DBServices;
 
 public class AddTransecActivity extends AppCompatActivity {
     EditText date_edit_txt;
