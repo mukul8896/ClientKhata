@@ -137,9 +137,9 @@ public class DBServices {
             con.commit();
             con.close();
             if(type.equals("Credit"))
-                updateClientBalance(clientId,amount,1);
-            else
                 updateClientBalance(clientId,amount,-1);
+            else
+                updateClientBalance(clientId,amount,1);
         }catch (Exception e){
             throw new Exception(e.getMessage());
         }

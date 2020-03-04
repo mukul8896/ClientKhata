@@ -37,7 +37,15 @@ public class ClientListAdapter extends ArrayAdapter<Client> {
         Client client=clientsList.get(position);
 
         clientName_txt.setText(client.getName());
-        clientBalance_txt.setText(client.getBalance()+" Rs");
+
+        int client_balance=client.getBalance();
+        if(client_balance<0){
+            client_balance=client_balance*-1;
+            clientBalance_txt.setText("("+client_balance+" Rs)");
+        }else{
+            clientBalance_txt.setText(client_balance+" Rs");
+        }
+
 
         return view;
     }

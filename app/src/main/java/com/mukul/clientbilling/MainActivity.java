@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView total_balance;
     private static int read_request_code=1;
     private static int write_request_code=2;
+    private int total_bal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +55,12 @@ public class MainActivity extends AppCompatActivity {
         clientsList=DBServices.getClientsList();
         Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
         total_balance=(TextView)findViewById(R.id.total_balance);
-        total_balance.setText(getTotalBalance(clientsList)+" Rs");
-
+        total_bal=getTotalBalance(clientsList);
+        if (total_bal<0) {
+            total_bal=total_bal*-1;
+            total_balance.setText("(" + total_bal + " Rs)");
+        }else
+            total_balance.setText(total_bal+" Rs");
         listView= findViewById(R.id.client_list);
         adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
         listView.setAdapter(adapter);
@@ -109,21 +114,28 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.delete) {
             Log.i(MainActivity.class.getSimpleName(),"Delete button clicked");
-
             AlertDialog.Builder builder= new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Bhai pakka delete kar du !!");
-            builder.setMessage("All data related to client will deleted.\n" +
+            builder.setTitle("Alert !!");
+            builder.setMessage("All data related to this client will be deleted.\n" +
                     "Do you want to continue ?");
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
+                        Log.i(MainActivity.class.getSimpleName(),"delete alert submited");
                         DBServices.deleteClient(clientsList.get(index).getId());
+                        //int client_bal=clientsList.get(index).getBalance();
                         clientsList.remove(index);
                         adapter.notifyDataSetChanged();
-                        clientsList=DBServices.getClientsList();
+                        Log.i(MainActivity.class.getSimpleName(),"list notified");
+                        //clientsList=DBServices.getClientsList();
                         Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
-                        total_balance.setText(getTotalBalance(clientsList)+" Rs");
+                        total_bal=getTotalBalance(clientsList);
+                        if (total_bal<0) {
+                            total_bal=total_bal*-1;
+                            total_balance.setText("(" + total_bal + " Rs)");
+                        }else
+                            total_balance.setText(total_bal+" Rs");
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -164,7 +176,12 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.i(MainActivity.class.getSimpleName(),"In restart");
         clientsList=DBServices.getClientsList();
-        total_balance.setText(getTotalBalance(clientsList)+" Rs");
+        int total_bal=getTotalBalance(clientsList);
+        if (total_bal<0) {
+            total_bal=total_bal*-1;
+            total_balance.setText("(" + total_bal + " Rs)");
+        }else
+            total_balance.setText(total_bal+" Rs");
         if(listView==null)
             listView= findViewById(R.id.client_list);
         adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
