@@ -1,4 +1,4 @@
-package com.mukul.clientbilling;
+package com.mukul.client_billing_activity;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,9 +1,10 @@
-package com.mukul.clientbilling;
+package com.mukul.client_billing_activity;
 
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -32,8 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private int index;
     private ClientListAdapter adapter;
     private TextView total_balance;
-    private static int read_request_code=1;
-    private static int write_request_code=2;
+    private static final int read_request_code=1;
+    private static final int write_request_code=2;
     private int total_bal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +45,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Log.i(MainActivity.class.getSimpleName(),"In MainActivity oncreate");
 
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},read_request_code);
-            onRestart();
-        }
-        if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},write_request_code);
-            onRestart();
-        }
+        requestPermission();
 
         clientsList=DBServices.getClientsList();
         Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
@@ -99,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.client_list_menu,menu);
+        getMenuInflater().inflate(R.menu.client_transection_list_menu,menu);
     }
 
     @Override
@@ -188,11 +183,49 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    public void requestPermission(){
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
+            //system OS >= Marshmallow(6.0), check if permission is enabled or not
+            if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
+                    ,read_request_code);
+
+            }
+            if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                    ,write_request_code);
+
+            }
+        }
+        else {
+            //system OS < Marshmallow, call save pdf method
+            //createDirectory();
+        }
+    }
+
     private int getTotalBalance(List<Client> list){
         int total=0;
         for(Client client:list){
             total+=client.getBalance();
         }
         return total;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode){
+            case write_request_code:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    //permission was granted from popup, call savepdf method
+                    //createDirectory();
+                }
+                else {
+                    //permission was denied from popup, show error message
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
     }
 }

@@ -102,7 +102,7 @@
     <string name="description">Description:</string>
     <string name="credit_debit">Credit/Debit</string>
     <string name="name">Name:</string>
-    <string name="adress">Adress:</string>
+    <string name="adress">Address:</string>
     <string name="transections">Transections</string>
     <string name="add_transection">Add Transection</string>
     <string name="enter_client_details">Enter Client Details</string>

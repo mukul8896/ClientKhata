@@ -2,7 +2,7 @@ package db_services;
 
 import android.util.Log;
 
-import com.mukul.clientbilling.MainActivity;
+import com.mukul.client_billing_activity.MainActivity;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,8 +10,13 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import BeanClasses.Bill;
 import BeanClasses.Client;
 import BeanClasses.Transection;
 
@@ -188,9 +193,11 @@ public class DBServices {
                 transection.setTransecType(rs.getString("TransectionType"));
                 transection.setDesc(rs.getString("Description"));
                 transection.setAmount(rs.getInt("Amount"));
+
                 SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
                 Date date=simpleDateFormat.parse(rs.getString("TransectionDate"));
                 transection.setDate(date);
+
                 transection.setTransecId(rs.getInt("TransectionID"));
                 list.add(transection);
             }
@@ -297,5 +304,102 @@ public class DBServices {
             ex.printStackTrace();
         }
         return  transection;
+    }
+
+    public static Integer getMaxBillNo(String financialYear) throws Exception {
+        Integer bill_no=0;
+        try {
+            Connection con = DBConnect.getConnection();
+            Statement stm = con.createStatement();
+            String query = "select max(BillNo) as BillNo from Bill where FinancialYear='"+financialYear+"'";
+            ResultSet rs = stm.executeQuery(query);
+            while (rs.next()) {
+                bill_no=rs.getInt("BillNo");
+                return  bill_no;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new Exception("Error while getting bill no !!");
+        }
+        return bill_no;
+    }
+
+    public static Integer getPreviousBalance(Integer clientId,Date from_date) throws Exception {
+        try{
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            int total_balance=0;
+            Connection con=DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String query="select * from ClientTransection where ClientID='"+clientId+"'";
+            ResultSet rs=stm.executeQuery(query);
+            while (rs.next()){
+                Date trnsectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                if(trnsectiondate.before(from_date)) {
+                    if (rs.getString("TransectionType").equals("Credit"))
+                        total_balance -= rs.getInt("Amount");
+                    else
+                        total_balance += rs.getInt("Amount");
+                }
+            }
+            return total_balance;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new Exception("Erro in previus balance !!");
+        }
+    }
+    public static Set<Transection> getParticulars(Integer clientId,Date from_date,Date to_date) throws Exception {
+        Set<Transection> transections=new LinkedHashSet<>();
+        try{
+            int total_balance=0;
+            Connection con=DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String query="select * from ClientTransection where ClientID='"+clientId+"'";
+            ResultSet rs=stm.executeQuery(query);
+            while (rs.next()){
+                Transection tr = new Transection();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date transectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                if((transectiondate.after(from_date) && transectiondate.before(to_date))
+                        || isEqual(transectiondate, from_date)
+                        || isEqual(transectiondate, to_date)) {
+                    tr.setDate(transectiondate);
+                    tr.setTransecId(rs.getInt("TransectionID"));
+                    tr.setClientId(rs.getInt("ClientID"));
+                    tr.setAmount(rs.getInt("Amount"));
+                    tr.setDesc(rs.getString("Description"));
+                    tr.setTransecType(rs.getString("TransectionType"));
+                    transections.add(tr);
+                }
+            }
+            return transections;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new Exception("Erro in previus balance !!");
+        }
+    }
+    public static void addBill(Bill bill) throws Exception {
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String from=simpleDateFormat.format(bill.getFrom_date());
+            String to=simpleDateFormat.format(bill.getTo_date());
+            stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate) " +
+                    "values ('"+bill.getBill_year()+"','"+bill.getBill_no()+"','"+bill.getClient_id()+"','"+from+"','"+to+"')");
+            con.commit();
+            con.close();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    private static boolean isEqual(Date date1,Date date2){
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String from=simpleDateFormat.format(date1);
+        String from2=simpleDateFormat.format(date2);
+        if(from.equals(from2)){
+            return true;
+        }else
+            return false;
     }
 }
