@@ -1,7 +1,8 @@
-package com.mukul.clientbilling;
+package com.mukul.client_billing_activity;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -17,13 +18,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import AdapterClasses.TransectionListAdapter;
 import BeanClasses.Client;
 import BeanClasses.Transection;
-import DbConnect.DBServices;
+import BeanClasses.Bill;
+import billing_services.BillGenerator;
+import db_services.DBServices;
 
 public class ClientDataActivity extends AppCompatActivity {
     private ListView transection_lstView;
@@ -84,7 +89,7 @@ public class ClientDataActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.client_list_menu,menu);
+        getMenuInflater().inflate(R.menu.client_transection_list_menu,menu);
     }
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -127,30 +132,90 @@ public class ClientDataActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_client_data, menu);
+        getMenuInflater().inflate(R.menu.client_optins_menu, menu);
         return true;
     }
-
+    Dialog dialog;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.download_bill) {
-            final Dialog dialog = new Dialog(ClientDataActivity.this);
-            dialog.setTitle("Enter Dates:");
+            dialog = new Dialog(ClientDataActivity.this);
             dialog.setContentView(R.layout.download_bill_dialoge);
-            dialog.setTitle("Enter Dates: ");
-            final DatePicker from_date=(DatePicker)dialog.findViewById(R.id.from_date);
             TextView submit=(TextView)dialog.findViewById(R.id.bill_doigole_submit);
             submit.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i(ClientDataActivity.class.getSimpleName(),from_date.getDayOfMonth()+"/"+from_date.getMonth());
+                    try {
+                        PDFGenerationTask task=new PDFGenerationTask();
+                        task.execute();
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(ClientDataActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            TextView cancel=(TextView)dialog.findViewById(R.id.bill_dialoge_cancel);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.i(ClientDataActivity.class.getSimpleName(),"Bill generation dialoge dismiss");
                     dialog.dismiss();
                 }
             });
             dialog.show();
             return true;
+        } else if(id == R.id.billing_history){
+
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    public String getFinancialYear(){
+        String year1="";
+        String year2="";
+        Calendar date=Calendar.getInstance();
+        if(date.get(Calendar.MONTH)>2 && date.get(Calendar.MONTH)<=11){
+            year1=date.get(Calendar.YEAR)+"";
+            year2=date.get(Calendar.YEAR)+1+"";
+        }else if(date.get(Calendar.MONTH)>=0 && date.get(Calendar.MONTH)<=2){
+            year1=date.get(Calendar.YEAR)-1+"";
+            year2=date.get(Calendar.YEAR)+"";
+        }
+        return year1+"-"+year2.substring(0,2);
+    }
+
+    private class PDFGenerationTask extends AsyncTask<String,String,String>{
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                final DatePicker from_date_picer=(DatePicker)dialog.findViewById(R.id.from_date);
+                final DatePicker to_date_picer=(DatePicker)dialog.findViewById(R.id.to_date);
+                Bill bill=new Bill();
+                bill.setClient_id(client_id);
+                bill.setBill_year(getFinancialYear());
+                bill.setBill_no(DBServices.getMaxBillNo(getFinancialYear())+1);
+                Date from_date=new Date(from_date_picer.getYear()-1900,from_date_picer.getMonth(),from_date_picer.getDayOfMonth());
+                bill.setFrom_date(from_date);
+                Date to_date=new Date(to_date_picer.getYear()-1900,to_date_picer.getMonth(),to_date_picer.getDayOfMonth());
+                bill.setTo_date(to_date);
+                BillGenerator.generateBill(bill);
+                DBServices.addBill(bill);
+                return "success";
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(ClientDataActivity.class.getSimpleName(),e.getMessage()+"Error while bill generation");
+                return "not success";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if(s.equals("success"))
+                Toast.makeText(ClientDataActivity.this, "Bill generated successfully!!", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(ClientDataActivity.this, "Some error while bill generation !!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

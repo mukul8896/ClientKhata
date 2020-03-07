@@ -1,4 +1,4 @@
-package com.mukul.clientbilling;
+package com.mukul.client_billing_activity;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import BeanClasses.Transection;
-import DbConnect.DBServices;
+import db_services.DBServices;
 
 public class AddTransecActivity extends AppCompatActivity {
     EditText date_edit_txt;

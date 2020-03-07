@@ -1,4 +1,4 @@
-package com.mukul.clientbilling;
+package com.mukul.client_billing_activity;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
