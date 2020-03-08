@@ -55,7 +55,7 @@ public class DBServices {
         }
     }
 
-    public static List<Client> getClientsList(){
+    public static List<Client> getClientsList() throws Exception {
         List<Client> clientList=new ArrayList<>();
         try {
             Connection con = DBConnect.getConnection();
@@ -75,8 +75,10 @@ public class DBServices {
             return  clientList;
         }catch (Exception e){
             e.printStackTrace();
-            return clientList;
+            if(e.getMessage().equals("Database file not exist !!"))
+                throw new Exception(e.getMessage());
         }
+        return clientList;
     }
 //
     public static void deleteClient(int id) throws Exception{
