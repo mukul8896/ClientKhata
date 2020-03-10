@@ -7,13 +7,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+import utils.ProjectUtil;
+
 public class DBConnect {
     public static Connection getConnection() throws Exception {
         Connection con = null;
         try {
-            File dir= Environment.getExternalStorageDirectory();
-            File folder=new File(dir.getPath()+File.separator+"ClientsData");
-            File file=new File(folder,"Database1.accdb");
+            File file=new File(ProjectUtil.createDirectoryFolder(),"Database1.accdb");
             if(!file.exists())
                 throw new Exception("Database file not exist !!");
             Class.forName("net.ucanaccess.jdbc.UcanaccessDriver");

@@ -132,8 +132,6 @@ public class DBServices {
 
     public static void addTransectioin(Integer amount, Integer clientId, String desc, String date,String type) throws Exception {
         try{
-            if(!date.matches("[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}"))
-                throw new Exception("Invalid date formate!!");
             if(!type.equals("Credit") && !type.equals("Debit"))
                 throw new Exception("Invalid transection type");
             Connection con=DBConnect.getConnection();
@@ -219,7 +217,7 @@ public class DBServices {
             con.close();
             updateClientBalance(client.getId(),
                     transection.getAmount(),
-                    transection.getTransecType().equals("Credit")?-1:1);
+                    transection.getTransecType().equals("Credit")?1:-1);
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Could not delete: Some error occurred !!");
@@ -403,5 +401,27 @@ public class DBServices {
             return true;
         }else
             return false;
+    }
+
+    public static List<Bill> getBillList(Integer clientId) throws Exception {
+        List<Bill> bill_list=new ArrayList<>();
+        try {
+            Connection con = DBConnect.getConnection();
+            Statement st=con.createStatement();
+            ResultSet rs=st.executeQuery("select * from Bill where ClientId='"+clientId+"'");
+            while (rs.next()){
+                Bill bill=new Bill();
+                bill.setBill_no(rs.getInt("BillNo"));
+                bill_list.add(bill);
+            }
+            Log.i(MainActivity.class.getSimpleName(), "");
+            con.close();
+            return  bill_list;
+        }catch (Exception e){
+            e.printStackTrace();
+            if(e.getMessage().equals("Database file not exist !!"))
+                throw new Exception(e.getMessage());
+        }
+        return bill_list;
     }
 }

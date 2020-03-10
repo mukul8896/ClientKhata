@@ -9,30 +9,34 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.mukul.client_billing_activity.AddTransecActivity"
+        <activity android:name=".BillListActivity"
+          android:parentActivityName=".ClientDataActivity"/>
+        <activity
+            android:name=".AddTransecActivity"
             android:label="Add Transection"
-            android:parentActivityName="com.mukul.client_billing_activity.ClientDataActivity"/>
+            android:parentActivityName=".ClientDataActivity" />
         <activity
-            android:name="com.mukul.client_billing_activity.ClientDataActivity"
+            android:name=".ClientDataActivity"
             android:label="Client Datahedowehfiowehfowihfowhefow"
-            android:parentActivityName="com.mukul.client_billing_activity.MainActivity" >
-        </activity>
+            android:parentActivityName=".MainActivity" />
         <activity
-            android:name="com.mukul.client_billing_activity.AddClientAvtivity"
+            android:name=".AddClientAvtivity"
             android:label="Add Client"
-            android:parentActivityName="com.mukul.client_billing_activity.MainActivity" />
+            android:parentActivityName=".MainActivity" />
         <activity
-            android:name="com.mukul.client_billing_activity.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 </manifest>
