@@ -66,6 +66,7 @@ public class BillGenerator {
 
         Chunk chunk=new Chunk("PLEASE ISSUE CHEQUE IN THE NAME OF 'SHUBHAM KUMAR'");
         Font font=new Font();
+        font.setSize(11);
         font.setStyle(Font.BOLD);
         chunk.setFont(font);
         paragraph.add(chunk);
@@ -73,22 +74,25 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
         paragraph.add(Chunk.NEWLINE);
 
-        font.setSize(14);
+        font.setSize(11);
         Chunk chunk2=new Chunk("MY BANK ACCOUNT DETAILS IS AS FOLLOWS:-");
-        font.setSize(12);
         chunk2.setFont(font);
         paragraph.add(chunk2);
 
         LineSeparator separator=new LineSeparator();
-        separator.setPercentage(60f);
+        separator.setPercentage(50f);
         separator.setAlignment(LineSeparator.ALIGN_LEFT);
-        separator.setOffset(-2f);
+        separator.setOffset(-3f);
         separator.setLineWidth(0.5f);
         paragraph.add(separator);
 
         paragraph.add(Chunk.NEWLINE);
 
+        Font font2=new Font();
+        font2.setSize(11);
+        font.setSize(10);
         Chunk chunk3=new Chunk("A/C NO:- ");
+        chunk3.setFont(font2);
         paragraph.add(chunk3);
 
         Chunk chunk4=new Chunk("218810100027989");
@@ -98,6 +102,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk5=new Chunk("IFSC CODE:- ");
+        chunk5.setFont(font2);
         paragraph.add(chunk5);
 
         Chunk chunk6=new Chunk("ANDB0002188");
@@ -107,6 +112,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk7=new Chunk("BANK NAME:- ");
+        chunk7.setFont(font2);
         paragraph.add(chunk7);
 
         Chunk chunk8=new Chunk("ANDHRA BANK");
@@ -116,6 +122,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk9=new Chunk("BANK ADDRESS:-  ");
+        chunk9.setFont(font2);
         paragraph.add(chunk9);
 
         Chunk chunk10=new Chunk("SHALIMAR BAGH, DELHI - 110088");
@@ -125,6 +132,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk11=new Chunk("A/C HOLDER NAME:- ");
+        chunk11.setFont(font2);
         paragraph.add(chunk11);
 
         Chunk chunk12=new Chunk("SHUBHAM KUMAR");
@@ -166,15 +174,21 @@ public class BillGenerator {
         table.addCell(empty);
         table.addCell(empty);
 
+        Font font=new Font();
+        font.setSize(10);
         if(Integer.parseInt(previous_balance)>0) {
-            PdfPCell perticular_for_previous_balance = new PdfPCell(new Phrase("Previous Balance"));
+            Phrase phrase=new Phrase("Previous Balance");
+            phrase.setFont(font);
+            PdfPCell perticular_for_previous_balance = new PdfPCell(phrase);
             perticular_for_previous_balance.setHorizontalAlignment(Element.ALIGN_LEFT);
             perticular_for_previous_balance.setBorder(0);
             perticular_for_previous_balance.setVerticalAlignment(Element.ALIGN_CENTER);
             perticular_for_previous_balance.setFixedHeight(30);
             table.addCell(perticular_for_previous_balance);
 
-            PdfPCell perticular_for_previous_amount = new PdfPCell(new Phrase(previous_balance));
+            Phrase phrase1=new Phrase(previous_balance);
+            phrase.setFont(font);
+            PdfPCell perticular_for_previous_amount = new PdfPCell(phrase1);
             perticular_for_previous_amount.setHorizontalAlignment(Element.ALIGN_CENTER);
             perticular_for_previous_amount.setVerticalAlignment(Element.ALIGN_CENTER);
             perticular_for_previous_amount.setBorder(0);
@@ -184,7 +198,9 @@ public class BillGenerator {
         Integer total=Integer.parseInt(previous_balance);
 
         for (Transection transection:particulars){
-            PdfPCell perticular=new PdfPCell(new Phrase(transection.getDesc()));
+            Phrase phrase=new Phrase(transection.getDesc());
+            phrase.setFont(font);
+            PdfPCell perticular=new PdfPCell(phrase);
             perticular.setHorizontalAlignment(Element.ALIGN_LEFT);
             perticular.setBorder(0);
             perticular.setVerticalAlignment(Element.ALIGN_CENTER);
@@ -192,6 +208,7 @@ public class BillGenerator {
             table.addCell(perticular);
 
             Phrase amount_phrase=new Phrase();
+            amount_phrase.setFont(font);
             if(transection.getTransecType().equals("Credit")){
                 amount_phrase.add("- "+transection.getAmount()+"");
                 total-=transection.getAmount();
@@ -214,8 +231,6 @@ public class BillGenerator {
 
         table.addCell(empty);
 
-        Font font=new Font();
-        font.setStyle(Font.BOLD);
         Phrase phrase1=new Phrase("TOTAL");
         phrase1.setFont(font);
         PdfPCell total_lbl_cell=new PdfPCell(phrase1);
@@ -224,10 +239,9 @@ public class BillGenerator {
         total_lbl_cell.setFixedHeight(18);
 
 
-        Font font2=new Font();
-        font2.setStyle(Font.BOLD);
+
         Phrase phrase=new Phrase(total+"");
-        phrase.setFont(font2);
+        phrase.setFont(font);
         PdfPCell total_value=new PdfPCell(phrase);
         total_value.setBorderWidth(1);
         total_value.setFixedHeight(18);
@@ -250,7 +264,7 @@ public class BillGenerator {
         Font headerfont=new Font(FontFamily.HELVETICA);
         headerfont.setStyle(Font.BOLD);
         headerfont.setColor(31,154,199);
-        headerfont.setSize(16);
+        headerfont.setSize(14);
 
         Chunk chunk=new Chunk("SHUBHAM  KUMAR TAX CONSULTANCY");
         chunk.setFont(headerfont);
@@ -266,7 +280,7 @@ public class BillGenerator {
 
         Font panfont=new Font(FontFamily.HELVETICA);
         panfont.setStyle(Font.BOLD);
-        panfont.setSize(16);
+        panfont.setSize(14);
 
         Chunk chunk3=new Chunk("PAN NO:- EKIPK1251B");
         chunk3.setFont(panfont);
@@ -285,7 +299,10 @@ public class BillGenerator {
     }
 
     private void addBillDetails(String details) throws DocumentException{
+        Font font=new Font();
+        font.setSize(12);
         Paragraph paragraph=new Paragraph();
+        paragraph.setFont(font);
         paragraph.add(details);
         paragraph.setAlignment(Paragraph.ALIGN_RIGHT);
         paragraph.setIndentationRight(50);
@@ -294,16 +311,22 @@ public class BillGenerator {
     }
 
     private void addClientDetails(String clientName,String address) throws DocumentException{
+        Font font=new Font();
+        font.setSize(10);
         Paragraph paragraph=new Paragraph();
         paragraph.setIndentationLeft(50);
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add(new Chunk("To"));
+        Chunk chunk=new Chunk("To");
+        chunk.setFont(font);
+        paragraph.add(chunk);
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add(new Chunk(clientName));
+        Chunk chunk1=new Chunk(clientName);
+        chunk1.setFont(font);
+        paragraph.add(chunk1);
         paragraph.add(Chunk.NEWLINE);
-        paragraph.add(new Chunk(address));
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(new Chunk("West Delhi, Delhi, 110015"));
+        Chunk chunk2=new Chunk(address);
+        chunk2.setFont(font);
+        paragraph.add(chunk2);
         paragraph.add(Chunk.NEWLINE);
         paragraph.add(Chunk.NEWLINE);
         document.add(paragraph);
@@ -319,6 +342,7 @@ public class BillGenerator {
         paragraph.setIndentationLeft(50);
         Font font=new Font();
         font.setStyle(Font.BOLD);
+        font.setSize(10);
         Chunk chunk=new Chunk("Bill for Professional Fee");
         chunk.setFont(font);
         paragraph.add(chunk);
@@ -333,7 +357,8 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk ch=new Chunk();
-        ch.append("PERTICULERS                                                                              AMOUNT(Rs)");
+        ch.append("PERTICULERS                                                                                            AMOUNT(Rs)");
+        ch.setFont(font);
         paragraph.add(ch);
 
         LineSeparator separator1=new LineSeparator();

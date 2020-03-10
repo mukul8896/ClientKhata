@@ -92,8 +92,8 @@
         android:text="@string/add_transection"
         android:id="@+id/add_transection_btn"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginLeft="10dp"
         android:background="@drawable/drawable_add_transec_btn"
-        android:textSize="@dimen/fab_margin"/>
+        android:textSize="@dimen/add_transection_button_text"/>
 </LinearLayout>

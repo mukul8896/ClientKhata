@@ -27,6 +27,7 @@ import java.util.List;
 import AdapterClasses.ClientListAdapter;
 import BeanClasses.Client;
 import db_services.DBServices;
+import utils.ProjectUtil;
 
 public class MainActivity extends AppCompatActivity {
     private List<Client> clientsList;
@@ -34,8 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private int index;
     private ClientListAdapter adapter;
     private TextView total_balance;
-    private static final int read_request_code=1;
-    private static final int write_request_code=2;
+    private static final int storage_request_code=1;
     private int total_bal;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +46,22 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainActivity.class.getSimpleName(),"In MainActivity oncreate");
 
         requestPermission();
-
-        clientsList=DBServices.getClientsList();
-        Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
         total_balance=(TextView)findViewById(R.id.total_balance);
-        total_bal=getTotalBalance(clientsList);
-        if (total_bal<0) {
-            total_bal=total_bal*-1;
-            total_balance.setText("(" + total_bal + " Rs)");
-        }else
-            total_balance.setText(total_bal+" Rs");
         listView= findViewById(R.id.client_list);
-        adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
-        listView.setAdapter(adapter);
+        try {
+            clientsList=DBServices.getClientsList();
+            Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
+            total_bal=getTotalBalance(clientsList);
+            if (total_bal<0) {
+                total_bal=total_bal*-1;
+                total_balance.setText("(" + total_bal + " Rs)");
+            }else
+                total_balance.setText(total_bal+" Rs");
+            adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
+            listView.setAdapter(adapter);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -170,23 +173,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         Log.i(MainActivity.class.getSimpleName(),"In restart");
-        clientsList=DBServices.getClientsList();
-        int total_bal=getTotalBalance(clientsList);
-        if (total_bal<0) {
-            total_bal=total_bal*-1;
-            total_balance.setText("(" + total_bal + " Rs)");
-        }else
-            total_balance.setText(total_bal+" Rs");
-        if(listView==null)
-            listView= findViewById(R.id.client_list);
-        adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
-        listView.setAdapter(adapter);
+        try {
+            clientsList=DBServices.getClientsList();
+            int total_bal=getTotalBalance(clientsList);
+            if (total_bal<0) {
+                total_bal=total_bal*-1;
+                total_balance.setText("(" + total_bal + " Rs)");
+            }else
+                total_balance.setText(total_bal+" Rs");
+            if(listView==null)
+                listView= findViewById(R.id.client_list);
+            adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
+            listView.setAdapter(adapter);
+        } catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void requestPermission(){
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
             //system OS >= Marshmallow(6.0), check if permission is enabled or not
-            if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
+            /*if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED){
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
                     ,read_request_code);
@@ -197,12 +204,21 @@ public class MainActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
                     ,write_request_code);
 
+            }*/
+            if(!isHavePermission(Manifest.permission.READ_EXTERNAL_STORAGE) && !isHavePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
+                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                        ,storage_request_code);
+            }else{
+                ProjectUtil.createDirectoryFolder();
             }
-        }
-        else {
+        } else {
             //system OS < Marshmallow, call save pdf method
-            //createDirectory();
+            ProjectUtil.createDirectoryFolder();
         }
+    }
+    private boolean isHavePermission(String permission){
+        return ContextCompat.checkSelfPermission(MainActivity.this, permission)
+                == PackageManager.PERMISSION_GRANTED;
     }
 
     private int getTotalBalance(List<Client> list){
@@ -216,10 +232,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode){
-            case write_request_code:{
+            case storage_request_code:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
                     //permission was granted from popup, call savepdf method
-                    //createDirectory();
+                    ProjectUtil.createDirectoryFolder();
                 }
                 else {
                     //permission was denied from popup, show error message

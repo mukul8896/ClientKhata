@@ -38,8 +38,7 @@ public class BillUtils {
     }
 
     public File getFile() {
-        File dir= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-        File file=new File(dir,"Bill No-"+bill.getBill_no()+".pdf");
+        File file=new File(ProjectUtil.createDirectoryFolder(),"Bill No-"+bill.getBill_no()+".pdf");
         return file;
     }
 }

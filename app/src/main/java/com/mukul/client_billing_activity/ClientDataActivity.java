@@ -167,7 +167,11 @@ public class ClientDataActivity extends AppCompatActivity {
             dialog.show();
             return true;
         } else if(id == R.id.billing_history){
-
+            Intent intent_to_bill_list = new Intent(ClientDataActivity.this,
+                    BillListActivity.class);
+            intent_to_bill_list.putExtra("id",client_id);
+            Log.i(ClientDataActivity.class.getSimpleName(),"about to start bill list activity");
+            startActivity(intent_to_bill_list);
             return true;
         }
         return super.onOptionsItemSelected(item);

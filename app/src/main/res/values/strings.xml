@@ -118,4 +118,9 @@
     <string name="amount">Amount:</string>
     <string name="dr">Dr</string>
     <string name="na">NA</string>
+    <string name="title_activity_client_page">ClientPageActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="bil_history">Bil History</string>
+    <string name="generate_bill">Generate Bill</string>
 </resources>
