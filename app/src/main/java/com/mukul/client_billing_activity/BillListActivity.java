@@ -1,23 +1,31 @@
 package com.mukul.client_billing_activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.util.List;
 
 import AdapterClasses.BillListAdapder;
 import BeanClasses.Bill;
 import db_services.DBServices;
+import utils.BillUtils;
 
 public class BillListActivity extends AppCompatActivity {
-    ListView listView;
-    BillListAdapder adapter;
-    List<Bill> bill_list;
-    Integer client_id;
+    private ListView listView;
+    private BillListAdapder adapter;
+    private List<Bill> bill_list;
+    private Integer client_id;
+    private int index;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +39,36 @@ public class BillListActivity extends AppCompatActivity {
         }
         adapter=new BillListAdapder(this,R.layout.bill_list_item,bill_list);
         listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openFile(position);
+            }
+        });
+
+        registerForContextMenu(listView);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                index=position;
+                return false;
+            }
+        });
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int id=item.getItemId();
+        if(id==R.id.share){
+            BillUtils utils=new BillUtils(bill_list.get(index));
+            utils.shareFile(this);
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        getMenuInflater().inflate(R.menu.bill_list_menu, menu);
     }
 
     @Override
@@ -51,5 +89,9 @@ public class BillListActivity extends AppCompatActivity {
             return true;
         }
         return true;
+    }
+    public void openFile(int index){
+        BillUtils utils=new BillUtils(bill_list.get(index));
+        utils.openFile(this);
     }
 }

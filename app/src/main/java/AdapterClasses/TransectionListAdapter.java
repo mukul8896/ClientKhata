@@ -37,14 +37,17 @@ public class TransectionListAdapter extends ArrayAdapter<Transection> {
         TextView desc_txt=view.findViewById(R.id.transection_desc);
 
         Transection transection=transectionList.get(position);
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
-        date_text.setText(simpleDateFormat.format(transection.getDate()));
+        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+        date_text.setText(fmt.format(transection.getDate()));
+
         amount_txt.setText(transection.getAmount()+"");
+
         type_txt.setText(transection.getTransecType().equals("Credit")?"Cr":"Dr");
         if(transection.getTransecType().equals("Credit"))
             type_txt.setTextColor(view.getResources().getColor(R.color.credit));
         else
             type_txt.setTextColor(view.getResources().getColor(R.color.debit));
+
         desc_txt.setText(transection.getDesc());
 
         return view;

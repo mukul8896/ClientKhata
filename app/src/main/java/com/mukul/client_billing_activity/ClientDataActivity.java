@@ -132,7 +132,7 @@ public class ClientDataActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.client_optins_menu, menu);
+        getMenuInflater().inflate(R.menu.client_options_menu, menu);
         return true;
     }
     Dialog dialog;

@@ -29,12 +29,12 @@ import utils.BillUtils;
 
 public class BillGenerator {
     private Document document;
-
     public static void generateBill(Bill bill) throws Exception {
+
         BillGenerator generator=new BillGenerator();
         BillUtils utils=new BillUtils(bill);
 
-        generator.initializeDocument(utils.getFile());
+        generator.initializeDocument(utils.getFile(bill.getBill_year()));
 
         generator.addHearder();
 
@@ -45,13 +45,12 @@ public class BillGenerator {
 
         generator.addBillPertucilerHeader();
 
-        String previous=DBServices.getPreviousBalance(25,bill.getFrom_date())+"";
-        generator.addParticulers(previous,utils.getParticulars());
+        String previous=DBServices.getPreviousBalance(bill.getClient_id(),bill.getFrom_date())+"";
+        generator.addParticulers(previous,utils.getParticulars(),bill);
 
         generator.addFooterInfo();
 
         generator.closeDocument();
-
     }
 
     private void closeDocument() {
@@ -162,7 +161,7 @@ public class BillGenerator {
 
     }
 
-    private void addParticulers(String previous_balance,Set<Transection> particulars) throws DocumentException{
+    private void addParticulers(String previous_balance,Set<Transection> particulars,Bill bill) throws Exception {
         Paragraph paragraph=new Paragraph();
 
         PdfPTable table = new PdfPTable(new float[] { 3, 1 });
@@ -177,7 +176,7 @@ public class BillGenerator {
         Font font=new Font();
         font.setSize(10);
         if(Integer.parseInt(previous_balance)>0) {
-            Phrase phrase=new Phrase("Previous Balance");
+            Phrase phrase=new Phrase("Opening Balance");
             phrase.setFont(font);
             PdfPCell perticular_for_previous_balance = new PdfPCell(phrase);
             perticular_for_previous_balance.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -223,6 +222,8 @@ public class BillGenerator {
             amount.setBorder(0);
             amount.setFixedHeight(30);
             table.addCell(amount);
+
+            DBServices.addBillDetailsToTransection(transection,bill);
 
         }
 

@@ -98,7 +98,7 @@ public class AddTransecActivity extends AppCompatActivity {
 
                     Toast.makeText(AddTransecActivity.this, "Done !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddTransecActivity.this,
-                            ClientDataActivity.class);
+                            ClientActivity.class);
                     intent.putExtra("id",client_id);
                     intent.putExtra("Client Name",DBServices.getClient(client_id).getName());
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -119,7 +119,7 @@ public class AddTransecActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
             Intent intent = new Intent(AddTransecActivity.this,
-                    ClientDataActivity.class);
+                    ClientActivity.class);
             intent.putExtra("id",client_id);
             intent.putExtra("Client Name",DBServices.getClient(client_id).getName());
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

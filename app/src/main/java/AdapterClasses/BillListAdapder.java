@@ -36,11 +36,17 @@ public class BillListAdapder extends ArrayAdapter<Bill> {
         LayoutInflater inflater=LayoutInflater.from(context);
         View view=inflater.inflate(resource,null);
         TextView bill_no=(TextView)view.findViewById(R.id.bill_no);
+        TextView bill_from_date=(TextView)view.findViewById(R.id.from_date_text);
+        TextView bill_to_date=(TextView)view.findViewById(R.id.to_date_text);
 
         Bill bill=bill_list.get(position);
 
         bill_no.setText("Bill No- "+bill.getBill_no());
 
+        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+
+        bill_from_date.setText(fmt.format(bill.getFrom_date()));
+        bill_to_date.setText(fmt.format(bill.getTo_date()));
         return view;
     }
 }

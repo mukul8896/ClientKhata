@@ -66,12 +66,17 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this,
+                /*Intent intent = new Intent(MainActivity.this,
                         ClientDataActivity.class);
                 intent.putExtra("id",clientsList.get(position).getId());
                 intent.putExtra("Client Name",clientsList.get(position).getName());
                 startActivity(intent);
-                Log.i("Mukul Sharma", clientsList.get(position).getName());
+                Log.i("Mukul Sharma", clientsList.get(position).getName());*/
+                Intent intent = new Intent(MainActivity.this,
+                        ClientActivity.class);
+                intent.putExtra("id",clientsList.get(position).getId());
+                intent.putExtra("Client Name",clientsList.get(position).getName());
+                startActivity(intent);
             }
         });
 

@@ -86,9 +86,9 @@ public class DBServices {
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
             stm.executeUpdate("DELETE * FROM Client WHERE ClientID="+id+"");
-            con.commit();
+            //con.commit();
             con.close();
-            deleteAllTransectionOFClient(id);
+            //deleteAllTransectionOFClient(id);
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception("Could not delete: Some error occurred !!");
@@ -269,9 +269,9 @@ public class DBServices {
             ResultSet rs=stm.executeQuery(query);
             while (rs.next()){
                 if(rs.getString("TransectionType").equals("Credit"))
-                    total_balance+=rs.getInt("Amount");
-                else
                     total_balance-=rs.getInt("Amount");
+                else
+                    total_balance+=rs.getInt("Amount");
             }
             return total_balance;
         }catch (Exception ex){
@@ -412,6 +412,10 @@ public class DBServices {
             while (rs.next()){
                 Bill bill=new Bill();
                 bill.setBill_no(rs.getInt("BillNo"));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
+                bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
+                bill.setBill_year(rs.getString("FinancialYear"));
                 bill_list.add(bill);
             }
             Log.i(MainActivity.class.getSimpleName(), "");
@@ -423,5 +427,18 @@ public class DBServices {
                 throw new Exception(e.getMessage());
         }
         return bill_list;
+    }
+    public static void addBillDetailsToTransection(Transection transection,Bill bill) throws Exception {
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            stm.executeUpdate("UPDATE ClientTransection SET " +
+                    "ClientTransection.BillDetails = '"+bill.getBill_year()+"|Bill No-"+bill.getBill_no()+"'" +
+                    "WHERE ClientTransection.TransectionID="+transection.getTransecId()+"");
+            con.commit();
+            con.close();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 }
