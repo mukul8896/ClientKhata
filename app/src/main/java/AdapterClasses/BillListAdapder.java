@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mukul.client_billing_activity.R;
@@ -38,6 +39,7 @@ public class BillListAdapder extends ArrayAdapter<Bill> {
         TextView bill_no=(TextView)view.findViewById(R.id.bill_no);
         TextView bill_from_date=(TextView)view.findViewById(R.id.from_date_text);
         TextView bill_to_date=(TextView)view.findViewById(R.id.to_date_text);
+        ImageView img=(ImageView)view.findViewById(R.id.is_bill_shared);
 
         Bill bill=bill_list.get(position);
 
@@ -47,6 +49,8 @@ public class BillListAdapder extends ArrayAdapter<Bill> {
 
         bill_from_date.setText(fmt.format(bill.getFrom_date()));
         bill_to_date.setText(fmt.format(bill.getTo_date()));
+        if(bill.getBillShared())
+            img.setBackgroundResource(R.drawable.green_tick);
         return view;
     }
 }

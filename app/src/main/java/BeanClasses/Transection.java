@@ -9,6 +9,7 @@ public class Transection implements Comparable<Transection>{
     private String transecType;
     private String desc;
     private Integer amount;
+    private String bill_details;
 
     public Date getDate() {
         return date;
@@ -56,6 +57,14 @@ public class Transection implements Comparable<Transection>{
 
     public void setTransecType(String transecType) {
         this.transecType = transecType;
+    }
+
+    public String getBill_details() {
+        return bill_details;
+    }
+
+    public void setBill_details(String bill_details) {
+        this.bill_details = bill_details;
     }
 
     @Override

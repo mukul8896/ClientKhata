@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mukul.client_billing_activity.ClientDataActivity"
+    tools:context="com.mukul.client_billing_activity.ClientActivity"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/bill_listview"
+        android:layout_marginTop="5sp"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
         android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>

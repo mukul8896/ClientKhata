@@ -199,6 +199,7 @@ public class DBServices {
                 transection.setDate(date);
 
                 transection.setTransecId(rs.getInt("TransectionID"));
+                transection.setBill_details(rs.getString("BillDetails"));
                 list.add(transection);
             }
             con.close();
@@ -384,8 +385,8 @@ public class DBServices {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
             String from=simpleDateFormat.format(bill.getFrom_date());
             String to=simpleDateFormat.format(bill.getTo_date());
-            stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate) " +
-                    "values ('"+bill.getBill_year()+"','"+bill.getBill_no()+"','"+bill.getClient_id()+"','"+from+"','"+to+"')");
+            stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate,IsShared) " +
+                    "values ('"+bill.getBill_year()+"','"+bill.getBill_no()+"','"+bill.getClient_id()+"','"+from+"','"+to+"','"+0+"')");
             con.commit();
             con.close();
         }catch (Exception e){
@@ -411,11 +412,16 @@ public class DBServices {
             ResultSet rs=st.executeQuery("select * from Bill where ClientId='"+clientId+"'");
             while (rs.next()){
                 Bill bill=new Bill();
+                bill.setBillId(rs.getInt("BillID"));
                 bill.setBill_no(rs.getInt("BillNo"));
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
                 bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
                 bill.setBill_year(rs.getString("FinancialYear"));
+                if(rs.getInt("IsShared")==1)
+                    bill.setBillShared(true);
+                else
+                    bill.setBillShared(false);
                 bill_list.add(bill);
             }
             Log.i(MainActivity.class.getSimpleName(), "");
@@ -432,12 +438,30 @@ public class DBServices {
         try{
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
+            String bill_details=bill.getBill_year()+" | Bill No-"+bill.getBill_no();
             stm.executeUpdate("UPDATE ClientTransection SET " +
-                    "ClientTransection.BillDetails = '"+bill.getBill_year()+"|Bill No-"+bill.getBill_no()+"'" +
-                    "WHERE ClientTransection.TransectionID="+transection.getTransecId()+"");
+                    "ClientTransection.BillDetails = '"+bill_details+"'" +
+                    "WHERE ClientTransection.TransectionID='"+transection.getTransecId()+"'");
             con.commit();
             con.close();
         }catch (Exception e){
+            e.printStackTrace();
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public static void updateBillAsShared(Bill bill) throws Exception {
+        try{
+            Connection con= DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String bill_details=bill.getBill_year()+" | Bill No-"+bill.getBill_no();
+            stm.executeUpdate("UPDATE Bill SET " +
+                    "Bill.IsShared = '1'" +
+                    "WHERE Bill.BillID='"+bill.getBillId()+"'");
+            con.commit();
+            con.close();
+        }catch (Exception e){
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }

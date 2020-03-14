@@ -4,9 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mukul.client_billing_activity.BillListActivity">
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/bill_listview"/>
+    tools:context="com.mukul.client_billing_activity.BillEditActivity">
+
 </android.support.constraint.ConstraintLayout>

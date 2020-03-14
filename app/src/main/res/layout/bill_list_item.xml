@@ -5,19 +5,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="com.mukul.client_billing_activity.BillListActivity"
+    tools:context="com.mukul.client_billing_activity.ClientActivity"
     android:orientation="horizontal"
     android:background="@drawable/bill_list_item"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <ImageView
-        android:layout_width="55sp"
-        android:layout_height="65sp"
-        android:background="@drawable/pdf_icon_trans"
+        android:layout_width="45sp"
+        android:layout_height="60sp"
+        android:background="@drawable/pdf_file_icon"
         android:layout_margin="5sp"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_weight="1">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -59,4 +61,10 @@
                 android:id="@+id/to_date_text"/>
         </LinearLayout>
     </LinearLayout>
+    <ImageView
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="10sp"
+        android:id="@+id/is_bill_shared"/>
 </LinearLayout>

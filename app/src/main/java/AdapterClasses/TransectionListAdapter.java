@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mukul.client_billing_activity.R;
@@ -15,6 +16,8 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import BeanClasses.Transection;
+
+import static com.mukul.client_billing_activity.R.drawable.red_star_icon;
 
 public class TransectionListAdapter extends ArrayAdapter<Transection> {
     List<Transection> transectionList;
@@ -35,6 +38,7 @@ public class TransectionListAdapter extends ArrayAdapter<Transection> {
         TextView amount_txt=view.findViewById(R.id.transection_amount);
         TextView type_txt=view.findViewById(R.id.debit_credit);
         TextView desc_txt=view.findViewById(R.id.transection_desc);
+        ImageView img=(ImageView)view.findViewById(R.id.is_transection_billed);
 
         Transection transection=transectionList.get(position);
         SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
@@ -50,6 +54,9 @@ public class TransectionListAdapter extends ArrayAdapter<Transection> {
 
         desc_txt.setText(transection.getDesc());
 
+        if(transection.getBill_details()!=null && !transection.getBill_details().isEmpty()) {
+            img.setBackgroundResource(R.drawable.transection_billed_icon);
+        }
         return view;
     }
 }

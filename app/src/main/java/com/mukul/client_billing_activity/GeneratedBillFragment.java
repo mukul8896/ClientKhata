@@ -122,7 +122,7 @@ public class GeneratedBillFragment extends Fragment {
                 cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Log.i(ClientDataActivity.class.getSimpleName(),"Bill generation dialoge dismiss");
+                        Log.i(GeneratedBillFragment.class.getSimpleName(),"Bill generation dialoge dismiss");
                         dialog.dismiss();
                     }
                 });
@@ -139,7 +139,11 @@ public class GeneratedBillFragment extends Fragment {
         int id=item.getItemId();
         if(id==R.id.share){
             BillUtils utils=new BillUtils(bill_list.get(index));
-            utils.shareFile(getActivity().getApplicationContext());
+            try {
+                utils.shareFile(getActivity().getApplicationContext());
+            }catch (Exception e){
+                Toast.makeText(getActivity().getApplicationContext(), "Some error occured: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         }
         return true;
     }
@@ -177,7 +181,7 @@ public class GeneratedBillFragment extends Fragment {
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ClientDataActivity.class.getSimpleName(),e.getMessage()+"Error while bill generation");
+                Log.i(GeneratedBillFragment.class.getSimpleName(),e.getMessage()+"Error while bill generation");
                 return "not success";
             }
         }

@@ -2,22 +2,13 @@ package utils;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
-
-import com.mukul.client_billing_activity.ClientDataActivity;
 
 import java.io.File;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import BeanClasses.Bill;
@@ -58,12 +49,13 @@ public class BillUtils {
         return file;
     }
 
-    public void shareFile(Context context){
+    public void shareFile(Context context) throws Exception {
         Intent intent=new Intent(android.content.Intent.ACTION_SEND);
         File file=getFile(bill.getBill_year());
         intent.setType(URLConnection.guessContentTypeFromName(file.getName()));
         intent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+file.getAbsolutePath()));
         context.startActivity(Intent.createChooser(intent, "Share File"));
+        //DBServices.updateBillAsShared(bill);
     }
 
     public void openFile(Context context){
@@ -71,4 +63,6 @@ public class BillUtils {
         browseStorage.setDataAndType(Uri.fromFile(getFile(bill.getBill_year())),"application/pdf");
         context.startActivity(Intent.createChooser(browseStorage, "Select PDF"));
     }
+
+
 }

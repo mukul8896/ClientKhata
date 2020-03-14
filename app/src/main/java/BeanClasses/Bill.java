@@ -4,11 +4,13 @@ import java.util.Date;
 import java.util.Map;
 
 public class Bill {
+    private Integer billId;
     private Integer bill_no;
     private String bill_year;
     private Integer client_id;
     private Date to_date;
     private Date from_date;
+    private boolean isBillShared;
 
     public void setBill_no(Integer bill_no) {
         this.bill_no = bill_no;
@@ -45,4 +47,19 @@ public class Bill {
         this.to_date = to_date;
     }
 
+    public void setBillShared(boolean billShared) {
+        isBillShared = billShared;
+    }
+
+    public boolean getBillShared(){
+        return isBillShared;
+    }
+
+    public Integer getBillId() {
+        return billId;
+    }
+
+    public void setBillId(Integer billId) {
+        this.billId = billId;
+    }
 }

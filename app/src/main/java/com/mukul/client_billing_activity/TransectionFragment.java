@@ -68,9 +68,16 @@ public class TransectionFragment extends Fragment {
         transection_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(ClientDataActivity.class.getSimpleName(),"Logn press done");
+                Log.i(TransectionFragment.class.getSimpleName(),"Logn press done");
                 index=position;
                 return false;
+            }
+        });
+        transection_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(transectionList.get(position).getBill_details()!=null && !transectionList.get(position).getBill_details().isEmpty())
+                    Toast.makeText(getActivity().getApplicationContext(), transectionList.get(position).getBill_details(), Toast.LENGTH_SHORT).show();
             }
         });
         Button add_new_transection= (Button) rootView.findViewById(R.id.add_transection_btn);
@@ -80,7 +87,7 @@ public class TransectionFragment extends Fragment {
                 Intent intent_to_add_transec = new Intent(getActivity().getApplicationContext(),
                         AddTransecActivity.class);
                 intent_to_add_transec.putExtra("id",client_id);
-                Log.i(ClientDataActivity.class.getSimpleName(),"about to starrt transection add activity");
+                Log.i(TransectionFragment.class.getSimpleName(),"about to starrt transection add activity");
                 startActivity(intent_to_add_transec);
             }
         });
