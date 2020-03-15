@@ -1,12 +1,13 @@
 package AdapterClasses;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mukul.client_billing_activity.R;
@@ -35,18 +36,25 @@ public class TransectionListAdapter extends ArrayAdapter<Transection> {
         TextView amount_txt=view.findViewById(R.id.transection_amount);
         TextView type_txt=view.findViewById(R.id.debit_credit);
         TextView desc_txt=view.findViewById(R.id.transection_desc);
+        ImageView img=(ImageView)view.findViewById(R.id.is_transection_billed);
 
         Transection transection=transectionList.get(position);
-        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
-        date_text.setText(simpleDateFormat.format(transection.getDate()));
+        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+        date_text.setText(fmt.format(transection.getDate()));
+
         amount_txt.setText(transection.getAmount()+"");
+
         type_txt.setText(transection.getTransecType().equals("Credit")?"Cr":"Dr");
         if(transection.getTransecType().equals("Credit"))
             type_txt.setTextColor(view.getResources().getColor(R.color.credit));
         else
             type_txt.setTextColor(view.getResources().getColor(R.color.debit));
+
         desc_txt.setText(transection.getDesc());
 
+        if(transection.getBill_details()!=null && !transection.getBill_details().isEmpty()) {
+            img.setBackgroundResource(R.drawable.transection_billed_icon);
+        }
         return view;
     }
 }

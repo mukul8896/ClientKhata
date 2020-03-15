@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ClientDataActivity"
+    tools:context="com.mukul.client_billing_activity.ClientActivity"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -71,29 +71,35 @@
             android:layout_marginStart="5sp"
             android:textColor="@color/text_black"/>
     </LinearLayout>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/transections"
-        android:textSize="17sp"
-        android:textAlignment="center"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimary"/>
-    <ListView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:id="@+id/transection_list"
-        android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
 
-    <Button
+    <com.google.android.material.tabs.TabLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/add_transection"
-        android:id="@+id/add_transection_btn"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="10dp"
-        android:background="@drawable/drawable_add_transec_btn"
-        android:textSize="@dimen/add_transection_button_text"/>
+        app:tabTextColor="@color/colorPrimary"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/colorPrimary"
+        android:id="@+id/tablayout"
+        app:tabIndicatorHeight="3dp"
+        app:tabTextAppearance="@style/TabLayoutTextStyle"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Transections"
+            android:id="@+id/transection_tab"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Generated Bils"
+            android:textStyle="bold"
+            android:id="@+id/generated_bill_tab" />
+        
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/viewPager" />
+
+
 </LinearLayout>

@@ -6,12 +6,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -66,12 +66,17 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this,
+                /*Intent intent = new Intent(MainActivity.this,
                         ClientDataActivity.class);
                 intent.putExtra("id",clientsList.get(position).getId());
                 intent.putExtra("Client Name",clientsList.get(position).getName());
                 startActivity(intent);
-                Log.i("Mukul Sharma", clientsList.get(position).getName());
+                Log.i("Mukul Sharma", clientsList.get(position).getName());*/
+                Intent intent = new Intent(MainActivity.this,
+                        ClientActivity.class);
+                intent.putExtra("id",clientsList.get(position).getId());
+                intent.putExtra("Client Name",clientsList.get(position).getName());
+                startActivity(intent);
             }
         });
 
@@ -192,19 +197,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void requestPermission(){
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
-            //system OS >= Marshmallow(6.0), check if permission is enabled or not
-            /*if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}
-                    ,read_request_code);
 
-            }
-            if(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
-                    ,write_request_code);
-
-            }*/
             if(!isHavePermission(Manifest.permission.READ_EXTERNAL_STORAGE) && !isHavePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);
