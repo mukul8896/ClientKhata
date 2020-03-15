@@ -46,6 +46,7 @@ public class BillGenerator {
         generator.addBillPertucilerHeader();
 
         String previous=DBServices.getPreviousBalance(bill.getClient_id(),bill.getFrom_date())+"";
+
         generator.addParticulers(previous,utils.getParticulars(),bill);
 
         generator.addFooterInfo();

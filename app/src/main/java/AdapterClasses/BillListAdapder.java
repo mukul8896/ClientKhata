@@ -1,8 +1,8 @@
 package AdapterClasses;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +12,10 @@ import android.widget.TextView;
 
 import com.mukul.client_billing_activity.R;
 
-import org.w3c.dom.Text;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 import BeanClasses.Bill;
-import BeanClasses.Client;
-import BeanClasses.Transection;
 
 public class BillListAdapder extends ArrayAdapter<Bill> {
     List<Bill> bill_list;
@@ -43,7 +39,7 @@ public class BillListAdapder extends ArrayAdapter<Bill> {
 
         Bill bill=bill_list.get(position);
 
-        bill_no.setText("Bill No- "+bill.getBill_no());
+        bill_no.setText(bill.getBill_year()+" | Bill No- "+bill.getBill_no());
 
         SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
 

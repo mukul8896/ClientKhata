@@ -9,12 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".BillEditActivity"></activity>
+        <activity android:name=".BillEditActivity"/>
         <activity android:name=".ClientActivity" />
         <activity
             android:name=".AddTransecActivity"
             android:label="Add Transection"
-            android:parentActivityName=".ClientActivity" />
+            android:parentActivityName=".ClientActivity"/>
         <activity
             android:name=".AddClientAvtivity"
             android:label="Add Client"

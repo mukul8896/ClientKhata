@@ -2,6 +2,7 @@ package db_services;
 
 import android.util.Log;
 
+import com.mukul.client_billing_activity.GeneratedBillFragment;
 import com.mukul.client_billing_activity.MainActivity;
 
 import java.sql.Connection;
@@ -9,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -95,7 +97,7 @@ public class DBServices {
         }
     }
 
-    public static void deleteAllTransectionOFClient(Integer clientID) throws Exception{
+    /*public static void deleteAllTransectionOFClient(Integer clientID) throws Exception{
         try{
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
@@ -106,7 +108,7 @@ public class DBServices {
             e.printStackTrace();
             throw new Exception("Could not delete: Some error occurred !!");
         }
-    }
+    }*/
 
     public static Client getClient(int id){
         Client client=new Client();
@@ -202,6 +204,7 @@ public class DBServices {
                 transection.setBill_details(rs.getString("BillDetails"));
                 list.add(transection);
             }
+            Collections.sort(list);
             con.close();
         }catch (Exception e){
             e.printStackTrace();
@@ -209,14 +212,14 @@ public class DBServices {
         return list;
     }
 
-    public static void deleteTransection(Client client,Transection transection) throws Exception{
+    public static void deleteTransection(int client_id,Transection transection) throws Exception{
         try{
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
             stm.executeUpdate("DELETE * FROM ClientTransection WHERE TransectionID="+transection.getTransecId()+"");
             con.commit();
             con.close();
-            updateClientBalance(client.getId(),
+            updateClientBalance(client_id,
                     transection.getAmount(),
                     transection.getTransecType().equals("Credit")?1:-1);
         }catch (Exception e){
@@ -424,7 +427,6 @@ public class DBServices {
                     bill.setBillShared(false);
                 bill_list.add(bill);
             }
-            Log.i(MainActivity.class.getSimpleName(), "");
             con.close();
             return  bill_list;
         }catch (Exception e){
@@ -463,6 +465,65 @@ public class DBServices {
         }catch (Exception e){
             e.printStackTrace();
             throw new Exception(e.getMessage());
+        }
+    }
+
+    public static Bill getBill(int bill_id) throws Exception {
+        Bill bill=new Bill();
+        try {
+            Connection con = DBConnect.getConnection();
+            Statement st=con.createStatement();
+            ResultSet rs=st.executeQuery("select * from Bill where BillID='"+bill_id+"'");
+            while (rs.next()){
+                bill.setBillId(rs.getInt("BillID"));
+                bill.setBill_no(rs.getInt("BillNo"));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
+                bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
+                bill.setBill_year(rs.getString("FinancialYear"));
+                bill.setClient_id(rs.getInt("ClientId"));
+                if(rs.getInt("IsShared")==1)
+                    bill.setBillShared(true);
+                else
+                    bill.setBillShared(false);
+            }
+            Log.i(DBServices.class.getSimpleName(),bill.getClient_id()+"");
+            con.close();
+            return  bill;
+        }catch (Exception e){
+            e.printStackTrace();
+            if(e.getMessage().equals("Database file not exist !!"))
+                throw new Exception(e.getMessage());
+        }
+        return bill;
+    }
+
+    public static List<Transection> getBillTransection(String bill_details) throws Exception {
+        List<Transection> transections=new ArrayList<>();
+        try{
+            int total_balance=0;
+            Connection con=DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String query="select * from ClientTransection where BillDetails='"+bill_details+"'";
+            ResultSet rs=stm.executeQuery(query);
+            while (rs.next()){
+                Transection tr = new Transection();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                Date transectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                    tr.setDate(transectiondate);
+                    tr.setTransecId(rs.getInt("TransectionID"));
+                    tr.setClientId(rs.getInt("ClientID"));
+                    tr.setAmount(rs.getInt("Amount"));
+                    tr.setDesc(rs.getString("Description"));
+                    tr.setTransecType(rs.getString("TransectionType"));
+                    tr.setBill_details(rs.getString("BillDetails"));
+                    transections.add(tr);
+            }
+            Collections.sort(transections);
+            return transections;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new Exception("Erro in previus balance !!");
         }
     }
 }

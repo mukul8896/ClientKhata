@@ -2,8 +2,8 @@ package com.mukul.client_billing_activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -13,10 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.mukul.client_billing_activity.R;
 
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +47,7 @@ public class TransectionFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TransectionFragment.class.getSimpleName(),"inside onCreate");
         client_id=getArguments().getInt("ClientId");
         transectionList= DBServices.getClientsTransections(client_id);
         client=DBServices.getClient(client_id);
@@ -59,12 +57,14 @@ public class TransectionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.i(TransectionFragment.class.getSimpleName(),"inside onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_transections, container, false);
         transection_lstView= (ListView)rootView.findViewById(R.id.transection_list);
         adapter=new TransectionListAdapter(getActivity().getApplicationContext(),R.layout.transection_list_item,transectionList);
         transection_lstView.setAdapter(adapter);
 
         registerForContextMenu(transection_lstView);
+
         transection_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -73,6 +73,7 @@ public class TransectionFragment extends Fragment {
                 return false;
             }
         });
+
         transection_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -80,6 +81,7 @@ public class TransectionFragment extends Fragment {
                     Toast.makeText(getActivity().getApplicationContext(), transectionList.get(position).getBill_details(), Toast.LENGTH_SHORT).show();
             }
         });
+
         Button add_new_transection= (Button) rootView.findViewById(R.id.add_transection_btn);
         add_new_transection.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,17 +105,25 @@ public class TransectionFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.delete) {
-            try {
-                DBServices.deleteTransection(client,transectionList.get(index));
-                transectionList.remove(index);
-                adapter.notifyDataSetChanged();
-                Toast.makeText(getActivity().getApplicationContext(), "Done !!", Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getActivity().getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+        if(transectionList.get(index).getBill_details()!=null && !transectionList.get(index).getBill_details().isEmpty()){
+            Toast.makeText(getActivity().getApplicationContext(), "This transection is already added to bill please update bill first !!", Toast.LENGTH_LONG).show();
             return true;
+        }
+        if (id == R.id.delete) {
+
+            Thread thread=new Thread(()->{
+                try {
+                    DBServices.deleteTransection(client.getId(),transectionList.get(index));
+                    Toast.makeText(getActivity().getApplicationContext(), "Done !!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(getActivity().getApplicationContext(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+            transectionList.remove(index);
+            adapter.notifyDataSetChanged();
+            return  true;
         }else if(id == R.id.edit){
             Intent intent = new Intent(getActivity(), AddTransecActivity.class);
             Bundle data=new Bundle();
@@ -122,7 +132,26 @@ public class TransectionFragment extends Fragment {
             data.putInt("transecid",transectionList.get(index).getTransecId());
             intent.putExtra("data",data);
             startActivity(intent);
+            return true;
         }
-        return super.onContextItemSelected(item);
+        return true;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.i(TransectionFragment.class.getSimpleName(),"inside onResume");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.i(TransectionFragment.class.getSimpleName(),"inside onstart");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.i(TransectionFragment.class.getSimpleName(),"inside onstop");
     }
 }

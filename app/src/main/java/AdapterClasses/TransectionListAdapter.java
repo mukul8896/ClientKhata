@@ -1,8 +1,8 @@
 package AdapterClasses;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +16,6 @@ import java.text.SimpleDateFormat;
 import java.util.List;
 
 import BeanClasses.Transection;
-
-import static com.mukul.client_billing_activity.R.drawable.red_star_icon;
 
 public class TransectionListAdapter extends ArrayAdapter<Transection> {
     List<Transection> transectionList;

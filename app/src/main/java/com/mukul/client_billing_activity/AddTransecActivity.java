@@ -3,7 +3,7 @@ package com.mukul.client_billing_activity;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,25 +21,29 @@ import BeanClasses.Transection;
 import db_services.DBServices;
 
 public class AddTransecActivity extends AppCompatActivity {
-    EditText date_edit_txt;
-    EditText amt_edit_txt;
-    EditText desc_edit_txt;
-    DatePickerDialog picker;
-    Integer client_id;
-    Spinner spinner;
-    String modes;
-    Integer transectionId;
+    private EditText date_edit_txt;
+    private EditText amt_edit_txt;
+    private EditText desc_edit_txt;
+    private DatePickerDialog picker;
+    private Integer client_id;
+    private Spinner spinner;
+    private String modes;
+    private Integer transectionId;
+    private String parentActivity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_transec);
+
         client_id=getIntent().getIntExtra("id",0);
+        Log.i(AddTransecActivity.class.getSimpleName(),"Inside add transection activity create");
 
         Bundle bundle=getIntent().getBundleExtra("data");
         if(bundle!=null){
             modes  = bundle.getString("mode");
             transectionId = bundle.getInt("transecid");
             client_id=bundle.getInt("clientid");
+            parentActivity=bundle.getString("parentActivity");
         }
 
         spinner=(Spinner) findViewById(R.id.transec_type);
@@ -97,8 +101,13 @@ public class AddTransecActivity extends AppCompatActivity {
                         DBServices.addTransectioin(amount,client_id,desc,date,type);
 
                     Toast.makeText(AddTransecActivity.this, "Done !!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(AddTransecActivity.this,
-                            ClientActivity.class);
+                    Intent intent=null;
+                    if(parentActivity!=null && parentActivity.contains(BillEditActivity.class.getSimpleName())) {
+                        intent = new Intent(AddTransecActivity.this, BillEditActivity.class);
+                        intent.putExtra("bill_id",Integer.parseInt(parentActivity.split("-")[1]));
+                    }else {
+                        intent = new Intent(AddTransecActivity.this, ClientActivity.class);
+                    }
                     intent.putExtra("id",client_id);
                     intent.putExtra("Client Name",DBServices.getClient(client_id).getName());
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -118,8 +127,13 @@ public class AddTransecActivity extends AppCompatActivity {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
-            Intent intent = new Intent(AddTransecActivity.this,
-                    ClientActivity.class);
+            Intent intent=null;
+            if(parentActivity!=null && parentActivity.contains(BillEditActivity.class.getSimpleName())) {
+                intent = new Intent(AddTransecActivity.this, BillEditActivity.class);
+                intent.putExtra("bill_id",Integer.parseInt(parentActivity.split("-")[1]));
+            }else {
+                intent = new Intent(AddTransecActivity.this, ClientActivity.class);
+            }
             intent.putExtra("id",client_id);
             intent.putExtra("Client Name",DBServices.getClient(client_id).getName());
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -127,7 +141,6 @@ public class AddTransecActivity extends AppCompatActivity {
             finish();
             return true;
         }
-
         return true;
     }
 }

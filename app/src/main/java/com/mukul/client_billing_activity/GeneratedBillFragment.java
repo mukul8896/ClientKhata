@@ -4,7 +4,9 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+
+import androidx.core.util.Pair;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -18,7 +20,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.mukul.client_billing_activity.R;
+import com.google.android.material.datepicker.MaterialDatePicker;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -144,6 +146,12 @@ public class GeneratedBillFragment extends Fragment {
             }catch (Exception e){
                 Toast.makeText(getActivity().getApplicationContext(), "Some error occured: "+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
+        }else if(id==R.id.edit_bill){
+            Intent intent = new Intent(getActivity().getApplicationContext(),
+                    BillEditActivity.class);
+            intent.putExtra("bill_id",bill_list.get(index).getBillId());
+            startActivity(intent);
+            Log.i(GeneratedBillFragment.class.getSimpleName(),"Inside generated bill fragment");
         }
         return true;
     }
@@ -159,12 +167,18 @@ public class GeneratedBillFragment extends Fragment {
     }
 
     private class PDFGenerationTask extends AsyncTask<String,String,String> {
+        private Bill bill;
+
+        @Override
+        protected void onPreExecute() {
+            bill=new Bill();
+        }
         @Override
         protected String doInBackground(String... strings) {
             try {
                 final DatePicker from_date_picer=(DatePicker)dialog.findViewById(R.id.from_date);
                 final DatePicker to_date_picer=(DatePicker)dialog.findViewById(R.id.to_date);
-                Bill bill=new Bill();
+
                 Date from_date=new Date(from_date_picer.getYear()-1900,from_date_picer.getMonth(),from_date_picer.getDayOfMonth());
                 bill.setFrom_date(from_date);
                 Date to_date=new Date(to_date_picer.getYear()-1900,to_date_picer.getMonth(),to_date_picer.getDayOfMonth());
@@ -188,16 +202,13 @@ public class GeneratedBillFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String s) {
-            try {
-                bill_list= DBServices.getBillList(client_id);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            adapter.notifyDataSetChanged();
-            if(s.equals("success"))
+            if(s.equals("success")) {
+                bill_list.add(bill);
+                adapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "Bill generated successfully!!", Toast.LENGTH_SHORT).show();
-            else
+            }else {
                 Toast.makeText(getActivity(), "Some error while bill generation !!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
