@@ -144,6 +144,7 @@ public class GeneratedBillFragment extends Fragment {
             try {
                 utils.shareFile(getActivity().getApplicationContext());
             }catch (Exception e){
+                e.printStackTrace();
                 Toast.makeText(getActivity().getApplicationContext(), "Some error occured: "+e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }else if(id==R.id.edit_bill){
