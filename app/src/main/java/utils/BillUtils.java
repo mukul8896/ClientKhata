@@ -3,6 +3,7 @@ package utils;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 
 import androidx.core.content.FileProvider;
@@ -48,28 +49,42 @@ public class BillUtils {
         File dir=new File(ProjectUtil.createDirectoryFolder().getPath()+File.separator+bill_year);
         if(!dir.exists()) {
             dir.mkdir();
-            Log.i(BillUtils.class.getSimpleName(),"in year dir creation ");
         }
         File file=new File(dir,"Bill No-"+bill.getBill_no()+".pdf");
         return file;
     }
 
     public void shareFile(Context context) throws Exception {
+        Intent intent=new Intent(android.content.Intent.ACTION_SEND);
         File file=getFile(bill.getBill_year());
-        Uri uri= FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+".provider",file);
-        Intent intent=new Intent(android.content.Intent.ACTION_SEND,uri);
+        intent.setType(URLConnection.guessContentTypeFromName(file.getName()));
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+ ".provider",file);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_AC)
         context.startActivity(Intent.createChooser(intent, "Share File"));
-        //DBServices.updateBillAsShared(bill);
     }
 
     public void openFile(Context context){
         File file=getFile(bill.getBill_year());
-        Intent browseStorage =new Intent(Intent.ACTION_VIEW);
-        browseStorage.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        browseStorage.setDataAndType(Uri.parse("file://"+file.getAbsolutePath()),URLConnection.guessContentTypeFromName(file.getName()));
-        context.startActivity(Intent.createChooser(browseStorage, "Select PDF"));
+        Intent intent=null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(uri);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.startActivity(intent);
+        } else {
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(Uri.parse(file.getAbsolutePath()), "application/pdf");
+            intent = Intent.createChooser(intent, "Open File");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+
+        /*Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        context.startActivity(intent);*/
     }
-
-
 }
