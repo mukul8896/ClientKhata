@@ -61,7 +61,6 @@ public class BillUtils {
         Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+ ".provider",file);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_AC)
         context.startActivity(Intent.createChooser(intent, "Share File"));
     }
 

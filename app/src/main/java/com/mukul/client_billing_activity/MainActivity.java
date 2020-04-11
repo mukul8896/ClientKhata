@@ -1,6 +1,7 @@
 package com.mukul.client_billing_activity;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,7 +19,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView total_balance;
     private static final int storage_request_code=1;
     private int total_bal;
+    private static String interval="all";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,20 +49,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Log.i(MainActivity.class.getSimpleName(),"In MainActivity oncreate");
-
+        /* requesting permission for application */
         requestPermission();
+
         total_balance=(TextView)findViewById(R.id.total_balance);
         listView= findViewById(R.id.client_list);
         try {
-            clientsList=DBServices.getClientsList();
+            clientsList=DBServices.getClientsList(interval);
             Log.i(MainActivity.class.getSimpleName(),clientsList.toString());
             total_bal=getTotalBalance(clientsList);
-            if (total_bal<0) {
-                total_bal=total_bal*-1;
-                total_balance.setText("(" + total_bal + " Rs)");
-            }else
-                total_balance.setText(total_bal+" Rs");
             adapter=new ClientListAdapter(this,R.layout.client_list_item,clientsList);
             listView.setAdapter(adapter);
         } catch (Exception e) {
@@ -95,16 +95,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.client_transection_list_menu,menu);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_filter) {
+            Dialog dialog = new Dialog(MainActivity.this);
+            dialog.setContentView(R.layout.client_filter_dialoge);
+
+            Spinner monSpinner=(Spinner) dialog.findViewById(R.id.interval_of_filter);
+            String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, monthNames);
+            monSpinner.setAdapter(adapter);
+
+            Spinner typeSpinner=(Spinner) dialog.findViewById(R.id.type_of_filter);
+            String[] type_list=new String[]{"Credit","Debit","Balance"};
+            ArrayAdapter<String> type_adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_dropdown_item, type_list);
+            typeSpinner.setAdapter(type_adapter);
+
+            TextView submit=(TextView)dialog.findViewById(R.id.apply_filter);
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        interval=monSpinner.getSelectedItem().toString();
+                        onRestart();
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            TextView cancel=(TextView)dialog.findViewById(R.id.remove_filter);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    interval="all";
+                    onRestart();
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+            return true;
+        }
+        return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        getMenuInflater().inflate(R.menu.client_transection_list_menu,menu);
     }
 
     @Override
@@ -161,20 +207,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return true;
-    }
-
-    @Override
     protected void onRestart() {
         super.onRestart();
         Log.i(MainActivity.class.getSimpleName(),"In restart");
         try {
-            clientsList=DBServices.getClientsList();
+            clientsList=DBServices.getClientsList(interval);
             int total_bal=getTotalBalance(clientsList);
             if (total_bal<0) {
                 total_bal=total_bal*-1;
@@ -192,7 +229,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void requestPermission(){
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M){
-
             if(!isHavePermission(Manifest.permission.READ_EXTERNAL_STORAGE) && !isHavePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)){
                 ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);

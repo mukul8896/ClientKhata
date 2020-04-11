@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.mukul.client_billing_activity.MainActivity"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/apply_filter"
+        android:textSize="@dimen/calendar_text_large"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_marginTop="10sp"
+        android:textColor="@color/client_list_balane"
+        android:layout_marginBottom="10sp"
+        android:layout_marginStart="85sp"
+        android:layout_marginEnd="85sp"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_interval"
+        android:layout_marginStart="10dp"
+        android:textSize="@dimen/add_transection_button_text"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/text_black"/>
+
+    <Spinner
+        android:id="@+id/interval_of_filter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_type"
+        android:textSize="@dimen/add_transection_button_text"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10sp"
+        android:textColor="@color/text_black"/>
+    <Spinner
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/type_of_filter"
+        android:spinnerMode="dropdown" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/apply"
+            android:layout_margin="10sp"
+            android:id="@+id/apply_filter"
+            android:textSize="@dimen/calendar_month_topmargin"
+            android:textStyle="bold"
+            android:textColor="@color/debit"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/remove"
+            android:layout_marginTop="10sp"
+            android:layout_marginEnd="20sp"
+            android:layout_marginBottom="10sp"
+            android:layout_marginStart="10sp"
+            android:id="@+id/remove_filter"
+            android:textStyle="bold"
+            android:textSize="@dimen/calendar_month_topmargin"
+            android:textColor="@color/debit"/>
+    </LinearLayout>
+
+</LinearLayout>
