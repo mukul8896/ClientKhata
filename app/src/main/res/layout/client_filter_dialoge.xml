@@ -17,6 +17,7 @@
         android:layout_marginBottom="10sp"
         android:layout_marginStart="85sp"
         android:layout_marginEnd="85sp"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -25,12 +26,24 @@
         android:textSize="@dimen/add_transection_button_text"
         android:layout_marginEnd="10dp"
         android:textColor="@color/text_black"/>
-
-    <Spinner
-        android:id="@+id/interval_of_filter"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:spinnerMode="dropdown" />
+        android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/month_of_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:layout_marginEnd="5sp"/>
+        <Spinner
+            android:id="@+id/year_of_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

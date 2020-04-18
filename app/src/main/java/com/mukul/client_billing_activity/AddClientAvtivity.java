@@ -2,7 +2,6 @@ package com.mukul.client_billing_activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,8 +9,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import BeanClasses.Client;
-import db_services.DBServices;
+import db_services.ClientDbServices;
 
 public class AddClientAvtivity extends AppCompatActivity {
     EditText client_name;
@@ -25,21 +26,21 @@ public class AddClientAvtivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_client);
 
-        Bundle bundle=getIntent().getBundleExtra("data");
-        if(bundle!=null){
-            modes  = bundle.getString("mode");
+        Bundle bundle = getIntent().getBundleExtra("data");
+        if (bundle != null) {
+            modes = bundle.getString("mode");
             clientId = bundle.getInt("id");
         }
 
 
-        client_name= findViewById(R.id.client_name_txt);
-        address= findViewById(R.id.client_address_txt);
-        contact= findViewById(R.id.client_contact_txt);
-        Button add= findViewById(R.id.add_client);
+        client_name = findViewById(R.id.client_name_txt);
+        address = findViewById(R.id.client_address_txt);
+        contact = findViewById(R.id.client_contact_txt);
+        Button add = findViewById(R.id.add_client);
 
-        if(modes!=null && modes.equals("Edit")){
-            Client client=DBServices.getClient(clientId);
-            Log.i(MainActivity.class.getSimpleName(),client.getName() +" : "+client.getAddress()+":"+client.getContact());
+        if (modes != null && modes.equals("Edit")) {
+            Client client = ClientDbServices.getClient(clientId);
+            Log.i(MainActivity.class.getSimpleName(), client.getName() + " : " + client.getAddress() + ":" + client.getContact());
             client_name.setText(client.getName());
             address.setText(client.getAddress());
             contact.setText(client.getContact());
@@ -48,17 +49,17 @@ public class AddClientAvtivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try{
-                    if(modes!=null && modes.equals("Edit"))
-                        DBServices.updateClient(client_name.getText().toString(),address.getText().toString(),contact.getText().toString(),clientId);
+                try {
+                    if (modes != null && modes.equals("Edit"))
+                        ClientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), contact.getText().toString(), clientId);
                     else
-                        DBServices.addClient(client_name.getText().toString(),address.getText().toString(),contact.getText().toString());
+                        ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), contact.getText().toString());
                     Toast.makeText(AddClientAvtivity.this, "Done !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
                             MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Toast.makeText(AddClientAvtivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
@@ -15,58 +14,57 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 import BeanClasses.Bill;
 import BeanClasses.Transection;
-import db_services.DBServices;
+import db_services.BillDbServices;
 
 public class BillUtils {
     private Bill bill;
-    public BillUtils(Bill bill){
-        this.bill=bill;
+
+    public BillUtils(Bill bill) {
+        this.bill = bill;
     }
 
     public String getBillDetails() {
-        String details="Bill No. "+bill.getBill_no()+" / ";
-        details+=bill.getBill_year()+" / ";
-        details+=getFormatedDate();
+        String details = "Bill No. " + bill.getBill_no() + " / ";
+        details += bill.getBill_year() + " / ";
+        details += getFormatedDate();
         return details;
     }
 
     public List<Transection> getParticulars() throws Exception {
-        return DBServices.getParticulars(bill.getClient_id(),bill.getFrom_date(),bill.getTo_date());
+        return BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date());
     }
 
-    private String getFormatedDate(){
-        Date date=new Date();
+    private String getFormatedDate() {
+        Date date = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
         return fmt.format(date);
     }
 
     public File getFile(String bill_year) {
-        Log.i(BillUtils.class.getSimpleName(),ProjectUtil.createDirectoryFolder().getPath()+File.separator+bill_year);
-        File dir=new File(ProjectUtil.createDirectoryFolder().getPath()+File.separator+bill_year);
-        if(!dir.exists()) {
+        File dir = new File(ProjectUtil.createDirectoryFolder().getPath() + File.separator + bill_year);
+        if (!dir.exists()) {
             dir.mkdir();
         }
-        File file=new File(dir,"Bill No-"+bill.getBill_no()+".pdf");
+        File file = new File(dir, "Bill No-" + bill.getBill_no() + ".pdf");
         return file;
     }
 
     public void shareFile(Context context) throws Exception {
-        Intent intent=new Intent(android.content.Intent.ACTION_SEND);
-        File file=getFile(bill.getBill_year());
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        File file = getFile(bill.getBill_year());
         intent.setType(URLConnection.guessContentTypeFromName(file.getName()));
-        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID+ ".provider",file);
+        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(Intent.createChooser(intent, "Share File"));
     }
 
-    public void openFile(Context context){
-        File file=getFile(bill.getBill_year());
-        Intent intent=null;
+    public void openFile(Context context) {
+        File file = getFile(bill.getBill_year());
+        Intent intent = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
             intent = new Intent(Intent.ACTION_VIEW);

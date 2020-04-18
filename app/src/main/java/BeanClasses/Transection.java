@@ -2,7 +2,7 @@ package BeanClasses;
 
 import java.util.Date;
 
-public class Transection implements Comparable<Transection>{
+public class Transection implements Comparable<Transection> {
     private Integer transecId;
     private Integer clientId;
     private Date date;
@@ -69,10 +69,10 @@ public class Transection implements Comparable<Transection>{
 
     @Override
     public int compareTo(Transection transection) {
-        if(this.date.after(transection.getDate()))
+        if (this.date.after(transection.getDate()))
             return -1;
-        else if(this.date.before(transection.getDate()))
-            return  1;
+        else if (this.date.before(transection.getDate()))
+            return 1;
         else
             return 0;
     }

@@ -11,22 +11,23 @@ import com.mukul.client_billing_activity.TransectionFragment;
 public class PageAdapter extends FragmentPagerAdapter {
     private int tabCount;
     private Integer client_id;
-    public PageAdapter(FragmentManager fm,int tabCount,Integer client_id) {
+
+    public PageAdapter(FragmentManager fm, int tabCount, Integer client_id) {
         super(fm);
-        this.tabCount=tabCount;
-        this.client_id=client_id;
+        this.tabCount = tabCount;
+        this.client_id = client_id;
     }
 
     @Override
     public Fragment getItem(int tabNum) {
-        Fragment fragment=null;
-        switch (tabNum){
-            case 0 :
+        Fragment fragment = null;
+        switch (tabNum) {
+            case 0:
                 return TransectionFragment.newInstance(client_id);
-            case 1 :
+            case 1:
                 return GeneratedBillFragment.newInstance(client_id);
-            default :
-                return  null;
+            default:
+                return null;
         }
     }
 
