@@ -110,19 +110,15 @@ public class TransectionFragment extends Fragment {
             return true;
         }
         if (id == R.id.delete) {
-
-            Thread thread=new Thread(()->{
                 try {
                     DBServices.deleteTransection(client.getId(),transectionList.get(index));
-                    Toast.makeText(getActivity().getApplicationContext(), "Done !!", Toast.LENGTH_SHORT).show();
+                    transectionList.remove(index);
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity().getApplicationContext(), "Transection deleted successfully!!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     Toast.makeText(getActivity().getApplicationContext(), "Error: "+e.getMessage(), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
-            });
-            thread.start();
-            transectionList.remove(index);
-            adapter.notifyDataSetChanged();
             return  true;
         }else if(id == R.id.edit){
             Intent intent = new Intent(getActivity(), AddTransecActivity.class);
@@ -135,23 +131,5 @@ public class TransectionFragment extends Fragment {
             return true;
         }
         return true;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.i(TransectionFragment.class.getSimpleName(),"inside onResume");
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Log.i(TransectionFragment.class.getSimpleName(),"inside onstart");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.i(TransectionFragment.class.getSimpleName(),"inside onstop");
     }
 }

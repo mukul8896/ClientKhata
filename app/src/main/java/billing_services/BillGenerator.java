@@ -5,6 +5,8 @@ import android.os.Environment;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -66,7 +68,6 @@ public class BillGenerator {
 
         Chunk chunk=new Chunk("PLEASE ISSUE CHEQUE IN THE NAME OF 'SHUBHAM KUMAR'");
         Font font=new Font();
-        font.setSize(11);
         font.setStyle(Font.BOLD);
         chunk.setFont(font);
         paragraph.add(chunk);
@@ -74,25 +75,25 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
         paragraph.add(Chunk.NEWLINE);
 
-        font.setSize(11);
+        font.setSize(14);
         Chunk chunk2=new Chunk("MY BANK ACCOUNT DETAILS IS AS FOLLOWS:-");
+        font.setSize(10);
         chunk2.setFont(font);
         paragraph.add(chunk2);
 
         LineSeparator separator=new LineSeparator();
-        separator.setPercentage(50f);
+        separator.setPercentage(48f);
         separator.setAlignment(LineSeparator.ALIGN_LEFT);
-        separator.setOffset(-3f);
+        separator.setOffset(-2f);
         separator.setLineWidth(0.5f);
         paragraph.add(separator);
 
         paragraph.add(Chunk.NEWLINE);
 
-        Font font2=new Font();
-        font2.setSize(11);
-        font.setSize(10);
         Chunk chunk3=new Chunk("A/C NO:- ");
-        chunk3.setFont(font2);
+        Font font_key=new Font();
+        font_key.setSize(11);
+        chunk3.setFont(font_key);
         paragraph.add(chunk3);
 
         Chunk chunk4=new Chunk("218810100027989");
@@ -102,7 +103,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk5=new Chunk("IFSC CODE:- ");
-        chunk5.setFont(font2);
+        chunk5.setFont(font_key);
         paragraph.add(chunk5);
 
         Chunk chunk6=new Chunk("ANDB0002188");
@@ -112,7 +113,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk7=new Chunk("BANK NAME:- ");
-        chunk7.setFont(font2);
+        chunk7.setFont(font_key);
         paragraph.add(chunk7);
 
         Chunk chunk8=new Chunk("ANDHRA BANK");
@@ -122,7 +123,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk9=new Chunk("BANK ADDRESS:-  ");
-        chunk9.setFont(font2);
+        chunk9.setFont(font_key);
         paragraph.add(chunk9);
 
         Chunk chunk10=new Chunk("SHALIMAR BAGH, DELHI - 110088");
@@ -132,37 +133,25 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk chunk11=new Chunk("A/C HOLDER NAME:- ");
-        chunk11.setFont(font2);
+        chunk11.setFont(font_key);
         paragraph.add(chunk11);
 
         Chunk chunk12=new Chunk("SHUBHAM KUMAR");
         chunk12.setFont(font);
-        paragraph.add(chunk12);
 
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
-        paragraph.add(Chunk.NEWLINE);
+        Chunk chunk13=new Chunk("                                            SIGNATURE");
+        Font signature_font=new Font();
+        signature_font.setSize(11);
+        chunk13.setFont(signature_font);
+
+        paragraph.add(chunk12);
+        paragraph.add(chunk13);
 
         document.add(paragraph);
 
-        Paragraph paragraph2=new Paragraph();
-        paragraph2.setAlignment(Element.ALIGN_BOTTOM);
-        paragraph2.setIndentationLeft(400);
-        Chunk chunk13=new Chunk("SIGNATURE");
-        chunk13.setFont(font);
-        paragraph2.add(chunk13);
-
-        document.add(paragraph2);
-
     }
 
-    private void addParticulers(String previous_balance,Set<Transection> particulars,Bill bill) throws Exception {
+    private void addParticulers(String previous_balance, List<Transection> particulars, Bill bill) throws Exception {
         Paragraph paragraph=new Paragraph();
 
         PdfPTable table = new PdfPTable(new float[] { 3, 1 });
@@ -177,7 +166,7 @@ public class BillGenerator {
         Font font=new Font();
         font.setSize(10);
         if(Integer.parseInt(previous_balance)>0) {
-            Phrase phrase=new Phrase("Opening Balance");
+            Phrase phrase=new Phrase("OPENING BALANCE");
             phrase.setFont(font);
             PdfPCell perticular_for_previous_balance = new PdfPCell(phrase);
             perticular_for_previous_balance.setHorizontalAlignment(Element.ALIGN_LEFT);
@@ -196,7 +185,7 @@ public class BillGenerator {
             table.addCell(perticular_for_previous_amount);
         }
         Integer total=Integer.parseInt(previous_balance);
-
+        Collections.reverse(particulars);
         for (Transection transection:particulars){
             Phrase phrase=new Phrase(transection.getDesc());
             phrase.setFont(font);
@@ -208,7 +197,6 @@ public class BillGenerator {
             table.addCell(perticular);
 
             Phrase amount_phrase=new Phrase();
-            amount_phrase.setFont(font);
             if(transection.getTransecType().equals("Credit")){
                 amount_phrase.add("- "+transection.getAmount()+"");
                 total-=transection.getAmount();
@@ -216,7 +204,7 @@ public class BillGenerator {
                 amount_phrase.add(transection.getAmount()+"");
                 total+=transection.getAmount();
             }
-
+            amount_phrase.setFont(font);
             PdfPCell amount=new PdfPCell(amount_phrase);
             amount.setHorizontalAlignment(Element.ALIGN_CENTER);
             amount.setVerticalAlignment(Element.ALIGN_CENTER);
@@ -314,7 +302,8 @@ public class BillGenerator {
 
     private void addClientDetails(String clientName,String address) throws DocumentException{
         Font font=new Font();
-        font.setSize(10);
+        font.setSize(12);
+        font.setStyle(Font.BOLD);
         Paragraph paragraph=new Paragraph();
         paragraph.setIndentationLeft(50);
         paragraph.add(Chunk.NEWLINE);
@@ -345,7 +334,7 @@ public class BillGenerator {
         Font font=new Font();
         font.setStyle(Font.BOLD);
         font.setSize(10);
-        Chunk chunk=new Chunk("Bill for Professional Fee");
+        Chunk chunk=new Chunk("BILL FOR PROFESSIONAL FEE");
         chunk.setFont(font);
         paragraph.add(chunk);
 
@@ -359,7 +348,7 @@ public class BillGenerator {
         paragraph.add(Chunk.NEWLINE);
 
         Chunk ch=new Chunk();
-        ch.append("PERTICULERS                                                                                            AMOUNT(Rs)");
+        ch.append("PERTICULERS                                                                                               AMOUNT(Rs)");
         ch.setFont(font);
         paragraph.add(ch);
 

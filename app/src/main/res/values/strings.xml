@@ -128,4 +128,9 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="remove">Remove</string>
+    <string name="apply">Apply</string>
+    <string name="select_type">Select Type:</string>
+    <string name="select_interval">Select Interval:</string>
+    <string name="apply_filter">Apply Filter</string>
 </resources>

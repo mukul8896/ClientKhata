@@ -1,22 +1,23 @@
 package db_services;
 
+import android.os.Build;
 import android.util.Log;
 
-import com.mukul.client_billing_activity.GeneratedBillFragment;
+import androidx.annotation.RequiresApi;
+
 import com.mukul.client_billing_activity.MainActivity;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import BeanClasses.Bill;
 import BeanClasses.Client;
@@ -26,10 +27,6 @@ public class DBServices {
 
     public static void addClient(String name,String adress,String contact) throws Exception {
         try{
-            if(!name.matches("[0-9a-zA-Z\\s.-]+"))
-                throw new Exception("Invalid Name !!");
-            if(!contact.matches("[+]?[0-9\\s]+"))
-                throw new Exception("Invalid Contact number");
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
             stm.executeUpdate("insert into Client (ClientName,Address,ContactNo) " +
@@ -43,10 +40,6 @@ public class DBServices {
 
     public static void updateClient(String name,String adress,String contact,Integer id) throws Exception {
         try{
-            if(!name.matches("[0-9a-zA-Z\\s.-]+"))
-                throw new Exception("Invalid Name !!");
-            if(!contact.matches("[+]?[0-9\\s]+"))
-                throw new Exception("Invalid Contact number");
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
             stm.executeUpdate("UPDATE Client SET Client.ClientName = '"+name+"', Client.Address = '"+adress+"', Client.ContactNo = '"+contact+"' WHERE Client.ClientID="+id+"");
@@ -57,19 +50,23 @@ public class DBServices {
         }
     }
 
-    public static List<Client> getClientsList() throws Exception {
+    public static List<Client> getClientsList(String interval) throws Exception {
         List<Client> clientList=new ArrayList<>();
         try {
+            String query="select * from Client order by ClientName";
             Connection con = DBConnect.getConnection();
             Statement st=con.createStatement();
             ResultSet rs=st.executeQuery("select * from Client order by ClientName");
             while (rs.next()){
                 Client client=new Client();
-                client.setName(rs.getString("ClientName"));
-                client.setBalance(rs.getInt("Balance"));
                 client.setId(rs.getInt("ClientID"));
+                client.setName(rs.getString("ClientName"));
                 client.setAddress(rs.getString("Address"));
                 client.setContact(rs.getString("ContactNo"));
+                if(interval.equals("all")) {
+                    client.setBalance(rs.getInt("Balance"));
+                }else
+                    client.setBalance(getClientBalanceWithinInterval(rs.getInt("ClientID"),interval));
                 clientList.add(client);
             }
             Log.i(MainActivity.class.getSimpleName(), "");
@@ -196,7 +193,7 @@ public class DBServices {
                 transection.setDesc(rs.getString("Description"));
                 transection.setAmount(rs.getInt("Amount"));
 
-                SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat=new SimpleDateFormat("MMMM dd, yyyy");
                 Date date=simpleDateFormat.parse(rs.getString("TransectionDate"));
                 transection.setDate(date);
 
@@ -230,10 +227,6 @@ public class DBServices {
 
     public static void updateTransection(Integer amount, Integer trasectionId, String desc, String date,String type,Integer clientId) throws Exception{
         try{
-            if(!date.matches("[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}"))
-                throw new Exception("Invalid date formate!!");
-            if(!type.equals("Credit") && !type.equals("Debit"))
-                throw new Exception("Invalid transection type");
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
             stm.executeUpdate("UPDATE ClientTransection SET " +
@@ -294,7 +287,7 @@ public class DBServices {
             while (rs.next()) {
                 transection.setTransecId(rs.getInt("TransectionID"));
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 Date date = simpleDateFormat.parse(rs.getString("TransectionDate"));
                 transection.setDate(date);
 
@@ -330,7 +323,7 @@ public class DBServices {
 
     public static Integer getPreviousBalance(Integer clientId,Date from_date) throws Exception {
         try{
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
             int total_balance=0;
             Connection con=DBConnect.getConnection();
             Statement stm=con.createStatement();
@@ -351,8 +344,8 @@ public class DBServices {
             throw new Exception("Erro in previus balance !!");
         }
     }
-    public static Set<Transection> getParticulars(Integer clientId,Date from_date,Date to_date) throws Exception {
-        Set<Transection> transections=new LinkedHashSet<>();
+    public static List<Transection> getParticulars(Integer clientId,Date from_date,Date to_date) throws Exception {
+        List<Transection> transections=new ArrayList<>();
         try{
             int total_balance=0;
             Connection con=DBConnect.getConnection();
@@ -361,7 +354,7 @@ public class DBServices {
             ResultSet rs=stm.executeQuery(query);
             while (rs.next()){
                 Transection tr = new Transection();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 Date transectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
                 if((transectiondate.after(from_date) && transectiondate.before(to_date))
                         || isEqual(transectiondate, from_date)
@@ -375,6 +368,7 @@ public class DBServices {
                     transections.add(tr);
                 }
             }
+            Collections.sort(transections);
             return transections;
         }catch (Exception ex){
             ex.printStackTrace();
@@ -385,7 +379,7 @@ public class DBServices {
         try{
             Connection con= DBConnect.getConnection();
             Statement stm=con.createStatement();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
             String from=simpleDateFormat.format(bill.getFrom_date());
             String to=simpleDateFormat.format(bill.getTo_date());
             stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate,IsShared) " +
@@ -417,7 +411,7 @@ public class DBServices {
                 Bill bill=new Bill();
                 bill.setBillId(rs.getInt("BillID"));
                 bill.setBill_no(rs.getInt("BillNo"));
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
                 bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
                 bill.setBill_year(rs.getString("FinancialYear"));
@@ -477,7 +471,7 @@ public class DBServices {
             while (rs.next()){
                 bill.setBillId(rs.getInt("BillID"));
                 bill.setBill_no(rs.getInt("BillNo"));
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
                 bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
                 bill.setBill_year(rs.getString("FinancialYear"));
@@ -508,7 +502,7 @@ public class DBServices {
             ResultSet rs=stm.executeQuery(query);
             while (rs.next()){
                 Transection tr = new Transection();
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
                 Date transectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
                     tr.setDate(transectiondate);
                     tr.setTransecId(rs.getInt("TransectionID"));
@@ -521,6 +515,33 @@ public class DBServices {
             }
             Collections.sort(transections);
             return transections;
+        }catch (Exception ex){
+            ex.printStackTrace();
+            throw new Exception("Erro in previus balance !!");
+        }
+    }
+    public static Integer getClientBalanceWithinInterval(Integer clientID, String interval) throws Exception {
+        try{
+            int total_balance=0;
+            Connection con=DBConnect.getConnection();
+            Statement stm=con.createStatement();
+            String query="select * from ClientTransection where ClientID='"+clientID+"'";
+            ResultSet rs=stm.executeQuery(query);
+            while (rs.next()){
+                String[] monthNames = {"January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+                Date transectiondate = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                Calendar calender = Calendar.getInstance();
+                calender.setTime(transectiondate);
+                if(monthNames[calender.get(Calendar.MONTH)].equals(interval)){
+                    if(rs.getString("TransectionType").equals("Credit"))
+                        total_balance+=rs.getInt("Amount");
+                    else
+                        total_balance-=rs.getInt("Amount");
+                }
+            }
+            return total_balance;
         }catch (Exception ex){
             ex.printStackTrace();
             throw new Exception("Erro in previus balance !!");

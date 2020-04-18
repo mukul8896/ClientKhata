@@ -19,7 +19,6 @@ public class ClientActivity extends AppCompatActivity {
     private PageAdapter pageAdapter;
     private Integer client_id;
     private ActionBar toolbar;
-    private TextView contact_txt;
     private TextView address_txt;
     private TextView name_txt;
     private Client client;
@@ -35,9 +34,7 @@ public class ClientActivity extends AppCompatActivity {
         toolbar.setDisplayHomeAsUpEnabled(false);
 
         name_txt=(TextView)findViewById(R.id.client_name_data);
-        contact_txt=(TextView)findViewById(R.id.client_contact_data);
         address_txt=(TextView)findViewById(R.id.client_address_data);
-        contact_txt.setText(client.getContact());
         address_txt.setText(client.getAddress());
         name_txt.setText(client.getName());
 
