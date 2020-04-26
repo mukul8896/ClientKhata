@@ -1,7 +1,6 @@
 package BeanClasses;
 
 import java.util.Date;
-import java.util.Map;
 
 public class Bill {
     private Integer billId;
@@ -20,7 +19,9 @@ public class Bill {
         this.bill_year = bill_year;
     }
 
-    public String getBill_year() { return bill_year; }
+    public String getBill_year() {
+        return bill_year;
+    }
 
     public void setClient_id(Integer client_id) {
         this.client_id = client_id;
@@ -38,7 +39,10 @@ public class Bill {
         return from_date;
     }
 
-    public void setFrom_date(Date from_date) { this.from_date = from_date; }
+    public void setFrom_date(Date from_date) {
+        this.from_date = from_date;
+    }
+
     public Date getTo_date() {
         return to_date;
     }
@@ -51,7 +55,7 @@ public class Bill {
         isBillShared = billShared;
     }
 
-    public boolean getBillShared(){
+    public boolean getBillShared() {
         return isBillShared;
     }
 

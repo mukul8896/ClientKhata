@@ -4,101 +4,109 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".ClientActivity"
+    android:background="@drawable/transection_list_item"
     android:orientation="vertical"
     android:padding="5dp"
-    android:background="@drawable/transection_list_item"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ClientActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/date"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="15sp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/na"
-            android:id="@+id/transection_date"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textSize="15sp"
-            android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:text="@string/date"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/transection_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:layout_weight="@android:integer/status_bar_notification_info_maxnum"
+                    android:text="@string/na"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:text="@string/amount"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/transection_amount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:text="@string/na"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/debit_credit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="3sp"
+                    android:layout_marginTop="5dp"
+                    android:text="@string/dr" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:text="@string/description"
+                    android:textColor="@color/cardview_dark_background"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/transection_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5sp"
+                    android:layout_marginTop="5sp"
+                    android:layout_marginBottom="5sp"
+                    android:text="@string/na"
+                    android:textSize="15sp" />
+            </LinearLayout>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/is_transection_billed"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="10sp" />
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/amount"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="15sp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/na"
-            android:id="@+id/transection_amount"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textSize="15sp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/debit_credit"
-            android:text="@string/dr"
-            android:layout_marginStart="3sp"
-            android:layout_marginTop="5dp"/>
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/description"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textColor="@color/cardview_dark_background"
-            android:textSize="15sp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/na"
-            android:id="@+id/transection_desc"
-            android:layout_marginStart="5sp"
-            android:layout_marginTop="5sp"
-            android:textSize="15sp"
-            android:layout_marginBottom="5sp"/>
-    </LinearLayout>
-    </LinearLayout>
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <ImageView
-        android:layout_width="15dp"
-        android:layout_height="15dp"
-        android:layout_gravity="center"
-        android:id="@+id/is_transection_billed"
-        android:layout_marginEnd="10sp"/>
- </LinearLayout>
 </LinearLayout>
