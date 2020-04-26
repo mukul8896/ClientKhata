@@ -45,7 +45,6 @@ public class GeneratedBillFragment extends Fragment {
     private String mParam2;
     private Integer client_id;
     private List<Bill> bill_list;
-    private ListView listView;
     private BillListAdapder adapter;
     private int index;
     private Dialog dialog;
@@ -79,13 +78,13 @@ public class GeneratedBillFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generated_bill, container, false);
-        listView = (ListView) rootView.findViewById(R.id.bill_listview);
+        ListView listView = (ListView) rootView.findViewById(R.id.bill_listview);
         adapter = new BillListAdapder(getActivity().getApplicationContext(), R.layout.bill_list_item, bill_list);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openFile(position);
+                openPdfFile(position);
             }
         });
 
@@ -140,13 +139,13 @@ public class GeneratedBillFragment extends Fragment {
         if (id == R.id.share) {
             BillUtils utils = new BillUtils(bill_list.get(index));
             try {
-                utils.shareFile(getActivity().getApplicationContext());
+                utils.sharePdfFile(getActivity());
             } catch (Exception e) {
                 e.printStackTrace();
-                Toast.makeText(getActivity().getApplicationContext(), "Some error occured: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Some error occured: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.edit_bill) {
-            Intent intent = new Intent(getActivity().getApplicationContext(),
+            Intent intent = new Intent(getActivity(),
                     BillEditActivity.class);
             intent.putExtra("bill_id", bill_list.get(index).getBillId());
             startActivity(intent);
@@ -160,9 +159,9 @@ public class GeneratedBillFragment extends Fragment {
         getActivity().getMenuInflater().inflate(R.menu.bill_list_menu, menu);
     }
 
-    public void openFile(int index) {
+    public void openPdfFile(int index) {
         BillUtils utils = new BillUtils(bill_list.get(index));
-        utils.openFile(getActivity().getApplicationContext());
+        utils.openPdfFile(getActivity());
     }
 
     private class PDFGenerationTask extends AsyncTask<String, String, String> {

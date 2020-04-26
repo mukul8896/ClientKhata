@@ -57,13 +57,14 @@ public class ClientDbServices {
                 client.setContact(rs.getString("ContactNo"));
                 if (interval.equals("all")) {
                     client.setBalance(rs.getInt("Balance"));
+                    clientList.add(client);
                 } else {
                     Integer balance = getClientBalanceWithinInterval(rs.getInt("ClientID"), interval, filter_type);
-                    if (balance > 0)
+                    if (balance > 0) {
                         client.setBalance(balance);
+                        clientList.add(client);
+                    }
                 }
-
-                clientList.add(client);
             }
             Log.i(MainActivity.class.getSimpleName(), "");
             con.close();

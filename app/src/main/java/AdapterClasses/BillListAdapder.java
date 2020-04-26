@@ -48,8 +48,6 @@ public class BillListAdapder extends ArrayAdapter<Bill> {
 
         bill_from_date.setText(fmt.format(bill.getFrom_date()));
         bill_to_date.setText(fmt.format(bill.getTo_date()));
-        if (bill.getBillShared())
-            img.setBackgroundResource(R.drawable.green_tick);
         return view;
     }
 }

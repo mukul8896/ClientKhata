@@ -1,5 +1,6 @@
 package com.mukul.client_billing_activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -24,12 +25,14 @@ public class ClientActivity extends AppCompatActivity {
     private TextView address_txt;
     private TextView name_txt;
     private Client client;
+    private String password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.client_activity);
         client_id = getIntent().getIntExtra("id", 0);
+        password = getIntent().getStringExtra("app_password");
         client = ClientDbServices.getClient(client_id);
 
         toolbar = getSupportActionBar();
@@ -63,14 +66,11 @@ public class ClientActivity extends AppCompatActivity {
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
-
     }
 }

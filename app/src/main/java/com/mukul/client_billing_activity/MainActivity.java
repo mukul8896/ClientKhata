@@ -3,19 +3,23 @@ package com.mukul.client_billing_activity;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -23,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.CollapsibleActionView;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -48,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private int total_bal;
     private static String interval = "all";
     private static String filter_type = "Balance";
+    private int backButtoncount=1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,55 +61,65 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Log.i(MainActivity.class.getSimpleName(), "In onCreate");
 
         /* requesting permission for application */
         requestPermission();
 
-        total_balance = (TextView) findViewById(R.id.total_balance);
-        listView = findViewById(R.id.client_list);
-        try {
-            clientsList = ClientDbServices.getClientsList("all", "Balance");
-            Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-            total_bal = getTotalBalance(clientsList);
-            if (total_bal < 0) {
-                total_bal = total_bal * -1;
-                total_balance.setText("(" + total_bal + " Rs)");
-            } else
-                total_balance.setText(total_bal + " Rs");
-            adapter = new ClientListAdapter(this, R.layout.client_list_item, clientsList);
-            listView.setAdapter(adapter);
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+        String intent_password=getIntent().getStringExtra("app_password");
+        String password = getPreferences(Context.MODE_PRIVATE).getString("app_password", "");
+        if (password == null || password.equals("")) {
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View view = inflater.inflate(R.layout.create_password_dialoge, null);
+
+            EditText pass1 = view.findViewById(R.id.new_password);
+            EditText pass2 = view.findViewById(R.id.confirm_password);
+            TextView submit = view.findViewById(R.id.create_password_submit);
+
+            alertDialog.setView(view);
+            alertDialog.setTitle("Create Password");
+            alertDialog.setCancelable(false);
+            alertDialog.show();
+
+            submit.setOnClickListener(v -> {
+                if (pass1.getText().toString().equals(pass2.getText().toString())) {
+                    SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+                    editor.putString("app_password", pass2.getText().toString());
+                    editor.apply();
+                    MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
+                    mainUiLoadAsynkTask.execute();
+                    alertDialog.dismiss();
+                } else {
+                    Toast.makeText(this, "Password doesn't match", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View view = inflater.inflate(R.layout.enter_password_dialoge, null);
+            EditText pass = view.findViewById(R.id.enter_password);
+            TextView submit = view.findViewById(R.id.password_submit);
+            alertDialog.setView(view);
+            alertDialog.setTitle("Enter Password");
+            alertDialog.setCancelable(false);
+
+            if(intent_password!=null && intent_password.equals(password)){
+                MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
+                mainUiLoadAsynkTask.execute();
+            }else {
+                alertDialog.show();
+            }
+
+            submit.setOnClickListener(v -> {
+                if (pass.getText().toString().equals(password)) {
+                    MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
+                    mainUiLoadAsynkTask.execute();
+                    alertDialog.dismiss();
+                } else
+                    Toast.makeText(this, "Wrong Password !!", Toast.LENGTH_SHORT).show();
+            });
         }
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(MainActivity.this,
-                        ClientActivity.class);
-                intent.putExtra("id", clientsList.get(position).getId());
-                Log.i(MainActivity.class.getSimpleName(), "Client clicked");
-                startActivity(intent);
-            }
-        });
-
-        registerForContextMenu(listView);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                index = position;
-                return false;
-            }
-        });
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this,
-                        AddClientAvtivity.class);
-                startActivity(intent);
-            }
-        });
 
     }
 
@@ -111,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         MenuItem item = menu.findItem(R.id.action_search);
+
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setQueryHint("Enter Client Name...");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -118,16 +135,19 @@ public class MainActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
-                List<Client> searchclientsList = new ArrayList<>();
+                if(!newText.isEmpty())
+                    backButtoncount=0;
+                List<Client> filteredClientList=new ArrayList<>();
                 for (Client client : clientsList) {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
-                        searchclientsList.add(client);
+                        filteredClientList.add(client);
                 }
-                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, searchclientsList);
+                clientsList=filteredClientList;
+                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, filteredClientList);
                 listView.setAdapter(adapter);
+                Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
                 return true;
             }
         });
@@ -193,6 +213,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
             dialog.show();
+            return true;
+        }else if(item.getItemId()==R.id.action_search){
+            Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
             return true;
         }
         return true;
@@ -260,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.i(MainActivity.class.getSimpleName(), "In restart");
+        Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
             clientsList = ClientDbServices.getClientsList(interval, filter_type);
             int total_bal = getTotalBalance(clientsList);
@@ -274,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
             listView.setAdapter(adapter);
         } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
         }
     }
 
@@ -364,5 +387,91 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Some error while filtering data !!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private class MainUiLoadAsynkTask extends AsyncTask<String, String, String> {
+        ProgressDialog progressDoalog;
+
+        @Override
+        protected void onPreExecute() {
+            progressDoalog = new ProgressDialog(MainActivity.this);
+            progressDoalog.setMax(100);
+            progressDoalog.setMessage("Its loading....");
+            progressDoalog.setTitle("Fetching data from database...");
+            progressDoalog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDoalog.show();
+
+            total_balance = (TextView) findViewById(R.id.total_balance);
+            listView = findViewById(R.id.client_list);
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                clientsList = ClientDbServices.getClientsList("all", "Balance");
+                Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
+                total_bal = getTotalBalance(clientsList);
+                return "success";
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "not success";
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            if (s.equals("success")) {
+                progressDoalog.dismiss();
+                if (total_bal < 0) {
+                    total_bal = total_bal * -1;
+                    total_balance.setText("(" + total_bal + " Rs)");
+                } else
+                    total_balance.setText(total_bal + " Rs");
+                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(MainActivity.this,
+                                ClientActivity.class);
+                        intent.putExtra("id", clientsList.get(position).getId());
+                        intent.putExtra("app_password", getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+                        startActivity(intent);
+                    }
+                });
+                registerForContextMenu(listView);
+                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                        index = position;
+                        return false;
+                    }
+                });
+                FloatingActionButton fab = findViewById(R.id.fab);
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(MainActivity.this,
+                                AddClientAvtivity.class);
+                        intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+                        startActivity(intent);
+                    }
+                });
+            } else {
+                progressDoalog.dismiss();
+                Toast.makeText(MainActivity.this, "Some error while fetching data ||", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(backButtoncount==0) {
+            onRestart();
+            backButtoncount+=1;
+        }else{
+            super.onBackPressed();
+        }
+        Log.i(MainActivity.class.getSimpleName(),"In Back button");
     }
 }

@@ -26,6 +26,7 @@ public class AddClientAvtivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_client);
 
+        String password=getIntent().getStringExtra("password");
         Bundle bundle = getIntent().getBundleExtra("data");
         if (bundle != null) {
             modes = bundle.getString("mode");
@@ -57,6 +58,7 @@ public class AddClientAvtivity extends AppCompatActivity {
                     Toast.makeText(AddClientAvtivity.this, "Done !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
                             MainActivity.class);
+                    intent.putExtra("app_password",password);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } catch (Exception e) {
