@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     private int index;
     private ClientListAdapter adapter;
     private TextView total_balance;
+    private  TextView total_fee;
     private static final int storage_request_code = 1;
     private int total_bal;
     private static String interval = "all";
@@ -120,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Wrong Password !!", Toast.LENGTH_SHORT).show();
             });
         }
-
     }
 
     @Override
@@ -215,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
             dialog.show();
             return true;
         }else if(item.getItemId()==R.id.action_search){
-            Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
             return true;
         }
         return true;
@@ -242,18 +241,11 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Log.i(MainActivity.class.getSimpleName(), "delete alert submited");
                         ClientDbServices.deleteClient(clientsList.get(index).getId());
-                        //int client_bal=clientsList.get(index).getBalance();
                         clientsList.remove(index);
                         adapter.notifyDataSetChanged();
-                        Log.i(MainActivity.class.getSimpleName(), "list notified");
-                        //clientsList=DBServices.getClientsList();
                         Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-                        total_bal = getTotalBalance(clientsList);
-                        if (total_bal < 0) {
-                            total_bal = total_bal * -1;
-                            total_balance.setText("(" + total_bal + " Rs)");
-                        } else
-                            total_balance.setText(total_bal + " Rs");
+                        total_balance.setText(getTotalBalance(clientsList));
+                        total_fee.setText(getTotalFee(clientsList));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -272,6 +264,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this,
                     AddClientAvtivity.class);
             Bundle data = new Bundle();
+            intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
             data.putString("mode", "Edit");
             data.putInt("id", clientsList.get(index).getId());
             intent.putExtra("data", data);
@@ -286,18 +279,29 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
             clientsList = ClientDbServices.getClientsList(interval, filter_type);
-            int total_bal = getTotalBalance(clientsList);
-            if (total_bal < 0) {
-                total_bal = total_bal * -1;
-                total_balance.setText("(" + total_bal + " Rs)");
-            } else
-                total_balance.setText(total_bal + " Rs");
+            total_balance.setText(getTotalBalance(clientsList));
+            total_fee.setText(getTotalFee(clientsList));
             if (listView == null)
                 listView = findViewById(R.id.client_list);
             adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
             listView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case storage_request_code: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission was granted from popup, call savepdf method
+                    ProjectUtil.createDirectoryFolder();
+                } else {
+                    //permission was denied from popup, show error message
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
@@ -320,27 +324,24 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private int getTotalBalance(List<Client> list) {
+    private String getTotalBalance(List<Client> list) {
         int total = 0;
         for (Client client : list) {
             total += client.getBalance();
         }
-        return total;
+        if (total < 0) {
+            total = total * -1;
+            return "("+total +")";
+        } else
+            return total+"";
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case storage_request_code: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //permission was granted from popup, call savepdf method
-                    ProjectUtil.createDirectoryFolder();
-                } else {
-                    //permission was denied from popup, show error message
-                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private String getTotalFee(List<Client> list){
+        int total = 0;
+        for (Client client : list) {
+            total += client.getFee();
         }
+        return total+"";
     }
 
     private class FilterAsyncTask extends AsyncTask<String, String, String> {
@@ -371,12 +372,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
-                int total_bal = getTotalBalance(clientsList);
-                if (total_bal < 0) {
-                    total_bal = total_bal * -1;
-                    total_balance.setText("(" + total_bal + " Rs)");
-                } else
-                    total_balance.setText(total_bal + " Rs");
+                total_balance.setText(getTotalBalance(clientsList));
                 if (listView == null)
                     listView = findViewById(R.id.client_list);
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
@@ -402,6 +398,7 @@ public class MainActivity extends AppCompatActivity {
             progressDoalog.show();
 
             total_balance = (TextView) findViewById(R.id.total_balance);
+            total_fee=(TextView)findViewById(R.id.total_fee);
             listView = findViewById(R.id.client_list);
         }
 
@@ -410,7 +407,6 @@ public class MainActivity extends AppCompatActivity {
             try {
                 clientsList = ClientDbServices.getClientsList("all", "Balance");
                 Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-                total_bal = getTotalBalance(clientsList);
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -422,11 +418,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
                 progressDoalog.dismiss();
-                if (total_bal < 0) {
-                    total_bal = total_bal * -1;
-                    total_balance.setText("(" + total_bal + " Rs)");
-                } else
-                    total_balance.setText(total_bal + " Rs");
+                total_balance.setText(getTotalBalance(clientsList));
+                total_fee.setText(getTotalFee(clientsList));
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

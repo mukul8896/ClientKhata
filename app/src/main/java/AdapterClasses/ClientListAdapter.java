@@ -43,9 +43,9 @@ public class ClientListAdapter extends ArrayAdapter<Client> {
         int client_balance = client.getBalance();
         if (client_balance < 0) {
             client_balance = client_balance * -1;
-            clientBalance_txt.setText("(" + client_balance + " Rs)");
+            clientBalance_txt.setText("(" + client_balance + ")");
         } else {
-            clientBalance_txt.setText(client_balance + " Rs");
+            clientBalance_txt.setText(client_balance+"");
         }
         if (client_balance == 0) {
             clientBalance_txt.setTextColor(view.getResources().getColor(R.color.text_black));

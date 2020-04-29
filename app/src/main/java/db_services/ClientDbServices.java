@@ -17,12 +17,12 @@ import BeanClasses.Client;
 
 public class ClientDbServices {
 
-    public static void addClient(String name, String adress, String contact) throws Exception {
+    public static void addClient(String name, String adress,Integer fee,String contact) throws Exception {
         try {
             Connection con = DBConnect.getConnection();
             Statement stm = con.createStatement();
-            stm.executeUpdate("insert into Client (ClientName,Address,ContactNo) " +
-                    "values ('" + name + "','" + adress + "','" + contact + "')");
+            stm.executeUpdate("insert into Client (ClientName,Address,ContactNo,ClientFee) " +
+                    "values ('" + name + "','" + adress + "','" + contact + "','"+fee+"')");
             con.commit();
             con.close();
         } catch (Exception e) {
@@ -30,11 +30,11 @@ public class ClientDbServices {
         }
     }
 
-    public static void updateClient(String name, String adress, String contact, Integer id) throws Exception {
+    public static void updateClient(String name, String adress,Integer fee,String contact, Integer id) throws Exception {
         try {
             Connection con = DBConnect.getConnection();
             Statement stm = con.createStatement();
-            stm.executeUpdate("UPDATE Client SET Client.ClientName = '" + name + "', Client.Address = '" + adress + "', Client.ContactNo = '" + contact + "' WHERE Client.ClientID=" + id + "");
+            stm.executeUpdate("UPDATE Client SET Client.ClientName = '" + name + "', Client.Address = '" + adress + "', Client.ContactNo = '" + contact + "', Client.ClientFee = '"+fee+"' WHERE Client.ClientID=" + id + "");
             con.commit();
             con.close();
         } catch (Exception e) {
@@ -55,6 +55,7 @@ public class ClientDbServices {
                 client.setName(rs.getString("ClientName"));
                 client.setAddress(rs.getString("Address"));
                 client.setContact(rs.getString("ContactNo"));
+                client.setFee(rs.getInt("ClientFee"));
                 if (interval.equals("all")) {
                     client.setBalance(rs.getInt("Balance"));
                     clientList.add(client);
@@ -103,6 +104,7 @@ public class ClientDbServices {
                 client.setName(rs.getString("ClientName"));
                 client.setAddress(rs.getString("Address"));
                 client.setContact(rs.getString("ContactNo"));
+                client.setFee(rs.getInt("ClientFee"));
                 Log.i(ClientDbServices.class.getSimpleName(), rs.getString("ContactNo"));
             }
             Log.i(MainActivity.class.getSimpleName(), "");

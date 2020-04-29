@@ -20,9 +20,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/add_transection"
+        android:textStyle="bold"
+        android:textColor="@color/calendar_bg"
         android:id="@+id/add_transection_btn"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="5dp"
         android:layout_marginLeft="10dp"
         android:background="@drawable/drawable_add_transec_btn"
         android:textSize="@dimen/add_transection_button_text" />

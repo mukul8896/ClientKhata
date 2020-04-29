@@ -4,6 +4,7 @@ public class Client {
     String name;
     String address;
     String contact;
+    Integer fee;
     Integer balance;
     Integer id;
 
@@ -45,5 +46,13 @@ public class Client {
 
     public void setBalance(Integer balance) {
         this.balance = balance;
+    }
+
+    public Integer getFee() {
+        return fee;
+    }
+
+    public void setFee(Integer fee) {
+        this.fee = fee;
     }
 }
