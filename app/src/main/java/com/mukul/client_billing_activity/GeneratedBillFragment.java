@@ -28,6 +28,7 @@ import BeanClasses.Bill;
 import billing_services.BillGenerator;
 import db_services.BillDbServices;
 import utils.BillUtils;
+import utils.GeneralUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -185,7 +186,7 @@ public class GeneratedBillFragment extends Fragment {
 
                 bill.setClient_id(client_id);
 
-                String financial_year = getFinancialYear(to_date);
+                String financial_year = GeneralUtils.getFinancialYear(to_date);
                 bill.setBill_year(financial_year);
                 bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
 
@@ -209,23 +210,5 @@ public class GeneratedBillFragment extends Fragment {
                 Toast.makeText(getActivity(), "Some error while bill generation !!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public String getFinancialYear(Date date) {
-        String year1 = "";
-        String year2 = "";
-        Calendar cal_date = Calendar.getInstance();
-        cal_date.set(Calendar.YEAR, date.getYear() + 1900);
-        cal_date.set(Calendar.MONTH, date.getMonth());
-        cal_date.set(Calendar.DAY_OF_MONTH, date.getDate());
-        if (cal_date.get(Calendar.MONTH) > 2 && cal_date.get(Calendar.MONTH) <= 11) {
-            year1 = Integer.toString(cal_date.get(Calendar.YEAR));
-            year2 = Integer.toString(cal_date.get(Calendar.YEAR) + 1);
-        } else if (cal_date.get(Calendar.MONTH) >= 0 && cal_date.get(Calendar.MONTH) <= 2) {
-            year1 = Integer.toString(cal_date.get(Calendar.YEAR) - 1);
-            year2 = Integer.toString(cal_date.get(Calendar.YEAR));
-        }
-        Log.i(GeneratedBillFragment.class.getSimpleName(), year1 + ":" + year2);
-        return year1 + "-" + year2.substring(2, year2.length());
     }
 }

@@ -27,6 +27,7 @@ public class BillDbServices {
                 bill_no = rs.getInt("BillNo");
                 return bill_no;
             }
+            con.close();
         } catch (Exception ex) {
             ex.printStackTrace();
             throw new Exception("Error while getting bill no !!");
@@ -51,6 +52,7 @@ public class BillDbServices {
                         total_balance += rs.getInt("Amount");
                 }
             }
+            con.close();
             return total_balance;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -82,6 +84,7 @@ public class BillDbServices {
                     transections.add(tr);
                 }
             }
+            con.close();
             Collections.sort(transections);
             return transections;
         } catch (Exception ex) {
@@ -136,7 +139,7 @@ public class BillDbServices {
         return bill_list;
     }
 
-    public static void updateBillAsShared(Bill bill) throws Exception {
+    /*public static void updateBillAsShared(Bill bill) throws Exception {
         try {
             Connection con = DBConnect.getConnection();
             Statement stm = con.createStatement();
@@ -150,7 +153,7 @@ public class BillDbServices {
             e.printStackTrace();
             throw new Exception(e.getMessage());
         }
-    }
+    }*/
 
     public static Bill getBill(int bill_id) throws Exception {
         Bill bill = new Bill();
@@ -204,6 +207,7 @@ public class BillDbServices {
                 transections.add(tr);
             }
             Collections.sort(transections);
+            con.close();
             return transections;
         } catch (Exception ex) {
             ex.printStackTrace();

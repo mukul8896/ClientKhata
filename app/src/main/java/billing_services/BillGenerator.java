@@ -211,7 +211,6 @@ public class BillGenerator {
             amount.setFixedHeight(30);
             table.addCell(amount);
             TransectionDbServices.addBillDetailsToTransection(transection, bill);
-
         }
 
         System.out.println("Total Balance " + total);

@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private int total_bal;
     private static String interval = "all";
     private static String filter_type = "Balance";
-    private int backButtoncount=1;
+    private TextView total_value_tag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
-
+    List<Client> filteredClientList=clientsList;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -137,17 +138,13 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(!newText.isEmpty())
-                    backButtoncount=0;
-                List<Client> filteredClientList=new ArrayList<>();
+                filteredClientList = new ArrayList<>();
                 for (Client client : clientsList) {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                clientsList=filteredClientList;
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, filteredClientList);
                 listView.setAdapter(adapter);
-                Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
                 return true;
             }
         });
@@ -214,7 +211,12 @@ public class MainActivity extends AppCompatActivity {
             });
             dialog.show();
             return true;
-        }else if(item.getItemId()==R.id.action_search){
+        }else if(item.getItemId()==R.id.action_summery){
+            Intent intent = new Intent(MainActivity.this,
+                    SummeryActivity.class);
+            intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+            intent.putParcelableArrayListExtra("clientList", (ArrayList<? extends Parcelable>) clientsList);
+            startActivity(intent);
             return true;
         }
         return true;
@@ -279,6 +281,8 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
             clientsList = ClientDbServices.getClientsList(interval, filter_type);
+            if (total_balance == null)
+                total_balance = findViewById(R.id.total_balance);
             total_balance.setText(getTotalBalance(clientsList));
             total_fee.setText(getTotalFee(clientsList));
             if (listView == null)
@@ -361,6 +365,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 clientsList = ClientDbServices.getClientsList(interval, filter_type);
+                filteredClientList=clientsList;
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -372,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
+                total_value_tag.setText("Total "+filter_type);
                 total_balance.setText(getTotalBalance(clientsList));
                 if (listView == null)
                     listView = findViewById(R.id.client_list);
@@ -399,6 +405,8 @@ public class MainActivity extends AppCompatActivity {
 
             total_balance = (TextView) findViewById(R.id.total_balance);
             total_fee=(TextView)findViewById(R.id.total_fee);
+            total_value_tag=(TextView)findViewById(R.id.total_value_id);
+            total_value_tag.setText("Total "+filter_type);
             listView = findViewById(R.id.client_list);
         }
 
@@ -406,6 +414,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 clientsList = ClientDbServices.getClientsList("all", "Balance");
+                filteredClientList=clientsList;
                 Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
                 return "success";
             } catch (Exception e) {
@@ -427,7 +436,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this,
                                 ClientActivity.class);
-                        intent.putExtra("id", clientsList.get(position).getId());
+                        intent.putExtra("id", filteredClientList.get(position).getId());
                         intent.putExtra("app_password", getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
                         startActivity(intent);
                     }
@@ -455,16 +464,5 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Some error while fetching data ||", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(backButtoncount==0) {
-            onRestart();
-            backButtoncount+=1;
-        }else{
-            super.onBackPressed();
-        }
-        Log.i(MainActivity.class.getSimpleName(),"In Back button");
     }
 }

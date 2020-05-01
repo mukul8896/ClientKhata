@@ -36,9 +36,11 @@ public class ClientListAdapter extends ArrayAdapter<Client> {
         TextView clientName_txt = view.findViewById(R.id.client_name);
         TextView clientBalance_txt = view.findViewById(R.id.client_balance);
         TextView balanceTag = view.findViewById(R.id.balance_tag);
+        TextView fee=view.findViewById(R.id.client_fee);
         Client client = clientsList.get(position);
 
         clientName_txt.setText(client.getName());
+        fee.setText(client.getFee()+"");
 
         int client_balance = client.getBalance();
         if (client_balance < 0) {

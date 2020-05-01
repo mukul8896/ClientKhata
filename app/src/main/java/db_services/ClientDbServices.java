@@ -190,6 +190,7 @@ public class ClientDbServices {
                     }
                 }
             }
+            con.close();
             return total_balance;
         } catch (Exception ex) {
             ex.printStackTrace();

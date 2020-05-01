@@ -19,7 +19,6 @@ import db_services.ClientDbServices;
 public class ClientActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private TabItem transectionTab, generatedBillTab;
     private PageAdapter pageAdapter;
     private Integer client_id;
     private ActionBar toolbar;
@@ -47,8 +46,8 @@ public class ClientActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewPager);
-        transectionTab = (TabItem) findViewById(R.id.transection_tab);
-        generatedBillTab = (TabItem) findViewById(R.id.generated_bill_tab);
+        TabItem transectionTab = (TabItem) findViewById(R.id.transection_tab);
+        TabItem generatedBillTab = (TabItem) findViewById(R.id.generated_bill_tab);
 
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(), client_id);
         viewPager.setAdapter(pageAdapter);
