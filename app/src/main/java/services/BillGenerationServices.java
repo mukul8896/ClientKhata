@@ -1,4 +1,4 @@
-package billing_services;
+package services;
 
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
@@ -27,32 +27,31 @@ import db_services.ClientDbServices;
 import db_services.TransectionDbServices;
 import utils.BillUtils;
 
-public class BillGenerator {
+public class BillGenerationServices {
     private Document document;
 
-    public static void generateBill(Bill bill) throws Exception {
+    public void generateBill(Bill bill) throws Exception {
 
-        BillGenerator generator = new BillGenerator();
         BillUtils utils = new BillUtils(bill);
 
-        generator.initializeDocument(utils.getFile(bill.getBill_year()));
+        initializeDocument(utils.getFile(bill.getBill_year()));
 
-        generator.addHearder();
+        addHearder();
 
-        generator.addBillDetails(utils.getBillDetails());
+        addBillDetails(utils.getBillDetails());
 
         Client client = ClientDbServices.getClient(bill.getClient_id());
-        generator.addClientDetails(client.getName(), client.getAddress());
+        addClientDetails(client.getName(), client.getAddress());
 
-        generator.addBillPertucilerHeader();
+        addBillPertucilerHeader();
 
         String previous = BillDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
 
-        generator.addParticulers(previous, utils.getParticulars(), bill);
+        addParticulers(previous, utils.getParticulars(), bill);
 
-        generator.addFooterInfo();
+        addFooterInfo();
 
-        generator.closeDocument();
+        closeDocument();
     }
 
     private void closeDocument() {

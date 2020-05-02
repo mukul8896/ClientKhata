@@ -19,13 +19,12 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import AdapterClasses.BillListAdapder;
 import BeanClasses.Bill;
-import billing_services.BillGenerator;
+import services.BillGenerationServices;
 import db_services.BillDbServices;
 import utils.BillUtils;
 import utils.GeneralUtils;
@@ -157,7 +156,7 @@ public class GeneratedBillFragment extends Fragment {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        getActivity().getMenuInflater().inflate(R.menu.bill_list_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.bill_list_context_menu, menu);
     }
 
     public void openPdfFile(int index) {
@@ -190,7 +189,8 @@ public class GeneratedBillFragment extends Fragment {
                 bill.setBill_year(financial_year);
                 bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
 
-                BillGenerator.generateBill(bill);
+                BillGenerationServices services = new BillGenerationServices();
+                services.generateBill(bill);
                 BillDbServices.addBill(bill);
                 return "success";
             } catch (Exception e) {

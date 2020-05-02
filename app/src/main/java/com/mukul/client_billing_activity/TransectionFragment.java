@@ -103,7 +103,7 @@ public class TransectionFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.client_transection_list_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
     }
 
     @Override

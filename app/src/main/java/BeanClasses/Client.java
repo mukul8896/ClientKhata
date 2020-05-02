@@ -3,6 +3,8 @@ package BeanClasses;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.Nullable;
+
 public class Client implements Parcelable {
     String name;
     String address;
@@ -122,5 +124,15 @@ public class Client implements Parcelable {
             dest.writeByte((byte) 1);
             dest.writeInt(id);
         }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

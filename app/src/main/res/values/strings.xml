@@ -140,5 +140,5 @@
     <string name="search">Search</string>
     <string name="monthly_fee">Monthly Fee</string>
     <string name="title_activity_summery">SummeryActivity</string>
-    <string name="title_activity_new_client_avtivity">NewClientAvtivity</string>
+    <string name="share">Share</string>
 </resources>

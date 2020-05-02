@@ -1,37 +1,40 @@
 package com.mukul.client_billing_activity;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
-import AdapterClasses.ClientListAdapter;
 import AdapterClasses.SummeryListAdapter;
 import BeanClasses.Client;
 import BeanClasses.Transection;
 import db_services.TransectionDbServices;
+import services.AnnualSummeryServices;
 import utils.GeneralUtils;
 
 
@@ -76,12 +79,49 @@ public class SummeryActivity extends AppCompatActivity {
         listView=(ListView)findViewById(R.id.sumery_list);
         listView.setAdapter(adapter);
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.summery_download_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                AnnualSummeryServices services=new AnnualSummeryServices(clinetList,transectionlist);
+                try {
+                    File report_file=services.generateYearReport(year);
+                    AlertDialog alertDialog = new AlertDialog.Builder(SummeryActivity.this).create();
+                    LayoutInflater inflater = LayoutInflater.from(SummeryActivity.this);
+                    View dialogeview = inflater.inflate(R.layout.summery_fab_dialoge, null);
+                    alertDialog.setView(dialogeview);
+                    alertDialog.setTitle("Choose File Type");
+                    String[] arr=new String[]{"Excel","PDF"};
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SummeryActivity.this,android.R.layout.simple_list_item_1, Arrays.asList(arr));
+                    ListView listview=dialogeview.findViewById(R.id.summer_file_type_list);
+                    listview.setAdapter(arrayAdapter);
+                    listview.setOnItemClickListener((parent, view1, position, id) -> {
+                        if(position==Arrays.asList(arr).indexOf("PDF")){
+                            alertDialog.dismiss();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                Uri uri = FileProvider.getUriForFile(SummeryActivity.this, BuildConfig.APPLICATION_ID + ".provider", report_file);
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(uri, "application/pdf");
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse(report_file.getAbsolutePath()), "application/pdf");
+                                intent = Intent.createChooser(intent, "Open File");
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        }else{
+                            alertDialog.dismiss();
+                        }
+                    });
+                    alertDialog.show();
+                } catch (Exception e) {
+                    Toast.makeText(SummeryActivity.this, "Some Error occurred !!", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
