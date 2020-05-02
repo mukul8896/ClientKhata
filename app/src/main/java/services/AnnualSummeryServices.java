@@ -12,9 +12,20 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 
 import BeanClasses.Client;
@@ -30,21 +41,131 @@ public class AnnualSummeryServices {
         this.transectionList=transectionlist;
     }
 
-    public File generateYearReport(String year) throws FileNotFoundException, DocumentException {
+    public File generateYearReport(String year,String file_type) throws IOException, DocumentException {
         File folder = new File(ProjectUtil.createDirectoryFolder().getPath() + File.separator + year);
         if (!folder.exists()) {
             folder.mkdir();
         }
-        File report_file = new File(folder, "Report_"+year.split("-")[0]+"_"+year.split("-")[1]+ ".pdf");
-        if(initializeDocument(report_file)){
-            addHearder();
-            addClientListTable();
-            document.close();
+        File report_file = null;
+        if(file_type.equals("PDF")) {
+            report_file = new File(folder, "Report_" + year.split("-")[0] + "_" + year.split("-")[1] + ".pdf");
+            if(initializePdfDocument(report_file)){
+                addHearder();
+                addClientListTable();
+                document.close();
+            }
+        }else {
+            report_file = new File(folder, "Report_" + year.split("-")[0] + "_" + year.split("-")[1] + ".xls");
+            writeExcelFile(report_file);
         }
         return report_file;
     }
 
-    private boolean initializeDocument(File report_file) throws FileNotFoundException, DocumentException {
+    public void writeExcelFile(File report_file) throws IOException {
+        Workbook workbook=new HSSFWorkbook();
+        Sheet sheet=workbook.createSheet("NewSheet");
+        Row row=sheet.createRow(0);
+
+        HSSFFont font= (HSSFFont) workbook.createFont();
+        font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        HSSFCellStyle header_style= (HSSFCellStyle) workbook.createCellStyle();
+        header_style.setAlignment(CellStyle.ALIGN_CENTER);
+        header_style.setBorderBottom(CellStyle.BORDER_THIN);
+        header_style.setBorderLeft(CellStyle.BORDER_THIN);
+        header_style.setBorderRight(CellStyle.BORDER_THIN);
+        header_style.setBorderTop(CellStyle.BORDER_THIN);
+        header_style.setFont(font);
+        header_style.setWrapText(true);
+
+        Cell cell=row.createCell(0);
+        cell.setCellStyle(header_style);
+        cell.setCellValue("S.No.");
+
+        Cell name_head=row.createCell(1);
+        name_head.setCellStyle(header_style);
+        name_head.setCellValue("Name");
+
+        Cell debit_head=row.createCell(2);
+        debit_head.setCellStyle(header_style);
+        debit_head.setCellValue("Credit");
+
+        Cell credit_head=row.createCell(3);
+        credit_head.setCellStyle(header_style);
+        credit_head.setCellValue("Debit");
+
+        Cell due_head=row.createCell(4);
+        due_head.setCellStyle(header_style);
+        due_head.setCellValue("Due");
+
+        HSSFCellStyle style= (HSSFCellStyle) workbook.createCellStyle();
+        style.setAlignment(CellStyle.ALIGN_CENTER);
+        for(Client client:clientList){
+
+            Row client_row=sheet.createRow(clientList.indexOf(client)+1);
+            Cell serial_no=client_row.createCell(0);
+            serial_no.setCellStyle(style);
+            serial_no.setCellValue((clientList.indexOf(client)+1)+"");
+
+            HSSFCellStyle name_style= (HSSFCellStyle) workbook.createCellStyle();
+            style.setAlignment(CellStyle.ALIGN_LEFT);
+            Cell name=client_row.createCell(1);
+            name.setCellStyle(name_style);
+            name.setCellValue(client.getName());
+
+            int total_debit=0;
+            int total_credit=0;
+            for(Transection transection:transectionList){
+                if(transection.getTransecType().equals("Credit") && transection.getClientId().equals(client.getId()))
+                    total_credit+=transection.getAmount();
+                if(transection.getTransecType().equals("Debit") && transection.getClientId().equals(client.getId()))
+                    total_debit+=transection.getAmount();
+            }
+
+            style.setAlignment(CellStyle.ALIGN_CENTER);
+            Cell debit=client_row.createCell(2);
+            debit.setCellStyle(style);
+            debit.setCellValue(total_debit);
+
+            Cell credit=client_row.createCell(3);
+            credit.setCellStyle(style);
+            credit.setCellValue(total_credit);
+
+            Cell due=client_row.createCell(4);
+            due.setCellStyle(style);
+            due.setCellValue((total_debit-total_credit)+"");
+        }
+
+        int total_debit=0;
+        int total_credit=0;
+        for(Transection transection:transectionList){
+            if(transection.getTransecType().equals("Credit"))
+                total_credit+=transection.getAmount();
+            if(transection.getTransecType().equals("Debit"))
+                total_debit+=transection.getAmount();
+        }
+
+        Row final_row=sheet.createRow(clientList.size()+1);
+        Cell total=final_row.createCell(1);
+        total.setCellStyle(style);
+        total.setCellValue("Total");
+
+        Cell totalDebit=final_row.createCell(2);
+        totalDebit.setCellStyle(style);
+        totalDebit.setCellValue(total_debit+"");
+
+        Cell totalCredit=final_row.createCell(3);
+        totalCredit.setCellStyle(style);
+        totalCredit.setCellValue(total_credit+"");
+
+        Cell totalDue=final_row.createCell(4);
+        totalDue.setCellStyle(style);
+        totalDue.setCellValue((total_debit-total_credit)+"");
+
+        FileOutputStream stream=new FileOutputStream(report_file);
+        workbook.write(stream);
+        stream.close();
+    }
+    private boolean initializePdfDocument(File report_file) throws FileNotFoundException, DocumentException {
         this.document = new Document();
         PdfWriter.getInstance(document, new FileOutputStream(report_file));
         document.open();
