@@ -19,16 +19,23 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/name"
+            android:text="@string/fee"
             android:textSize="15sp"
-            android:layout_marginStart="10sp" />
+            android:layout_marginStart="10sp"
+            android:layout_marginEnd="3sp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Rs"
+            android:textSize="15sp"
+            android:textColor="@color/text_black"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/na"
             android:textSize="15sp"
-            android:id="@+id/client_name_data"
-            android:layout_marginStart="5sp"
+            android:id="@+id/client_fee_data"
+            android:layout_marginStart="1sp"
             android:textColor="@color/text_black"/>
     </LinearLayout>
     <LinearLayout
@@ -79,6 +86,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/viewPager" />
-
-
 </LinearLayout>

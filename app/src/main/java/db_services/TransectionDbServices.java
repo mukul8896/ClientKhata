@@ -1,16 +1,22 @@
 package db_services;
 
+import android.util.Log;
+
+import com.mukul.client_billing_activity.SummeryActivity;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import BeanClasses.Bill;
 import BeanClasses.Transection;
+import utils.GeneralUtils;
 
 public class TransectionDbServices {
     public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception {
@@ -29,6 +35,7 @@ public class TransectionDbServices {
             else
                 ClientDbServices.updateClientBalance(clientId, amount, 1);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }
@@ -109,6 +116,7 @@ public class TransectionDbServices {
                 else
                     total_balance += rs.getInt("Amount");
             }
+            con.close();
             return total_balance;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -135,6 +143,7 @@ public class TransectionDbServices {
                 transection.setTransecType(rs.getString("TransectionType"));
                 return transection;
             }
+            con.close();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -155,5 +164,46 @@ public class TransectionDbServices {
             e.printStackTrace();
             throw new Exception(e.getMessage());
         }
+    }
+
+    public static List<Transection> getFinancialYearTransection(String financilaYear){
+        List<Transection> list = new ArrayList<>();
+        try {
+            Connection con = DBConnect.getConnection();
+            Statement stm = con.createStatement();
+            ResultSet rs = stm.executeQuery("select * from ClientTransection");
+            while (rs.next()) {
+                Transection transection = new Transection();
+                transection.setTransecType(rs.getString("TransectionType"));
+                transection.setDesc(rs.getString("Description"));
+                transection.setAmount(rs.getInt("Amount"));
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+                Date date = simpleDateFormat.parse(rs.getString("TransectionDate"));
+                transection.setDate(date);
+                transection.setTransecId(rs.getInt("TransectionID"));
+                transection.setBill_details(rs.getString("BillDetails"));
+                transection.setClientId(rs.getInt("ClientID"));
+
+                int year=Integer.parseInt(financilaYear.split("-")[0].trim());
+
+                Calendar calendar=Calendar.getInstance();
+                calendar.set(year,Calendar.APRIL,1);
+                Date first_date= calendar.getTime();
+
+                calendar.set(year+1,Calendar.MARCH,31);
+                Date last_date=calendar.getTime();
+
+                if((date.after(first_date) && date.before(last_date))
+                        || GeneralUtils.isDatesEqual(date, first_date)
+                        || GeneralUtils.isDatesEqual(date, last_date)){
+                    list.add(transection);
+                }
+            }
+            Collections.sort(list);
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

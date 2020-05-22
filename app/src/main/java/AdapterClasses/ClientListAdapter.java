@@ -36,16 +36,18 @@ public class ClientListAdapter extends ArrayAdapter<Client> {
         TextView clientName_txt = view.findViewById(R.id.client_name);
         TextView clientBalance_txt = view.findViewById(R.id.client_balance);
         TextView balanceTag = view.findViewById(R.id.balance_tag);
+        TextView fee=view.findViewById(R.id.client_fee);
         Client client = clientsList.get(position);
 
         clientName_txt.setText(client.getName());
+        fee.setText(client.getFee()+"");
 
         int client_balance = client.getBalance();
         if (client_balance < 0) {
             client_balance = client_balance * -1;
-            clientBalance_txt.setText("(" + client_balance + " Rs)");
+            clientBalance_txt.setText("(" + client_balance + ")");
         } else {
-            clientBalance_txt.setText(client_balance + " Rs");
+            clientBalance_txt.setText(client_balance+"");
         }
         if (client_balance == 0) {
             clientBalance_txt.setTextColor(view.getResources().getColor(R.color.text_black));

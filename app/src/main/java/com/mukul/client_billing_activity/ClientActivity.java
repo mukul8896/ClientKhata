@@ -2,6 +2,7 @@ package com.mukul.client_billing_activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBar;
@@ -18,12 +19,11 @@ import db_services.ClientDbServices;
 public class ClientActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private TabItem transectionTab, generatedBillTab;
     private PageAdapter pageAdapter;
     private Integer client_id;
     private ActionBar toolbar;
     private TextView address_txt;
-    private TextView name_txt;
+    private TextView fee_txt;
     private Client client;
     private String password;
 
@@ -38,16 +38,16 @@ public class ClientActivity extends AppCompatActivity {
         toolbar = getSupportActionBar();
         toolbar.setTitle(client.getName());
         toolbar.setDisplayHomeAsUpEnabled(false);
-
-        name_txt = (TextView) findViewById(R.id.client_name_data);
+        Log.i(ClientActivity.class.getSimpleName(),client.getFee()+"");
+        fee_txt = (TextView) findViewById(R.id.client_fee_data);
         address_txt = (TextView) findViewById(R.id.client_address_data);
         address_txt.setText(client.getAddress());
-        name_txt.setText(client.getName());
+        fee_txt.setText(client.getFee()+"");
 
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewPager);
-        transectionTab = (TabItem) findViewById(R.id.transection_tab);
-        generatedBillTab = (TabItem) findViewById(R.id.generated_bill_tab);
+        TabItem transectionTab = (TabItem) findViewById(R.id.transection_tab);
+        TabItem generatedBillTab = (TabItem) findViewById(R.id.generated_bill_tab);
 
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(), client_id);
         viewPager.setAdapter(pageAdapter);

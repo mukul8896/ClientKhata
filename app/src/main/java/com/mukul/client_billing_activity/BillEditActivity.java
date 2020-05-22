@@ -20,7 +20,7 @@ import java.util.List;
 import AdapterClasses.TransectionListAdapter;
 import BeanClasses.Bill;
 import BeanClasses.Transection;
-import billing_services.BillGenerator;
+import services.BillGenerationServices;
 import db_services.BillDbServices;
 import db_services.TransectionDbServices;
 
@@ -78,7 +78,7 @@ public class BillEditActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.client_transection_list_menu, menu);
+        getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
     }
 
     @Override
@@ -113,7 +113,8 @@ public class BillEditActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             try {
-                BillGenerator.generateBill(bill);
+                BillGenerationServices services=new BillGenerationServices();
+                services.generateBill(bill);
                 //DBServices.addBill(bill);
                 return "success";
             } catch (Exception e) {

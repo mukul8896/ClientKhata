@@ -18,6 +18,7 @@ public class AddClientAvtivity extends AppCompatActivity {
     EditText client_name;
     EditText address;
     EditText contact;
+    EditText fee;
     String modes;
     Integer clientId;
 
@@ -33,17 +34,18 @@ public class AddClientAvtivity extends AppCompatActivity {
             clientId = bundle.getInt("id");
         }
 
-
-        client_name = findViewById(R.id.client_name_txt);
-        address = findViewById(R.id.client_address_txt);
-        contact = findViewById(R.id.client_contact_txt);
-        Button add = findViewById(R.id.add_client);
+        client_name = (EditText) findViewById(R.id.client_name_txt);
+        address = (EditText) findViewById(R.id.client_address_txt);
+        fee=(EditText) findViewById(R.id.client_fee);
+        contact =(EditText) findViewById(R.id.client_contact_txt);
+        Button add = (Button)findViewById(R.id.add_client);
 
         if (modes != null && modes.equals("Edit")) {
             Client client = ClientDbServices.getClient(clientId);
             Log.i(MainActivity.class.getSimpleName(), client.getName() + " : " + client.getAddress() + ":" + client.getContact());
             client_name.setText(client.getName());
             address.setText(client.getAddress());
+            fee.setText(client.getFee()+"");
             contact.setText(client.getContact());
         }
 
@@ -52,9 +54,9 @@ public class AddClientAvtivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     if (modes != null && modes.equals("Edit"))
-                        ClientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), contact.getText().toString(), clientId);
+                        ClientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString(), clientId);
                     else
-                        ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), contact.getText().toString());
+                        ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
                     Toast.makeText(AddClientAvtivity.this, "Done !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
                             MainActivity.class);
@@ -71,16 +73,11 @@ public class AddClientAvtivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        //noinspection SimplifiableIfStatement
         if (id == android.R.id.home) {
             finish();
             return true;
         }
-
         return true;
     }
 }

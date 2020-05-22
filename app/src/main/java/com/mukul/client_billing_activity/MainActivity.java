@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -27,7 +28,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.CollapsibleActionView;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -49,11 +49,12 @@ public class MainActivity extends AppCompatActivity {
     private int index;
     private ClientListAdapter adapter;
     private TextView total_balance;
+    private  TextView total_fee;
     private static final int storage_request_code = 1;
     private int total_bal;
     private static String interval = "all";
     private static String filter_type = "Balance";
-    private int backButtoncount=1;
+    private TextView total_value_tag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,9 +121,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Wrong Password !!", Toast.LENGTH_SHORT).show();
             });
         }
-
     }
-
+    List<Client> filteredClientList=clientsList;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -137,17 +137,13 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(!newText.isEmpty())
-                    backButtoncount=0;
-                List<Client> filteredClientList=new ArrayList<>();
+                filteredClientList = new ArrayList<>();
                 for (Client client : clientsList) {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                clientsList=filteredClientList;
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, filteredClientList);
                 listView.setAdapter(adapter);
-                Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
                 return true;
             }
         });
@@ -214,8 +210,12 @@ public class MainActivity extends AppCompatActivity {
             });
             dialog.show();
             return true;
-        }else if(item.getItemId()==R.id.action_search){
-            Log.i(MainActivity.class.getSimpleName(),"back count:"+backButtoncount);
+        }else if(item.getItemId()==R.id.action_summery){
+            Intent intent = new Intent(MainActivity.this,
+                    SummeryActivity.class);
+            intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+            intent.putParcelableArrayListExtra("clientList", (ArrayList<? extends Parcelable>) clientsList);
+            startActivity(intent);
             return true;
         }
         return true;
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.client_transection_list_menu, menu);
+        getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
     }
 
     @Override
@@ -242,18 +242,11 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Log.i(MainActivity.class.getSimpleName(), "delete alert submited");
                         ClientDbServices.deleteClient(clientsList.get(index).getId());
-                        //int client_bal=clientsList.get(index).getBalance();
                         clientsList.remove(index);
                         adapter.notifyDataSetChanged();
-                        Log.i(MainActivity.class.getSimpleName(), "list notified");
-                        //clientsList=DBServices.getClientsList();
                         Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-                        total_bal = getTotalBalance(clientsList);
-                        if (total_bal < 0) {
-                            total_bal = total_bal * -1;
-                            total_balance.setText("(" + total_bal + " Rs)");
-                        } else
-                            total_balance.setText(total_bal + " Rs");
+                        total_balance.setText(getTotalBalance(clientsList));
+                        total_fee.setText(getTotalFee(clientsList));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -272,6 +265,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this,
                     AddClientAvtivity.class);
             Bundle data = new Bundle();
+            intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
             data.putString("mode", "Edit");
             data.putInt("id", clientsList.get(index).getId());
             intent.putExtra("data", data);
@@ -286,18 +280,31 @@ public class MainActivity extends AppCompatActivity {
         Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
             clientsList = ClientDbServices.getClientsList(interval, filter_type);
-            int total_bal = getTotalBalance(clientsList);
-            if (total_bal < 0) {
-                total_bal = total_bal * -1;
-                total_balance.setText("(" + total_bal + " Rs)");
-            } else
-                total_balance.setText(total_bal + " Rs");
+            if (total_balance == null)
+                total_balance = findViewById(R.id.total_balance);
+            total_balance.setText(getTotalBalance(clientsList));
+            total_fee.setText(getTotalFee(clientsList));
             if (listView == null)
                 listView = findViewById(R.id.client_list);
             adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
             listView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case storage_request_code: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //permission was granted from popup, call savepdf method
+                    ProjectUtil.createDirectoryFolder();
+                } else {
+                    //permission was denied from popup, show error message
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+                }
+            }
         }
     }
 
@@ -320,27 +327,24 @@ public class MainActivity extends AppCompatActivity {
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private int getTotalBalance(List<Client> list) {
+    private String getTotalBalance(List<Client> list) {
         int total = 0;
         for (Client client : list) {
             total += client.getBalance();
         }
-        return total;
+        if (total < 0) {
+            total = total * -1;
+            return "("+total +")";
+        } else
+            return total+"";
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case storage_request_code: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //permission was granted from popup, call savepdf method
-                    ProjectUtil.createDirectoryFolder();
-                } else {
-                    //permission was denied from popup, show error message
-                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
-                }
-            }
+    private String getTotalFee(List<Client> list){
+        int total = 0;
+        for (Client client : list) {
+            total += client.getFee();
         }
+        return total+"";
     }
 
     private class FilterAsyncTask extends AsyncTask<String, String, String> {
@@ -360,6 +364,7 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 clientsList = ClientDbServices.getClientsList(interval, filter_type);
+                filteredClientList=clientsList;
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -371,12 +376,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
-                int total_bal = getTotalBalance(clientsList);
-                if (total_bal < 0) {
-                    total_bal = total_bal * -1;
-                    total_balance.setText("(" + total_bal + " Rs)");
-                } else
-                    total_balance.setText(total_bal + " Rs");
+                total_value_tag.setText("Total "+filter_type);
+                total_balance.setText(getTotalBalance(clientsList));
                 if (listView == null)
                     listView = findViewById(R.id.client_list);
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
@@ -402,6 +403,9 @@ public class MainActivity extends AppCompatActivity {
             progressDoalog.show();
 
             total_balance = (TextView) findViewById(R.id.total_balance);
+            total_fee=(TextView)findViewById(R.id.total_fee);
+            total_value_tag=(TextView)findViewById(R.id.total_value_id);
+            total_value_tag.setText("Total "+filter_type);
             listView = findViewById(R.id.client_list);
         }
 
@@ -409,8 +413,8 @@ public class MainActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 clientsList = ClientDbServices.getClientsList("all", "Balance");
+                filteredClientList=clientsList;
                 Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-                total_bal = getTotalBalance(clientsList);
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
@@ -422,11 +426,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
                 progressDoalog.dismiss();
-                if (total_bal < 0) {
-                    total_bal = total_bal * -1;
-                    total_balance.setText("(" + total_bal + " Rs)");
-                } else
-                    total_balance.setText(total_bal + " Rs");
+                total_balance.setText(getTotalBalance(clientsList));
+                total_fee.setText(getTotalFee(clientsList));
                 adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
                 listView.setAdapter(adapter);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -434,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this,
                                 ClientActivity.class);
-                        intent.putExtra("id", clientsList.get(position).getId());
+                        intent.putExtra("id", filteredClientList.get(position).getId());
                         intent.putExtra("app_password", getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
                         startActivity(intent);
                     }
@@ -462,16 +463,5 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Some error while fetching data ||", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(backButtoncount==0) {
-            onRestart();
-            backButtoncount+=1;
-        }else{
-            super.onBackPressed();
-        }
-        Log.i(MainActivity.class.getSimpleName(),"In Back button");
     }
 }

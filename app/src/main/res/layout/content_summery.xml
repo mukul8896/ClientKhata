@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mukul.client_billing_activity.MainActivity"
-    tools:showIn="@layout/activity_main">
-
+    android:orientation="vertical"
+    tools:context="com.mukul.client_billing_activity.SummeryActivity"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <LinearLayout
         android:id="@+id/upper_details_portion"
         android:layout_width="match_parent"
@@ -29,8 +28,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:fontFamily="casual"
-                android:id="@+id/total_value_id"
-                android:text="@string/total_balance"
+                android:text="Total Debit"
                 android:textAlignment="center"
                 android:textColor="@color/text_black"
                 android:textSize="14sp"
@@ -46,10 +44,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/Rs"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="23sp" />
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/total_balance"
+                    android:id="@+id/total_debit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -58,7 +56,54 @@
                     android:text="@string/na"
                     android:textAlignment="center"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="23sp"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:fontFamily="casual"
+                android:text="Total Credit"
+                android:textAlignment="center"
+                android:textColor="@color/text_black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Rs"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/total_credit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="8dp"
+                    android:text="@string/na"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
@@ -77,7 +122,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:fontFamily="casual"
-                android:text="@string/total_fee"
+                android:text="Total Due"
                 android:textAlignment="center"
                 android:textColor="@color/text_black"
                 android:textSize="14sp"
@@ -93,10 +138,10 @@
                     android:layout_height="wrap_content"
                     android:text="@string/Rs"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="23sp" />
+                    android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/total_fee"
+                    android:id="@+id/total_due"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="5dp"
@@ -105,19 +150,16 @@
                     android:text="@string/na"
                     android:textAlignment="center"
                     android:textColor="@color/colorPrimary"
-                    android:textSize="23sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 
     <ListView
-        android:id="@+id/client_list"
+        android:layout_below="@+id/upper_details_portion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/upper_details_portion"
-        android:layout_alignParentBottom="true"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="5dp" />
+        android:layout_margin="5sp"
+        android:id="@+id/sumery_list"/>
 </RelativeLayout>

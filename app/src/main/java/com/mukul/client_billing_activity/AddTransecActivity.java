@@ -125,6 +125,7 @@ public class AddTransecActivity extends AppCompatActivity {
                     Toast.makeText(AddTransecActivity.this, "Done !!", Toast.LENGTH_SHORT).show();
                     finish();
                 } catch (Exception e) {
+                    e.printStackTrace();
                     Toast.makeText(AddTransecActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }

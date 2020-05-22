@@ -19,15 +19,15 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import AdapterClasses.BillListAdapder;
 import BeanClasses.Bill;
-import billing_services.BillGenerator;
+import services.BillGenerationServices;
 import db_services.BillDbServices;
 import utils.BillUtils;
+import utils.GeneralUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -156,7 +156,7 @@ public class GeneratedBillFragment extends Fragment {
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        getActivity().getMenuInflater().inflate(R.menu.bill_list_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.bill_list_context_menu, menu);
     }
 
     public void openPdfFile(int index) {
@@ -185,11 +185,12 @@ public class GeneratedBillFragment extends Fragment {
 
                 bill.setClient_id(client_id);
 
-                String financial_year = getFinancialYear(to_date);
+                String financial_year = GeneralUtils.getFinancialYear(to_date);
                 bill.setBill_year(financial_year);
                 bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
 
-                BillGenerator.generateBill(bill);
+                BillGenerationServices services = new BillGenerationServices();
+                services.generateBill(bill);
                 BillDbServices.addBill(bill);
                 return "success";
             } catch (Exception e) {
@@ -209,23 +210,5 @@ public class GeneratedBillFragment extends Fragment {
                 Toast.makeText(getActivity(), "Some error while bill generation !!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    public String getFinancialYear(Date date) {
-        String year1 = "";
-        String year2 = "";
-        Calendar cal_date = Calendar.getInstance();
-        cal_date.set(Calendar.YEAR, date.getYear() + 1900);
-        cal_date.set(Calendar.MONTH, date.getMonth());
-        cal_date.set(Calendar.DAY_OF_MONTH, date.getDate());
-        if (cal_date.get(Calendar.MONTH) > 2 && cal_date.get(Calendar.MONTH) <= 11) {
-            year1 = Integer.toString(cal_date.get(Calendar.YEAR));
-            year2 = Integer.toString(cal_date.get(Calendar.YEAR) + 1);
-        } else if (cal_date.get(Calendar.MONTH) >= 0 && cal_date.get(Calendar.MONTH) <= 2) {
-            year1 = Integer.toString(cal_date.get(Calendar.YEAR) - 1);
-            year2 = Integer.toString(cal_date.get(Calendar.YEAR));
-        }
-        Log.i(GeneratedBillFragment.class.getSimpleName(), year1 + ":" + year2);
-        return year1 + "-" + year2.substring(2, year2.length());
     }
 }
