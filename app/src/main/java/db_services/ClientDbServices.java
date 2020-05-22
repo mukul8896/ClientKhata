@@ -67,7 +67,6 @@ public class ClientDbServices {
                     }
                 }
             }
-            Log.i(MainActivity.class.getSimpleName(), "");
             con.close();
             return clientList;
         } catch (Exception e) {
@@ -105,9 +104,7 @@ public class ClientDbServices {
                 client.setAddress(rs.getString("Address"));
                 client.setContact(rs.getString("ContactNo"));
                 client.setFee(rs.getInt("ClientFee"));
-                Log.i(ClientDbServices.class.getSimpleName(), rs.getString("ContactNo"));
             }
-            Log.i(MainActivity.class.getSimpleName(), "");
             con.close();
             return client;
         } catch (Exception e) {

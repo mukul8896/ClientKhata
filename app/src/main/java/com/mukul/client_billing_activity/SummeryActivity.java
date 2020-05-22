@@ -48,7 +48,7 @@ public class SummeryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_summery);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2019);
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR)-1);
         year = GeneralUtils.getFinancialYear(calendar.getTime());
         getSupportActionBar().setTitle(year);
 

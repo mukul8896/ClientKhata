@@ -34,9 +34,8 @@ public class TransectionDbServices {
                 ClientDbServices.updateClientBalance(clientId, amount, -1);
             else
                 ClientDbServices.updateClientBalance(clientId, amount, 1);
-            con.commit();
-            con.close();
         } catch (Exception e) {
+            e.printStackTrace();
             throw new Exception(e.getMessage());
         }
     }
@@ -117,6 +116,7 @@ public class TransectionDbServices {
                 else
                     total_balance += rs.getInt("Amount");
             }
+            con.close();
             return total_balance;
         } catch (Exception ex) {
             ex.printStackTrace();
