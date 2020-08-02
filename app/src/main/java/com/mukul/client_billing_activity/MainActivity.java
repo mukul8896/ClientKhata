@@ -240,13 +240,10 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
-                        Log.i(MainActivity.class.getSimpleName(), "delete alert submited");
-                        ClientDbServices.deleteClient(clientsList.get(index).getId());
-                        clientsList.remove(index);
-                        adapter.notifyDataSetChanged();
-                        Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
-                        total_balance.setText(getTotalBalance(clientsList));
-                        total_fee.setText(getTotalFee(clientsList));
+                        Log.i(MainActivity.class.getSimpleName(), "delete alert submited"+filteredClientList.get(index).getName());
+                        ClientDbServices.deleteClient(filteredClientList.get(index).getId());
+                        filteredClientList.remove(index);
+                        onRestart();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -267,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             Bundle data = new Bundle();
             intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
             data.putString("mode", "Edit");
-            data.putInt("id", clientsList.get(index).getId());
+            data.putInt("id", filteredClientList.get(index).getId());
             intent.putExtra("data", data);
             startActivity(intent);
         }
@@ -287,6 +284,7 @@ public class MainActivity extends AppCompatActivity {
             if (listView == null)
                 listView = findViewById(R.id.client_list);
             adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
+            filteredClientList=clientsList;
             listView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
