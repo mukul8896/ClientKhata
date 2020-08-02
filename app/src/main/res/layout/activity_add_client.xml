@@ -99,6 +99,7 @@
         android:paddingLeft="40sp"
         android:id="@+id/add_client"
         android:textSize="@dimen/fab_margin"
+        android:textColor="@color/calendar_bg"
         android:background="@drawable/button_submit"/>
 </LinearLayout>
 </ScrollView>
