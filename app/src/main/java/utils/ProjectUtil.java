@@ -24,5 +24,4 @@ public class ProjectUtil {
         }
         return folder;
     }
-
 }

@@ -115,7 +115,6 @@ public class BillEditActivity extends AppCompatActivity {
             try {
                 BillGenerationServices services=new BillGenerationServices();
                 services.generateBill(bill);
-                //DBServices.addBill(bill);
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();

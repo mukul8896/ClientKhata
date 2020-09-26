@@ -10,6 +10,7 @@ public class Bill {
     private Date to_date;
     private Date from_date;
     private boolean isBillShared;
+    private String generation_date;
 
     public void setBill_no(Integer bill_no) {
         this.bill_no = bill_no;
@@ -65,5 +66,13 @@ public class Bill {
 
     public void setBillId(Integer billId) {
         this.billId = billId;
+    }
+
+    public void setGenerationDate(String generation_date){
+        this.generation_date=generation_date;
+    }
+
+    public String getGenerationDate() {
+        return this.generation_date;
     }
 }

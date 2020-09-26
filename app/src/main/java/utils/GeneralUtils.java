@@ -36,4 +36,10 @@ public class GeneralUtils {
         Log.i(GeneratedBillFragment.class.getSimpleName(), year1 + ":" + year2);
         return year1 + "-" + year2.substring(2, year2.length());
     }
+
+    public static String getFormatedDate() {
+        Date date = new Date();
+        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+        return fmt.format(date);
+    }
 }

@@ -8,12 +8,7 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
-import com.mukul.client_billing_activity.BuildConfig;
-
 import java.io.File;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import BeanClasses.Bill;
@@ -30,18 +25,12 @@ public class BillUtils {
     public String getBillDetails() {
         String details = "Bill No. " + bill.getBill_no() + " / ";
         details += bill.getBill_year() + " / ";
-        details += getFormatedDate();
+        details += bill.getGenerationDate()==null?GeneralUtils.getFormatedDate():bill.getGenerationDate();
         return details;
     }
 
     public List<Transection> getParticulars() throws Exception {
         return BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date());
-    }
-
-    private String getFormatedDate() {
-        Date date = new Date();
-        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
-        return fmt.format(date);
     }
 
     public File getFile(String bill_year) {
@@ -56,7 +45,7 @@ public class BillUtils {
     public void sharePdfFile(Context context) throws Exception {
         Intent intent = new Intent(Intent.ACTION_SEND);
         File file = getFile(bill.getBill_year());
-        Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+        Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -69,7 +58,7 @@ public class BillUtils {
         Intent intent = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Log.i("BillUtils->openFile if",file.getPath());
-            Uri uri = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider", file);
+            Uri uri = FileProvider.getUriForFile(context, context.getPackageName() + ".provider", file);
             intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(uri, "application/pdf");
             intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);

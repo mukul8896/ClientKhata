@@ -188,6 +188,7 @@ public class GeneratedBillFragment extends Fragment {
                 String financial_year = GeneralUtils.getFinancialYear(to_date);
                 bill.setBill_year(financial_year);
                 bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
+                bill.setGenerationDate(GeneralUtils.getFormatedDate());
 
                 BillGenerationServices services = new BillGenerationServices();
                 services.generateBill(bill);

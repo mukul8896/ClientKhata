@@ -100,8 +100,8 @@ public class BillDbServices {
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
             String from = simpleDateFormat.format(bill.getFrom_date());
             String to = simpleDateFormat.format(bill.getTo_date());
-            stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate,IsShared) " +
-                    "values ('" + bill.getBill_year() + "','" + bill.getBill_no() + "','" + bill.getClient_id() + "','" + from + "','" + to + "','" + 0 + "')");
+            stm.executeUpdate("insert into Bill (FinancialYear,BillNo,ClientId,FromDate,ToDate,IsShared,GenerationDate) " +
+                    "values ('" + bill.getBill_year() + "','" + bill.getBill_no() + "','" + bill.getClient_id() + "','" + from + "','" + to + "','" + 0 + "','"+bill.getGenerationDate()+"')");
             con.commit();
             con.close();
         } catch (Exception e) {
@@ -123,6 +123,7 @@ public class BillDbServices {
                 bill.setFrom_date(simpleDateFormat.parse(rs.getString("FromDate")));
                 bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
                 bill.setBill_year(rs.getString("FinancialYear"));
+                bill.setGenerationDate(rs.getString("GenerationDate"));
                 if (rs.getInt("IsShared") == 1)
                     bill.setBillShared(true);
                 else
@@ -169,6 +170,7 @@ public class BillDbServices {
                 bill.setTo_date(simpleDateFormat.parse(rs.getString("ToDate")));
                 bill.setBill_year(rs.getString("FinancialYear"));
                 bill.setClient_id(rs.getInt("ClientId"));
+                bill.setGenerationDate(rs.getString("GenerationDate"));
                 if (rs.getInt("IsShared") == 1)
                     bill.setBillShared(true);
                 else
