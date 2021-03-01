@@ -1,11 +1,5 @@
 package services;
 
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.util.Log;
-
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -127,7 +121,7 @@ public class BillGenerationServices {
 
             List<Chunk> list=new ArrayList<>();
             Chunk chunk=new Chunk("A/C NO:- ",font1);
-            Chunk chunk1=new Chunk("218810100027989",font);
+            Chunk chunk1=new Chunk("50100409345461",font);
             list.add(chunk);list.add(chunk1);
             Phrase phrase_acount_details=new Phrase();
             phrase_acount_details.addAll(list);
@@ -136,7 +130,7 @@ public class BillGenerationServices {
             table.addCell(cell_account_no);
 
             Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
-            Chunk chunk_ifsc2=new Chunk("ANDB0002188",font);
+            Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
             Phrase phrase_ifsc=new Phrase();
             phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
             PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
@@ -144,7 +138,7 @@ public class BillGenerationServices {
             table.addCell(cell_ifsc);
 
             Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
-            Chunk chunk_bank2=new Chunk("ANDHRA BANK",font);
+            Chunk chunk_bank2=new Chunk("HDFC BANK",font);
             Phrase phrase_bank=new Phrase();
             phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
             PdfPCell cell_bank = new PdfPCell(phrase_bank);
@@ -153,7 +147,7 @@ public class BillGenerationServices {
 
 
             Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
-            Chunk chunk_bank_address2=new Chunk("SHALIMAR BAGH DELHI-110088",font);
+            Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR",font);
             Phrase phrase_bank_address=new Phrase();
             phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
             PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);
@@ -192,7 +186,7 @@ public class BillGenerationServices {
 
             List<Chunk> list=new ArrayList<>();
             Chunk chunk=new Chunk("A/C NO:- ",font1);
-            Chunk chunk1=new Chunk("218810100027989",font);
+            Chunk chunk1=new Chunk("50100409345461",font);
             list.add(chunk);list.add(chunk1);
             Phrase phrase_acount_details=new Phrase();
             phrase_acount_details.addAll(list);
@@ -202,7 +196,7 @@ public class BillGenerationServices {
             table.addCell(cell_account_no);
 
             Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
-            Chunk chunk_ifsc2=new Chunk("ANDB0002188",font);
+            Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
             Phrase phrase_ifsc=new Phrase();
             phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
             PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
@@ -211,7 +205,7 @@ public class BillGenerationServices {
             table.addCell(cell_ifsc);
 
             Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
-            Chunk chunk_bank2=new Chunk("ANDHRA BANK",font);
+            Chunk chunk_bank2=new Chunk("HDFC BANK",font);
             Phrase phrase_bank=new Phrase();
             phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
             PdfPCell cell_bank = new PdfPCell(phrase_bank);
@@ -221,7 +215,7 @@ public class BillGenerationServices {
 
 
             Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
-            Chunk chunk_bank_address2=new Chunk("SHALIMAR BAGH DELHI-110088",font);
+            Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR",font);
             Phrase phrase_bank_address=new Phrase();
             phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
             PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);

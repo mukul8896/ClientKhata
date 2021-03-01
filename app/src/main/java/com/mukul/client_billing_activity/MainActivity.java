@@ -40,6 +40,7 @@ import java.util.List;
 
 import AdapterClasses.ClientListAdapter;
 import BeanClasses.Client;
+import backupEngine.BackupEngine;
 import db_services.ClientDbServices;
 import utils.ProjectUtil;
 
@@ -216,6 +217,9 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
             intent.putParcelableArrayListExtra("clientList", (ArrayList<? extends Parcelable>) clientsList);
             startActivity(intent);
+            return true;
+        } else if(item.getItemId()==R.id.action_backup){
+            BackupEngine.run();
             return true;
         }
         return true;
