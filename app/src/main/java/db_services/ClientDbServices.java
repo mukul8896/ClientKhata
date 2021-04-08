@@ -1,8 +1,9 @@
 package db_services;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import com.mukul.client_billing_activity.MainActivity;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,20 +15,26 @@ import java.util.Date;
 import java.util.List;
 
 import BeanClasses.Client;
+import dao.DBParameters;
+import dao.DbHandler;
 
 public class ClientDbServices {
+    DbHandler dbHandler;
 
-    public static void addClient(String name, String adress,Integer fee,String contact) throws Exception {
-        try {
-            Connection con = DBConnect.getConnection();
-            Statement stm = con.createStatement();
-            stm.executeUpdate("insert into Client (ClientName,Address,ContactNo,ClientFee) " +
-                    "values ('" + name + "','" + adress + "','" + contact + "','"+fee+"')");
-            con.commit();
-            con.close();
-        } catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
+    public ClientDbServices(DbHandler dbHandler){
+        this.dbHandler=dbHandler;
+    }
+    public void addClient(String name, String adress,Integer fee,String contact) throws Exception {
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DBParameters.KEY_CLIENT_NAME, name);
+        values.put(DBParameters.KEY_CLIENT_ADDRESS, adress);
+        values.put(DBParameters.KEY_CLIENT_CONTACT, contact);
+        values.put(DBParameters.KEY_CLIENT_FEE, fee);
+        values.put(DBParameters.KEY_CLIENT_BALANCE,0);
+        db.insert(DBParameters.DB_CLIENT_TABLE, null, values);
+        Log.d("mk_logs", "Successfully inserted");
+        db.close();
     }
 
     public static void updateClient(String name, String adress,Integer fee,String contact, Integer id) throws Exception {
@@ -194,4 +201,80 @@ public class ClientDbServices {
             throw new Exception("Error in previus balance !!");
         }
     }
+
+    //================================================================================================//
+
+    public static List<Client> getClientsList(DbHandler handler){
+        List<Client> contactList = new ArrayList<>();
+        SQLiteDatabase db = handler.getReadableDatabase();
+
+        // Generate the query to read from the database
+        String select = "SELECT * FROM " + DBParameters.DB_CLIENT_TABLE;
+        Cursor cursor = db.rawQuery(select, null);
+
+        //Loop through now
+        if(cursor.moveToFirst()){
+            do{
+                Client client = new Client();
+                client.setId(Integer.parseInt(cursor.getString(0)));
+                client.setName(cursor.getString(1));
+                client.setAddress(cursor.getString(2));
+                client.setBalance(Integer.parseInt(cursor.getString(3)));
+                client.setContact(cursor.getString(4));
+                client.setFee(Integer.parseInt(cursor.getString(5)));
+                contactList.add(client);
+            }while(cursor.moveToNext());
+        }
+        return contactList;
+    }
+
+    public int updateClient(Client client){
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DBParameters.KEY_CLIENT_NAME, client.getName());
+        values.put(DBParameters.KEY_CLIENT_ADDRESS, client.getAddress());
+        values.put(DBParameters.KEY_CLIENT_CONTACT, client.getContact());
+        values.put(DBParameters.KEY_CLIENT_FEE, client.getFee());
+        values.put(DBParameters.KEY_CLIENT_BALANCE, client.getBalance());
+
+        //Lets update now
+        return db.update(DBParameters.DB_CLIENT_TABLE, values, DBParameters.KEY_CLIENT_ID + "=?",
+                new String[]{String.valueOf(client.getId())});
+
+
+    }
+
+    public void deleteClientById(int clientId){
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        db.delete(DBParameters.DB_CLIENT_TABLE, DBParameters.KEY_CLIENT_ID +"=?", new String[]{String.valueOf(clientId)});
+        db.close();
+    }
+
+    public void deleteContact(Client client){
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        db.delete(DBParameters.DB_CLIENT_TABLE, DBParameters.KEY_CLIENT_ID +"=?", new String[]{String.valueOf(client.getId())});
+        db.close();
+    }
+
+    public int getCount(){
+        String query = "SELECT  * FROM " + DBParameters.DB_CLIENT_TABLE;
+        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        return cursor.getCount();
+    }
+
+    public void addClient(Client client){
+        SQLiteDatabase db = dbHandler.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DBParameters.KEY_CLIENT_NAME, client.getName());
+        values.put(DBParameters.KEY_CLIENT_ADDRESS, client.getAddress());
+        values.put(DBParameters.KEY_CLIENT_CONTACT, client.getContact());
+        values.put(DBParameters.KEY_CLIENT_FEE, client.getFee());
+        values.put(DBParameters.KEY_CLIENT_BALANCE, client.getBalance());
+        db.insert(DBParameters.DB_CLIENT_TABLE, null, values);
+        Log.d("mk_logs", "Successfully inserted");
+        db.close();
+    }
+
 }

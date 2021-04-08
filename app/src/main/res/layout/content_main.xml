@@ -111,10 +111,10 @@
         </LinearLayout>
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/client_list"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/client_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/upper_details_portion"
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="5dp"

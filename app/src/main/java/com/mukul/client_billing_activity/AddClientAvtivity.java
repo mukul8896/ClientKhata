@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import BeanClasses.Client;
+import dao.DbHandler;
 import db_services.ClientDbServices;
 
 public class AddClientAvtivity extends AppCompatActivity {
@@ -21,11 +22,16 @@ public class AddClientAvtivity extends AppCompatActivity {
     EditText fee;
     String modes;
     Integer clientId;
+    private ClientDbServices clientDbServices;
+    private DbHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_client);
+
+        dbHandler=new DbHandler(AddClientAvtivity.this);
+        clientDbServices=new ClientDbServices(dbHandler);
 
         String password=getIntent().getStringExtra("password");
         Bundle bundle = getIntent().getBundleExtra("data");
@@ -42,7 +48,6 @@ public class AddClientAvtivity extends AppCompatActivity {
 
         if (modes != null && modes.equals("Edit")) {
             Client client = ClientDbServices.getClient(clientId);
-            Log.i(MainActivity.class.getSimpleName(), client.getName() + " : " + client.getAddress() + ":" + client.getContact());
             client_name.setText(client.getName());
             address.setText(client.getAddress());
             fee.setText(client.getFee()+"");
@@ -56,8 +61,8 @@ public class AddClientAvtivity extends AppCompatActivity {
                     if (modes != null && modes.equals("Edit"))
                         ClientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString(), clientId);
                     else
-                        ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
-                    Toast.makeText(AddClientAvtivity.this, "Done !!", Toast.LENGTH_SHORT).show();
+                        clientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
+                    Toast.makeText(AddClientAvtivity.this, "Client Added Successfully !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
                             MainActivity.class);
                     intent.putExtra("app_password",password);

@@ -135,4 +135,16 @@ public class Client implements Parcelable {
     public int hashCode() {
         return super.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", contact='" + contact + '\'' +
+                ", fee=" + fee +
+                ", balance=" + balance +
+                ", id=" + id +
+                '}';
+    }
 }

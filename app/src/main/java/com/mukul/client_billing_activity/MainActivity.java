@@ -32,6 +32,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -39,16 +41,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import AdapterClasses.ClientListAdapter;
+import AdapterClasses.ClientRecylerViewAdapder;
 import BeanClasses.Client;
 import backupEngine.BackupEngine;
+import dao.DbHandler;
 import db_services.ClientDbServices;
 import utils.ProjectUtil;
 
 public class MainActivity extends AppCompatActivity {
     private List<Client> clientsList;
-    private ListView listView;
+    private RecyclerView recyclerlistView;
     private int index;
-    private ClientListAdapter adapter;
+    private ClientRecylerViewAdapder adapter;
     private TextView total_balance;
     private  TextView total_fee;
     private static final int storage_request_code = 1;
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private static String interval = "all";
     private static String filter_type = "Balance";
     private TextView total_value_tag;
+    private DbHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,15 +73,19 @@ public class MainActivity extends AppCompatActivity {
         /* requesting permission for application */
         requestPermission();
 
+        /* Initilize database */
+        dbHandler=new DbHandler(MainActivity.this);
+
+
         String intent_password=getIntent().getStringExtra("app_password");
-        String password = getPreferences(Context.MODE_PRIVATE).getString("app_password", "");
-        if (password == null || password.equals("")) {
+        String savedpassword = getPreferences(Context.MODE_PRIVATE).getString("app_password", "");
+        if (savedpassword == null || savedpassword.equals("")) {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.create_password_dialoge, null);
 
-            EditText pass1 = view.findViewById(R.id.new_password);
-            EditText pass2 = view.findViewById(R.id.confirm_password);
+            EditText password = view.findViewById(R.id.new_password);
+            EditText confirm_password = view.findViewById(R.id.confirm_password);
             TextView submit = view.findViewById(R.id.create_password_submit);
 
             alertDialog.setView(view);
@@ -85,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
             alertDialog.show();
 
             submit.setOnClickListener(v -> {
-                if (pass1.getText().toString().equals(pass2.getText().toString())) {
+                if (password.getText().toString().equals(confirm_password.getText().toString())) {
                     SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-                    editor.putString("app_password", pass2.getText().toString());
+                    editor.putString("app_password", confirm_password.getText().toString());
                     editor.apply();
                     MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
                     mainUiLoadAsynkTask.execute();
@@ -100,13 +109,13 @@ public class MainActivity extends AppCompatActivity {
             AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.enter_password_dialoge, null);
-            EditText pass = view.findViewById(R.id.enter_password);
+            EditText entred_password = view.findViewById(R.id.enter_password);
             TextView submit = view.findViewById(R.id.password_submit);
             alertDialog.setView(view);
             alertDialog.setTitle("Enter Password");
             alertDialog.setCancelable(false);
 
-            if(intent_password!=null && intent_password.equals(password)){
+            if(intent_password!=null && intent_password.equals(savedpassword)){
                 MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
                 mainUiLoadAsynkTask.execute();
             }else {
@@ -114,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             submit.setOnClickListener(v -> {
-                if (pass.getText().toString().equals(password)) {
+                if (entred_password.getText().toString().equals(savedpassword)) {
                     MainUiLoadAsynkTask mainUiLoadAsynkTask = new MainUiLoadAsynkTask();
                     mainUiLoadAsynkTask.execute();
                     alertDialog.dismiss();
@@ -143,8 +152,8 @@ public class MainActivity extends AppCompatActivity {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, filteredClientList);
-                listView.setAdapter(adapter);
+                adapter = new ClientRecylerViewAdapder(MainActivity.this, filteredClientList);
+                recyclerlistView.setAdapter(adapter);
                 return true;
             }
         });
@@ -280,16 +289,17 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
-            clientsList = ClientDbServices.getClientsList(interval, filter_type);
+            //clientsList = ClientDbServices.getClientsList(interval, filter_type);
+            clientsList = ClientDbServices.getClientsList(dbHandler);
             if (total_balance == null)
                 total_balance = findViewById(R.id.total_balance);
             total_balance.setText(getTotalBalance(clientsList));
             total_fee.setText(getTotalFee(clientsList));
-            if (listView == null)
-                listView = findViewById(R.id.client_list);
-            adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
+            if (recyclerlistView == null)
+                recyclerlistView = findViewById(R.id.client_list_view);
+            adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList);
             filteredClientList=clientsList;
-            listView.setAdapter(adapter);
+            recyclerlistView.setAdapter(adapter);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -365,7 +375,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected String doInBackground(String... strings) {
             try {
-                clientsList = ClientDbServices.getClientsList(interval, filter_type);
+                //clientsList = ClientDbServices.getClientsList(interval, filter_type);
+                clientsList = ClientDbServices.getClientsList(dbHandler);
                 filteredClientList=clientsList;
                 return "success";
             } catch (Exception e) {
@@ -380,10 +391,10 @@ public class MainActivity extends AppCompatActivity {
             if (s.equals("success")) {
                 total_value_tag.setText("Total "+filter_type);
                 total_balance.setText(getTotalBalance(clientsList));
-                if (listView == null)
-                    listView = findViewById(R.id.client_list);
-                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
-                listView.setAdapter(adapter);
+                if (recyclerlistView == null)
+                    recyclerlistView = findViewById(R.id.client_list_view);
+                adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList);
+                recyclerlistView.setAdapter(adapter);
                 progressDoalog.dismiss();
             } else {
                 progressDoalog.dismiss();
@@ -408,13 +419,16 @@ public class MainActivity extends AppCompatActivity {
             total_fee=(TextView)findViewById(R.id.total_fee);
             total_value_tag=(TextView)findViewById(R.id.total_value_id);
             total_value_tag.setText("Total "+filter_type);
-            listView = findViewById(R.id.client_list);
+            recyclerlistView = (RecyclerView) findViewById(R.id.client_list_view);
+            recyclerlistView.setHasFixedSize(true);
+            recyclerlistView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
         }
 
         @Override
         protected String doInBackground(String... strings) {
             try {
-                clientsList = ClientDbServices.getClientsList("all", "Balance");
+                //clientsList = ClientDbServices.getClientsList("all", "Balance");
+                clientsList = ClientDbServices.getClientsList(dbHandler);
                 filteredClientList=clientsList;
                 Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
                 return "success";
@@ -430,9 +444,10 @@ public class MainActivity extends AppCompatActivity {
                 progressDoalog.dismiss();
                 total_balance.setText(getTotalBalance(clientsList));
                 total_fee.setText(getTotalFee(clientsList));
-                adapter = new ClientListAdapter(MainActivity.this, R.layout.client_list_item, clientsList);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList);
+                recyclerlistView.setAdapter(adapter);
+
+                /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(MainActivity.this,
@@ -449,7 +464,9 @@ public class MainActivity extends AppCompatActivity {
                         index = position;
                         return false;
                     }
-                });
+                });*/
+
+
                 FloatingActionButton fab = findViewById(R.id.fab);
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
