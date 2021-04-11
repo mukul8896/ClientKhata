@@ -14,7 +14,6 @@ import com.itextpdf.text.pdf.draw.LineSeparator;
 
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -28,9 +27,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import BeanClasses.Client;
-import BeanClasses.Transection;
-import utils.ProjectUtil;
+import modals.Client;
+import modals.Transection;
+import utils.ProjectUtils;
 
 public class AnnualSummeryServices {
     private Document document;
@@ -42,7 +41,7 @@ public class AnnualSummeryServices {
     }
 
     public File generateYearReport(String year,String file_type) throws IOException, DocumentException {
-        File folder = new File(ProjectUtil.createDirectoryFolder().getPath() + File.separator + year);
+        File folder = new File(ProjectUtils.createDirectoryFolder().getPath() + File.separator + year);
         if (!folder.exists()) {
             folder.mkdir();
         }

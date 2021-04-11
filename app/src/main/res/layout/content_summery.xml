@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.mukul.client_billing_activity.SummeryActivity"
+    tools:context="com.mukul.companyAccounts.SummeryActivity"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <LinearLayout
         android:id="@+id/upper_details_portion"

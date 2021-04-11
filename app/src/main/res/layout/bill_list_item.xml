@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context="com.mukul.client_billing_activity.ClientActivity"
+    tools:context="com.mukul.companyAccounts.ClientActivity"
     android:orientation="horizontal"
     android:background="@drawable/bill_list_item"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">

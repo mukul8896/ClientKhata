@@ -11,9 +11,9 @@ import androidx.core.content.FileProvider;
 import java.io.File;
 import java.util.List;
 
-import BeanClasses.Bill;
-import BeanClasses.Transection;
-import db_services.BillDbServices;
+import modals.Bill;
+import modals.Transection;
+import dbServices.BillDbServices;
 
 public class BillUtils {
     private Bill bill;
@@ -25,16 +25,16 @@ public class BillUtils {
     public String getBillDetails() {
         String details = "Bill No. " + bill.getBill_no() + " / ";
         details += bill.getBill_year() + " / ";
-        details += bill.getGenerationDate()==null?GeneralUtils.getFormatedDate():bill.getGenerationDate();
+        details += bill.getGenerationDate()==null? ProjectUtils.getFormatedDate():bill.getGenerationDate();
         return details;
     }
 
-    public List<Transection> getParticulars() throws Exception {
+    /*public List<Transection> getParticulars() throws Exception {
         return BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date());
-    }
+    }*/
 
     public File getFile(String bill_year) {
-        File dir = new File(ProjectUtil.createDirectoryFolder().getPath() + File.separator + bill_year);
+        File dir = new File(ProjectUtils.createDirectoryFolder().getPath() + File.separator + bill_year);
         if (!dir.exists()) {
             dir.mkdir();
         }

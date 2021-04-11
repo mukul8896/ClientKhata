@@ -6,42 +6,35 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Font.FontFamily;
-import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPHeaderCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import com.mukul.client_billing_activity.GeneratedBillFragment;
-import com.mukul.client_billing_activity.R;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import BeanClasses.Bill;
-import BeanClasses.Client;
-import BeanClasses.Transection;
-import db_services.BillDbServices;
-import db_services.ClientDbServices;
-import db_services.TransectionDbServices;
+import modals.Bill;
+import modals.Client;
+import modals.Transection;
+import dbServices.BillDbServices;
+import dbServices.ClientDbServices;
+import dbServices.TransectionDbServices;
 import utils.BillUtils;
-import utils.ProjectUtil;
+import utils.ProjectUtils;
 
 public class BillGenerationServices {
     private Document document;
 
-    public void generateBill(Bill bill) throws Exception {
+    public void generateBill(Bill bill,ClientDbServices clientDbServices,TransectionDbServices transectionDbServices,BillDbServices billDbServices) throws Exception {
 
         BillUtils utils = new BillUtils(bill);
 
@@ -51,14 +44,14 @@ public class BillGenerationServices {
 
         addBillDetails(utils.getBillDetails());
 
-        Client client = ClientDbServices.getClient(bill.getClient_id());
+        Client client = clientDbServices.getClient(bill.getClient_id());
         addClientDetails(client.getName(), client.getAddress());
 
-        //addBillPertucilerHeader();
 
-        String previous = BillDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
+        String previous = billDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
 
-        addParticulers(previous, utils.getParticulars(), bill);
+        String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
+        addParticulers(previous, billDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date()), bill_detail,transectionDbServices);
 
         addFooterInfo();
 
@@ -104,7 +97,7 @@ public class BillGenerationServices {
         table.addCell(cell_bank_detail_header);
 
         try {
-            String path = ProjectUtil.createDirectoryFolder().getPath()+File.separator + "signature.png";
+            String path = ProjectUtils.createDirectoryFolder().getPath()+File.separator + "signature.png";
             Image img = Image.getInstance(path);
             PdfPCell signature_cell = new PdfPCell(img,true);
             signature_cell.setBorderWidth(0);
@@ -247,7 +240,7 @@ public class BillGenerationServices {
 
     }
 
-    private void addParticulers(String previous_balance, List<Transection> particulars, Bill bill) throws Exception {
+    private void addParticulers(String previous_balance, List<Transection> particulars, String billdetails, TransectionDbServices transectionDbServices) throws Exception {
         Paragraph paragraph = new Paragraph();
         paragraph.setIndentationLeft(50);
         PdfPTable table = new PdfPTable(new float[]{3, 1});
@@ -347,7 +340,7 @@ public class BillGenerationServices {
             amount.setBorder(0);
             amount.setFixedHeight(30);
             table.addCell(amount);
-            TransectionDbServices.addBillDetailsToTransection(transection, bill);
+            transectionDbServices.addBillDetailsToTransection(transection, billdetails);
         }
 
         System.out.println("Total Balance " + total);

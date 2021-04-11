@@ -11,4 +11,9 @@
     <color name="client_list_balane">#009900</color>
     <color name="light_grey">#cccccc</color>
     <color name="dark_blue">#0047b3</color>
+    <color name="blue_grey_500">#607D8B</color>
+    <color name="blue_grey_600">#546E7A</color>
+    <color name="blue_grey_700">#455A64</color>
+    <color name="blue_grey_800">#37474F</color>
+    <color name="blue_grey_900">#263238</color>
 </resources>

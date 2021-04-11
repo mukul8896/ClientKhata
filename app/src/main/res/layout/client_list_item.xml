@@ -7,7 +7,7 @@
     android:background="@drawable/client_list_items"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mukul.client_billing_activity.MainActivity">
+    tools:context="com.mukul.companyAccounts.MainActivity">
 
     <TextView
         android:id="@+id/client_name"

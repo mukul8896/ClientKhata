@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mukul.client_billing_activity">
+    package="com.mukul.companyAccounts">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
 
     <application
         android:allowBackup="true"
@@ -9,19 +14,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SummeryActivity" />
-        <activity android:name=".BillEditActivity" />
-        <activity android:name=".ClientActivity" />
+        <activity android:name="com.mukul.companyAccounts.SummeryActivity" />
+        <activity android:name="com.mukul.companyAccounts.BillEditActivity" />
+        <activity android:name="com.mukul.companyAccounts.ClientActivity" />
         <activity
-            android:name=".AddTransecActivity"
+            android:name="com.mukul.companyAccounts.AddTransecActivity"
             android:label="Add Transection"
-            android:parentActivityName=".ClientActivity" />
+            android:parentActivityName="com.mukul.companyAccounts.ClientActivity" />
         <activity
-            android:name=".AddClientAvtivity"
+            android:name="com.mukul.companyAccounts.AddClientAvtivity"
             android:label="Add Client"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName="com.mukul.companyAccounts.MainActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name="com.mukul.companyAccounts.MainActivity"
             android:icon="@drawable/app_logo"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
@@ -30,6 +35,39 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity
+            android:name="googleSignIn.ChooserActivity"
+            android:label="ChooserActivity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
+        </activity>
+        <activity
+            android:name="googleSignIn.SignInActivity"
+            android:label="@string/name_sign_in_activity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
+        </activity>
+        <activity
+            android:name="googleSignIn.SignInActivityWithDrive"
+            android:label="@string/name_sign_in_activity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
+        </activity>
+        <activity
+            android:name="googleSignIn.IdTokenActivity"
+            android:label="@string/name_id_token_activity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
+        </activity>
+
+        <activity
+            android:name="googleSignIn.ServerAuthCodeActivity"
+            android:label="@string/name_auth_code_activity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
+        </activity>
+
+        <activity
+            android:name="googleSignIn.RestApiActivity"
+            android:label="@string/name_rest_activity"
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity">
         </activity>
 
         <provider
@@ -42,9 +80,5 @@
                 android:resource="@xml/provider_paths" />
         </provider>
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>

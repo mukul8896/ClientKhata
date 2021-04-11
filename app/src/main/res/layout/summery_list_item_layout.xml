@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:background="@drawable/transection_list_item"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.mukul.client_billing_activity.SummeryActivity">
+    tools:context="com.mukul.companyAccounts.SummeryActivity">
 
     <TextView
         android:id="@+id/client_name_summery_list"

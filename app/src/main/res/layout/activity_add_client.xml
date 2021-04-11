@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mukul.client_billing_activity.AddClientAvtivity"
+    tools:context="com.mukul.companyAccounts.AddClientAvtivity"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <LinearLayout
