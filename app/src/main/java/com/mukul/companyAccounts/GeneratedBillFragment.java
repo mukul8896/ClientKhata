@@ -10,22 +10,19 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Date;
 import java.util.List;
 
-import adapterClasses.BillListAdapder;
-import dao.DbHandler;
-import dbServices.ClientDbServices;
-import dbServices.TransectionDbServices;
+import adapterClasses.BillListRecyclerViewAdapter;
 import modals.Bill;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
@@ -37,7 +34,7 @@ import utils.ProjectUtils;
  * Use the {@link GeneratedBillFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class GeneratedBillFragment extends Fragment {
+public class GeneratedBillFragment extends Fragment implements BillListRecyclerViewAdapter.ItemEventListner {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -48,12 +45,10 @@ public class GeneratedBillFragment extends Fragment {
     private String mParam2;
     private Integer client_id;
     private List<Bill> bill_list;
-    private BillListAdapder adapter;
+    private BillListRecyclerViewAdapter adapter;
     private int index;
     private Dialog dialog;
-    private ClientDbServices clientDbServices;
-    private TransectionDbServices transectionDbServices;
-    private BillDbServices billDbServices;
+    private RecyclerView recyclerView;
 
     // TODO: Rename and change types and number of parameters
     public static GeneratedBillFragment newInstance(Integer clientId) {
@@ -72,14 +67,9 @@ public class GeneratedBillFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        DbHandler dbHandler=new DbHandler(this.getContext());
-        clientDbServices=new ClientDbServices(dbHandler);
-        transectionDbServices=new TransectionDbServices(dbHandler);
-        billDbServices=new BillDbServices(dbHandler);
-
         client_id = getArguments().getInt("ClientId");
         try {
-            bill_list = billDbServices.getBillList(client_id);
+            bill_list = BillDbServices.getBillList(client_id);
         } catch (Exception e) {
             Toast.makeText(getActivity(), "Someting went wrong !!", Toast.LENGTH_LONG).show();
         }
@@ -90,24 +80,13 @@ public class GeneratedBillFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generated_bill, container, false);
-        ListView listView = (ListView) rootView.findViewById(R.id.bill_listview);
-        adapter = new BillListAdapder(getActivity().getApplicationContext(), R.layout.bill_list_item, bill_list);
-        listView.setAdapter(adapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openPdfFile(position);
-            }
-        });
 
-        registerForContextMenu(listView);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                index = position;
-                return false;
-            }
-        });
+        recyclerView = rootView.findViewById(R.id.bill_recyclerview);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new BillListRecyclerViewAdapter(this.getContext(),  bill_list,GeneratedBillFragment.this);
+        recyclerView.setAdapter(adapter);
 
         Button generate_bill_btn = (Button) rootView.findViewById(R.id.generate_bill_btn);
         generate_bill_btn.setOnClickListener(new View.OnClickListener() {
@@ -175,6 +154,17 @@ public class GeneratedBillFragment extends Fragment {
         utils.openPdfFile(getActivity());
     }
 
+    @Override
+    public void onClick(View view, int position) {
+        openPdfFile(position);
+    }
+
+    @Override
+    public boolean onLongClick(View view, int position) {
+        index = position;
+        return false;
+    }
+
     private class PDFGenerationTask extends AsyncTask<String, String, String> {
         private Bill bill;
 
@@ -198,12 +188,12 @@ public class GeneratedBillFragment extends Fragment {
 
                 String financial_year = ProjectUtils.getFinancialYear(to_date);
                 bill.setBill_year(financial_year);
-                bill.setBill_no(billDbServices.getMaxBillNo(financial_year) + 1);
+                bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
                 bill.setGenerationDate(ProjectUtils.getFormatedDate());
 
                 BillGenerationServices services = new BillGenerationServices();
-                services.generateBill(bill,clientDbServices,transectionDbServices,billDbServices);
-                billDbServices.addBill(bill);
+                services.generateBill(bill);
+                BillDbServices.addBill(bill);
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();

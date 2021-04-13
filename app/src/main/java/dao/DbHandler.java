@@ -8,11 +8,28 @@ import android.util.Log;
 import java.util.Date;
 
 public class DbHandler extends SQLiteOpenHelper {
-
-    public DbHandler(Context context) {
+    private static DbHandler dbInstanse;
+    private static Context context;
+    private DbHandler(Context context) {
         super(context, DBParameters.DB_NAME, null, DBParameters.DB_VERSION);
+        this.context=context;
         this.getReadableDatabase();
     }
+
+    public static synchronized DbHandler getInstance(Context context) {
+        if (dbInstanse == null) {
+            dbInstanse = new DbHandler(context.getApplicationContext());
+        }
+        return dbInstanse;
+    }
+
+    public static synchronized DbHandler getInstance() {
+        if (dbInstanse == null) {
+            dbInstanse = new DbHandler(context);
+        }
+        return dbInstanse;
+    }
+
 
     @Override
     public void onConfigure(SQLiteDatabase db) {
@@ -51,7 +68,7 @@ public class DbHandler extends SQLiteOpenHelper {
         String createTransectionTable = "CREATE TABLE " + DBParameters.DB_TRANSECTION_TABLE + "("
                 + DBParameters.KEY_TRANSECTION_ID + " INTEGER PRIMARY KEY,"
                 + DBParameters.KEY_TRANSECTION_BILLID + " INTEGER references "+DBParameters.DB_BILL_TABLE+"("+DBParameters.KEY_BILL_ID+"),"
-                + DBParameters.KEY_CLIENT_ID + " INTEGER references "+DBParameters.DB_CLIENT_TABLE+"("+DBParameters.KEY_CLIENT_ID+"),"
+                + DBParameters.KEY_CLIENT_ID + " INTEGER references "+DBParameters.DB_CLIENT_TABLE+"("+DBParameters.KEY_CLIENT_ID+") ON DELETE CASCADE,"
                 + DBParameters.KEY_TRANSECTION_DATE + " TEXT, "
                 + DBParameters.KEY_TRANSECTION_DESC + " TEXT, "
                 + DBParameters.KEY_TRANSECTION_TYPE + " TEXT, "

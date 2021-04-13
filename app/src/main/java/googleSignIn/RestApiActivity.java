@@ -23,7 +23,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.google.api.client.http.HttpTransport;
@@ -64,7 +63,7 @@ public class RestApiActivity extends AppCompatActivity implements
     private static final int RC_RECOVERABLE = 9002;
 
     // Global instance of the HTTP transport
-    private static final HttpTransport HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
+    private static final HttpTransport HTTP_TRANSPORT = null;//GoogleNetHttpTransport.newTrustedTransport();
 
     // Global instance of the JSON factory
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();

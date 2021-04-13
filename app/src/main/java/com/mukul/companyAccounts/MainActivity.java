@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,18 +39,17 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-import adapterClasses.ClientRecylerViewAdapder;
+import adapterClasses.ClientListRecylerViewAdapder;
 import modals.Client;
-import backupEngine.BackupEngine;
 import dao.DbHandler;
 import dbServices.ClientDbServices;
 import utils.ProjectUtils;
 
-public class MainActivity extends AppCompatActivity implements ClientRecylerViewAdapder.ItemEventListner {
+public class MainActivity extends AppCompatActivity implements ClientListRecylerViewAdapder.ItemEventListner {
     private List<Client> clientsList;
     private RecyclerView recyclerlistView;
     private int index;
-    private ClientRecylerViewAdapder adapter;
+    private ClientListRecylerViewAdapder adapter;
     private TextView total_balance;
     private  TextView total_fee;
 
@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
     private static String filter_type = "Balance";
     private TextView total_value_tag;
     private DbHandler dbHandler;
-    private ClientDbServices clientDbServices;
 
     private static final int storage_request_code = 1;
     private static final int internet_request_code = 2;
@@ -75,17 +74,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
         requestPermission();
 
         /* Initilize database */
-        dbHandler=new DbHandler(MainActivity.this);
-        clientDbServices=new ClientDbServices(dbHandler);
-
-        Client client=new Client();
-        client.setName("Test");
-        client.setAddress("Test");
-        client.setBalance(0);
-        client.setContact("123456789");
-        client.setFee(1000);
-        for(int i=0;i<5;i++)
-            clientDbServices.addClient(client);
+        dbHandler=DbHandler.getInstance(MainActivity.this.getApplicationContext());
 
 
         String intent_password=getIntent().getStringExtra("app_password");
@@ -142,6 +131,17 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                     Toast.makeText(this, "Wrong Password !!", Toast.LENGTH_SHORT).show();
             });
         }
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this,
+                        AddClientAvtivity.class);
+                intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+                startActivity(intent);
+            }
+        });
     }
     List<Client> filteredClientList=clientsList;
     @Override
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                adapter = new ClientRecylerViewAdapder(MainActivity.this, filteredClientList, MainActivity.this);
+                adapter = new ClientListRecylerViewAdapder(MainActivity.this, filteredClientList, MainActivity.this);
                 recyclerlistView.setAdapter(adapter);
                 return true;
             }
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
             startActivity(intent);
             return true;
         } else if(item.getItemId()==R.id.action_backup){
-            BackupEngine.run();
+
             return true;
         }
         return true;
@@ -264,12 +264,12 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     try {
-                        Log.i(MainActivity.class.getSimpleName(), "delete alert submited"+filteredClientList.get(index).getName());
-                        clientDbServices.deleteClient(filteredClientList.get(index).getId());
+                        Log.i(MainActivity.class.getSimpleName(), "delete alert"+filteredClientList.get(index).getName());
+                        ClientDbServices.deleteClient(filteredClientList.get(index).getId());
                         filteredClientList.remove(index);
                         onRestart();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (SQLiteConstraintException e) {
+                        Toast.makeText(MainActivity.this, "Clould not delete this client...!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -301,14 +301,14 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
         Log.i(MainActivity.class.getSimpleName(), "In onRestart");
         try {
             //clientsList = ClientDbServices.getClientsList(interval, filter_type);
-            clientsList = ClientDbServices.getClientsList(dbHandler);
+            clientsList = ClientDbServices.getClientsList();
             if (total_balance == null)
                 total_balance = findViewById(R.id.total_balance);
             total_balance.setText(getTotalBalance(clientsList));
             total_fee.setText(getTotalFee(clientsList));
             if (recyclerlistView == null)
                 recyclerlistView = findViewById(R.id.client_list_view);
-            adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList,  MainActivity.this);
+            adapter = new ClientListRecylerViewAdapder(MainActivity.this, clientsList,  MainActivity.this);
             filteredClientList=clientsList;
             recyclerlistView.setAdapter(adapter);
         } catch (Exception e) {
@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission was granted from popup, call savepdf method
                     Log.d("mk_logs","Directory created");
-                    ProjectUtils.createDirectoryFolder();
+                    ProjectUtils.getBillsFolder();
                 } else {
                     //permission was denied from popup, show error message
                     Toast.makeText(this, "Storage Permission denied...!", Toast.LENGTH_SHORT).show();
@@ -355,11 +355,11 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                                                         Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);
             } else {
-                ProjectUtils.createDirectoryFolder();
+                ProjectUtils.getBillsFolder();
             }
         } else {
             //system OS < Marshmallow, call save pdf method
-            ProjectUtils.createDirectoryFolder();
+            ProjectUtils.getBillsFolder();
         }
     }
 
@@ -405,7 +405,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
         protected String doInBackground(String... strings) {
             try {
                 //clientsList = ClientDbServices.getClientsList(interval, filter_type);
-                clientsList = ClientDbServices.getClientsList(dbHandler);
+                clientsList = ClientDbServices.getClientsList(interval, filter_type);
                 filteredClientList=clientsList;
                 return "success";
             } catch (Exception e) {
@@ -422,7 +422,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                 total_balance.setText(getTotalBalance(clientsList));
                 if (recyclerlistView == null)
                     recyclerlistView = findViewById(R.id.client_list_view);
-                adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList, MainActivity.this);
+                adapter = new ClientListRecylerViewAdapder(MainActivity.this, clientsList, MainActivity.this);
                 recyclerlistView.setAdapter(adapter);
                 progressDoalog.dismiss();
             } else {
@@ -456,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
         @Override
         protected String doInBackground(String... strings) {
             try {
-                clientsList = clientDbServices.getClientsList("all", "Balance");
+                clientsList = ClientDbServices.getClientsList("all", "Balance");
                 filteredClientList=clientsList;
                 Log.i(MainActivity.class.getSimpleName(), clientsList.toString());
                 return "success";
@@ -472,39 +472,11 @@ public class MainActivity extends AppCompatActivity implements ClientRecylerView
                 progressDoalog.dismiss();
                 total_balance.setText(getTotalBalance(clientsList));
                 total_fee.setText(getTotalFee(clientsList));
-                adapter = new ClientRecylerViewAdapder(MainActivity.this, clientsList, MainActivity.this);
+
+                adapter = new ClientListRecylerViewAdapder(MainActivity.this, clientsList, MainActivity.this);
                 recyclerlistView.setAdapter(adapter);
 
-                /*listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(MainActivity.this,
-                                ClientActivity.class);
-                        intent.putExtra("id", filteredClientList.get(position).getId());
-                        intent.putExtra("app_password", getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
-                        startActivity(intent);
-                    }
-                });
-
-                listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                        index = position;
-                        return false;
-                    }
-                });*/
-
                 registerForContextMenu(recyclerlistView);
-                FloatingActionButton fab = findViewById(R.id.fab);
-                fab.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                       Intent intent = new Intent(MainActivity.this,
-                                AddClientAvtivity.class);
-                        intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
-                        startActivity(intent);
-                    }
-                });
             } else {
                 progressDoalog.dismiss();
                 Toast.makeText(MainActivity.this, "Some error while fetching data ||", Toast.LENGTH_SHORT).show();

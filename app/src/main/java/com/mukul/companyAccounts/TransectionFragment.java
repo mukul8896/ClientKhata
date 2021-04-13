@@ -36,8 +36,6 @@ public class TransectionFragment extends Fragment {
     private TransectionListAdapter adapter;
     private Client client;
     private int index;
-    private ClientDbServices clientDbServices;
-    private TransectionDbServices transectionDbServices;
 
     public static TransectionFragment newInstance(Integer clientId) {
         TransectionFragment fragment = new TransectionFragment();
@@ -52,14 +50,10 @@ public class TransectionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.i(TransectionFragment.class.getSimpleName(), "inside onCreate");
 
-        DbHandler handler=new DbHandler(this.getContext());
-        clientDbServices=new ClientDbServices(handler);
-        transectionDbServices=new TransectionDbServices(handler);
-
         client_id = getArguments().getInt("ClientId");
-        transectionList = transectionDbServices.getClientsTransections(client_id);
+        transectionList = TransectionDbServices.getClientsTransections(client_id);
 
-        client = clientDbServices.getClient(client_id);
+        client = ClientDbServices.getClient(client_id);
 
         Collections.sort(transectionList);
     }
@@ -122,7 +116,7 @@ public class TransectionFragment extends Fragment {
         }
         if (id == R.id.delete) {
             try {
-                transectionDbServices.deleteTransection(client.getId(), transectionList.get(index));
+                TransectionDbServices.deleteTransection(client.getId(), transectionList.get(index));
                 transectionList.remove(index);
                 adapter.notifyDataSetChanged();
                 Toast.makeText(getActivity().getApplicationContext(), "Transection deleted successfully!!", Toast.LENGTH_SHORT).show();

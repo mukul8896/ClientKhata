@@ -41,7 +41,7 @@ public class AnnualSummeryServices {
     }
 
     public File generateYearReport(String year,String file_type) throws IOException, DocumentException {
-        File folder = new File(ProjectUtils.createDirectoryFolder().getPath() + File.separator + year);
+        File folder = new File(ProjectUtils.getBillsFolder().getPath() + File.separator + year);
         if (!folder.exists()) {
             folder.mkdir();
         }

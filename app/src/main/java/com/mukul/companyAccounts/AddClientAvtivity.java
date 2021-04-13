@@ -21,16 +21,11 @@ public class AddClientAvtivity extends AppCompatActivity {
     EditText fee;
     String modes;
     Integer clientId;
-    private ClientDbServices clientDbServices;
-    private DbHandler dbHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_client);
-
-        dbHandler=new DbHandler(AddClientAvtivity.this);
-        clientDbServices=new ClientDbServices(dbHandler);
 
         String password=getIntent().getStringExtra("password");
         Bundle bundle = getIntent().getBundleExtra("data");
@@ -46,7 +41,7 @@ public class AddClientAvtivity extends AppCompatActivity {
         Button add = (Button)findViewById(R.id.add_client);
 
         if (modes != null && modes.equals("Edit")) {
-            Client client = clientDbServices.getClient(clientId);
+            Client client = ClientDbServices.getClient(clientId);
             client_name.setText(client.getName());
             address.setText(client.getAddress());
             fee.setText(client.getFee()+"");
@@ -58,9 +53,9 @@ public class AddClientAvtivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     if (modes != null && modes.equals("Edit"))
-                        clientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString(), clientId);
+                        ClientDbServices.updateClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString(), clientId);
                     else
-                        clientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
+                        ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
                     Toast.makeText(AddClientAvtivity.this, "Client Added Successfully !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
                             MainActivity.class);

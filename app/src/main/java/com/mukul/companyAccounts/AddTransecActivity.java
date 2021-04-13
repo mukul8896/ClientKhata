@@ -34,8 +34,6 @@ public class AddTransecActivity extends AppCompatActivity {
     private String modes;
     private Integer transectionId;
     private String parentActivity;
-    private ClientDbServices clientDbServices;
-    private TransectionDbServices transectionDbServices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,11 +41,6 @@ public class AddTransecActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_transec);
 
         client_id = getIntent().getIntExtra("id", 0);
-
-        DbHandler handler=new DbHandler(this);
-        clientDbServices=new ClientDbServices(handler);
-        transectionDbServices=new TransectionDbServices(handler);
-
 
         Bundle bundle = getIntent().getBundleExtra("data");
         if (bundle != null) {
@@ -67,7 +60,7 @@ public class AddTransecActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
 
         if (modes != null && modes.equals("Edit")) {
-            Transection transection = transectionDbServices.getTransection(transectionId);
+            Transection transection = TransectionDbServices.getTransection(transectionId);
             amt_edit_txt.setText(transection.getAmount() + "");
             desc_edit_txt.setText(transection.getDesc());
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMMM dd, yyyy");
@@ -116,9 +109,9 @@ public class AddTransecActivity extends AppCompatActivity {
                     String type = spinner.getSelectedItem().toString();
 
                     if (modes != null && modes.equals("Edit"))
-                        transectionDbServices.updateTransection(amount, transectionId, desc, date, type, client_id);
+                        TransectionDbServices.updateTransection(amount, transectionId, desc, date, type, client_id);
                     else
-                        transectionDbServices.addTransectioin(amount, client_id, desc, date, type);
+                        TransectionDbServices.addTransectioin(amount, client_id, desc, date, type);
                     Intent intent = null;
                     if (parentActivity != null && parentActivity.contains(BillEditActivity.class.getSimpleName())) {
                         intent = new Intent(AddTransecActivity.this, BillEditActivity.class);
@@ -155,7 +148,7 @@ public class AddTransecActivity extends AppCompatActivity {
                 intent = new Intent(AddTransecActivity.this, ClientActivity.class);
             }
             intent.putExtra("id", client_id);
-            intent.putExtra("Client Name", clientDbServices.getClient(client_id).getName());
+            intent.putExtra("Client Name", ClientDbServices.getClient(client_id).getName());
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();

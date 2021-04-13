@@ -26,19 +26,15 @@ public class ClientActivity extends AppCompatActivity {
     private TextView fee_txt;
     private Client client;
     private String password;
-    private ClientDbServices clientDbServices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.client_activity);
 
-        DbHandler dbHandler=new DbHandler(this);
-        clientDbServices=new ClientDbServices(dbHandler);
-
         client_id = getIntent().getIntExtra("id", 0);
         password = getIntent().getStringExtra("app_password");
-        client = clientDbServices.getClient(client_id);
+        client = ClientDbServices.getClient(client_id);
 
         toolbar = getSupportActionBar();
         toolbar.setTitle(client.getName());

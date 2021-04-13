@@ -23,14 +23,8 @@ import utils.ProjectUtils;
 
 public class TransectionDbServices {
 
-    private DbHandler dbHandler;
-
-    public TransectionDbServices(DbHandler handler){
-        this.dbHandler=handler;
-    }
-
-    public void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
+    public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception {
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
         values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
@@ -42,17 +36,16 @@ public class TransectionDbServices {
         Log.d("mk_logs", "Transection Successfully added");
         db.close();
 
-        ClientDbServices services=new ClientDbServices(dbHandler);
         if (type.equals("Credit"))
-            services.updateClientBalance(clientId, amount, -1);
+            ClientDbServices.updateClientBalance(clientId, amount, -1);
         else
-            services.updateClientBalance(clientId, amount, 1);
+            ClientDbServices.updateClientBalance(clientId, amount, 1);
     }
 
-    public List<Transection> getClientsTransections(int clientId) {
+    public static List<Transection> getClientsTransections(int clientId) {
         List<Transection> list = new ArrayList<>();
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE+" where " +DBParameters.KEY_TRANSECTION_CLIENTID+ "="+clientId;
-        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if(cursor.moveToFirst()){
             do{
@@ -70,20 +63,18 @@ public class TransectionDbServices {
         return list;
     }
 
-    public void deleteTransection(int client_id, Transection transection)  {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
+    public static void deleteTransection(int client_id, Transection transection)  {
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
         db.delete(DBParameters.DB_TRANSECTION_TABLE, DBParameters.KEY_TRANSECTION_ID +"=?", new String[]{String.valueOf(transection.getTransecId())});
         db.close();
-
-        ClientDbServices services=new ClientDbServices(dbHandler);
-        services.updateClientBalance(client_id,
+        ClientDbServices.updateClientBalance(client_id,
                 transection.getAmount(),
                 transection.getTransecType().equals("Credit") ? 1 : -1);
 
     }
 
-    public int updateTransection(Integer amount, Integer trasectionId, String desc, String date, String type, Integer clientId) {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
+    public static int updateTransection(Integer amount, Integer trasectionId, String desc, String date, String type, Integer clientId) {
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
         values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
@@ -94,29 +85,30 @@ public class TransectionDbServices {
         int rowsEffected=db.update(DBParameters.DB_TRANSECTION_TABLE, values, DBParameters.KEY_TRANSECTION_ID + "=?",
                 new String[]{String.valueOf(trasectionId)});
         db.close();
+        ClientDbServices.updateClientBalance(clientId);
         return rowsEffected;
     }
 
-    public int getBalanceOfClient(Integer clientId) {
+    public static int getBalanceOfClient(Integer clientId) {
         int total_balance = 0;
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE+" where " +DBParameters.KEY_TRANSECTION_CLIENTID+ "="+clientId;
-        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if(cursor.moveToFirst()){
             do{
-                    if (cursor.getString(5).equals("Credit"))
-                        total_balance -= cursor.getInt(6);
-                    else
-                        total_balance += cursor.getInt(6);
+                if (cursor.getString(5).equals("Credit"))
+                    total_balance -= cursor.getInt(6);
+                else
+                    total_balance += cursor.getInt(6);
 
             }while(cursor.moveToNext());
         }
         return total_balance;
     }
 
-    public Transection getTransection(int transectionID) {
+    public static Transection getTransection(int transectionID) {
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE+" where " +DBParameters.KEY_TRANSECTION_ID+ "="+transectionID;
-        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         Transection transection = new Transection();
 
@@ -134,8 +126,8 @@ public class TransectionDbServices {
         return transection;
     }
 
-    public int addBillDetailsToTransection(Transection transection, String  billdetails) throws Exception {
-        SQLiteDatabase db = dbHandler.getWritableDatabase();
+    public static int addBillDetailsToTransection(Transection transection, String  billdetails) throws Exception {
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(DBParameters.KEY_TRANSECTION_BILLDETAILS, billdetails);
 
@@ -147,10 +139,10 @@ public class TransectionDbServices {
 
     }
 
-    public List<Transection> getFinancialYearTransection(String financilaYear){
+    public static List<Transection> getFinancialYearTransection(String financilaYear){
         List<Transection> list = new ArrayList<>();
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE;
-        SQLiteDatabase db = dbHandler.getReadableDatabase();
+        SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         if(cursor.moveToFirst()){
             do{

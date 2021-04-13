@@ -34,9 +34,6 @@ public class BillEditActivity extends AppCompatActivity {
     private int index;
     private ActionBar toolbar;
     private Button updateButton;
-    private ClientDbServices clientDbServices;
-    private TransectionDbServices transectionDbServices;
-    private BillDbServices billDbServices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,17 +41,12 @@ public class BillEditActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bill_edit);
         toolbar = getSupportActionBar();
 
-        DbHandler dbHandler=new DbHandler(this);
-        clientDbServices=new ClientDbServices(dbHandler);
-        transectionDbServices=new TransectionDbServices(dbHandler);
-        billDbServices=new BillDbServices(dbHandler);
-
         Log.i(BillEditActivity.class.getSimpleName(), "Bill Id-" + getIntent().getIntExtra("bill_id", 0));
         try {
-            bill = billDbServices.getBill(getIntent().getIntExtra("bill_id", 0));
+            bill = BillDbServices.getBill(getIntent().getIntExtra("bill_id", 0));
             String bill_details = bill.getBill_year() + " | Bill No-" + bill.getBill_no();
             toolbar.setTitle(bill_details);
-            transectionList = billDbServices.getBillTransection(bill_details);
+            transectionList = BillDbServices.getBillTransection(bill_details);
         } catch (Exception e) {
             Toast.makeText(this, "Some error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -95,7 +87,7 @@ public class BillEditActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.delete) {
             try {
-                transectionDbServices.deleteTransection(bill.getClient_id(), transectionList.get(index));
+                TransectionDbServices.deleteTransection(bill.getClient_id(), transectionList.get(index));
                 transectionList.remove(index);
                 adapter.notifyDataSetChanged();
                 Toast.makeText(this, "Done !!", Toast.LENGTH_SHORT).show();
@@ -123,7 +115,7 @@ public class BillEditActivity extends AppCompatActivity {
         protected String doInBackground(String... strings) {
             try {
                 BillGenerationServices services=new BillGenerationServices();
-                services.generateBill(bill,clientDbServices,transectionDbServices,billDbServices);
+                services.generateBill(bill);
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();

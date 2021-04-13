@@ -15,34 +15,28 @@ import java.util.List;
 
 import modals.Client;
 
-public class ClientRecylerViewAdapder extends RecyclerView.Adapter<ClientRecylerViewAdapder.ViewHolder> {
+public class ClientListRecylerViewAdapder extends RecyclerView.Adapter<ClientListRecylerViewAdapder.ViewHolder> {
 
     private Context context;
     private List<Client> clientList;
     private ItemEventListner eventListner;
 
-    public ClientRecylerViewAdapder(Context context, List<Client> clientList, ItemEventListner eventListner) {
+    public ClientListRecylerViewAdapder(Context context, List<Client> clientList, ItemEventListner eventListner) {
         this.context = context;
         this.clientList = clientList;
         this.eventListner = eventListner;
     }
 
-    public interface ItemEventListner{
-        void onClick(View view, int position);
-        boolean onLongClick(View view, int position);
-    }
-
     // Where to get the single card as viewholder Object
-    @NonNull
     @Override
-    public ClientRecylerViewAdapder.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ClientListRecylerViewAdapder.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.client_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     // What will happen after we create the viewholder object
     @Override
-    public void onBindViewHolder(@NonNull ClientRecylerViewAdapder.ViewHolder holder, int position) {
+    public void onBindViewHolder(ClientListRecylerViewAdapder.ViewHolder holder, int position) {
         Client client = clientList.get(position);
 
         holder.clientName_txt.setText(client.getName());
@@ -90,6 +84,11 @@ public class ClientRecylerViewAdapder extends RecyclerView.Adapter<ClientRecyler
         public boolean onLongClick(View v) {
             return eventListner.onLongClick(v,getAdapterPosition());
         }
+    }
+
+    public interface ItemEventListner{
+        void onClick(View view, int position);
+        boolean onLongClick(View view, int position);
     }
 }
 

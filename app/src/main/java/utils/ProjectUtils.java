@@ -12,15 +12,30 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
+import dao.DBParameters;
+
 public class ProjectUtils {
 
-    public static File createDirectoryFolder() {
+    public static File getDataFolder() {
         File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
-       File folder = new File(dir.getPath() + File.separator + "ClientData");
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+        return dir;
+    }
+
+    public static File getBillsFolder() {
+        File dir = getDataFolder();
+        File folder = new File(dir.getPath() + File.separator + "BillPdfs");
         if (!folder.exists()) {
             folder.mkdir();
         }
         return folder;
+    }
+
+    public static File getDBFile(){
+        File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
+        return new File(dir.getPath()+File.separator+ DBParameters.DB_NAME);
     }
 
     public static boolean isDatesEqual(Date date1, Date date2){

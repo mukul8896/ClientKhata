@@ -42,15 +42,11 @@ public class SummeryActivity extends AppCompatActivity {
     private List<Client> clinetList;
     private List<Client> filteredClientList;
     private List<Transection> transectionlist;
-    private TransectionDbServices transectionDbServices;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_summery);
-
-        DbHandler handler=new DbHandler(this);
-        transectionDbServices=new TransectionDbServices(handler);
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR)-1);
@@ -58,7 +54,7 @@ public class SummeryActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(year);
 
         clinetList = getIntent().getParcelableArrayListExtra("clientList");
-        transectionlist = transectionDbServices.getFinancialYearTransection(year);
+        transectionlist = TransectionDbServices.getFinancialYearTransection(year);
 
         TextView credit = findViewById(R.id.total_credit);
         TextView debit = findViewById(R.id.total_debit);
@@ -196,7 +192,7 @@ public class SummeryActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        transectionlist = transectionDbServices.getFinancialYearTransection(year);
+        transectionlist = TransectionDbServices.getFinancialYearTransection(year);
         getSupportActionBar().setTitle(year);
         TextView credit = findViewById(R.id.total_credit);
         TextView debit = findViewById(R.id.total_debit);

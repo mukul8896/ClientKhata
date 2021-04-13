@@ -34,7 +34,7 @@ import utils.ProjectUtils;
 public class BillGenerationServices {
     private Document document;
 
-    public void generateBill(Bill bill,ClientDbServices clientDbServices,TransectionDbServices transectionDbServices,BillDbServices billDbServices) throws Exception {
+    public void generateBill(Bill bill) throws Exception {
 
         BillUtils utils = new BillUtils(bill);
 
@@ -44,14 +44,14 @@ public class BillGenerationServices {
 
         addBillDetails(utils.getBillDetails());
 
-        Client client = clientDbServices.getClient(bill.getClient_id());
+        Client client = ClientDbServices.getClient(bill.getClient_id());
         addClientDetails(client.getName(), client.getAddress());
 
 
-        String previous = billDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
+        String previous = BillDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
 
         String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
-        addParticulers(previous, billDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date()), bill_detail,transectionDbServices);
+        addParticulers(previous, BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date()), bill_detail);
 
         addFooterInfo();
 
@@ -97,7 +97,7 @@ public class BillGenerationServices {
         table.addCell(cell_bank_detail_header);
 
         try {
-            String path = ProjectUtils.createDirectoryFolder().getPath()+File.separator + "signature.png";
+            String path = ProjectUtils.getDataFolder().getPath()+File.separator + "signature.png";
             Image img = Image.getInstance(path);
             PdfPCell signature_cell = new PdfPCell(img,true);
             signature_cell.setBorderWidth(0);
@@ -240,7 +240,7 @@ public class BillGenerationServices {
 
     }
 
-    private void addParticulers(String previous_balance, List<Transection> particulars, String billdetails, TransectionDbServices transectionDbServices) throws Exception {
+    private void addParticulers(String previous_balance, List<Transection> particulars, String billdetails) throws Exception {
         Paragraph paragraph = new Paragraph();
         paragraph.setIndentationLeft(50);
         PdfPTable table = new PdfPTable(new float[]{3, 1});
@@ -340,7 +340,7 @@ public class BillGenerationServices {
             amount.setBorder(0);
             amount.setFixedHeight(30);
             table.addCell(amount);
-            transectionDbServices.addBillDetailsToTransection(transection, billdetails);
+            TransectionDbServices.addBillDetailsToTransection(transection, billdetails);
         }
 
         System.out.println("Total Balance " + total);

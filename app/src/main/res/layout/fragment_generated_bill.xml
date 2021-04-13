@@ -7,10 +7,10 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0sp"
-        android:id="@+id/bill_listview"
+        android:id="@+id/bill_recyclerview"
         android:layout_marginTop="5sp"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
@@ -18,7 +18,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Generate New Bill"
+        android:text="@string/generate_new_bill"
         android:textColor="@color/calendar_bg"
         android:id="@+id/generate_bill_btn"
         android:layout_marginRight="10dp"

@@ -19,7 +19,29 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.FileContent;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import com.mukul.companyAccounts.R;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import dao.DBParameters;
+import utils.ProjectUtils;
 
 /**
  * Activity to demonstrate basic retrieval of the Google user's ID, email address, and basic
@@ -32,6 +54,7 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
     private static final int RC_SIGN_IN = 9001;
 
     private GoogleSignInClient mGoogleSignInClient;
+    private Drive driveService;
 
     private TextView mStatusTextView;
 
@@ -88,7 +111,6 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
@@ -98,18 +120,165 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
     // [END onActivityResult]
 
     // [START handleSignInResult]
-    private void handleSignInResult(@Nullable Task<GoogleSignInAccount> completedTask) {
+    private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         Log.d(TAG, "handleSignInResult:" + completedTask.isSuccessful());
-
         try {
             // Signed in successfully, show authenticated U
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             updateUI(account);
+
+            GoogleAccountCredential credential = GoogleAccountCredential
+                    .usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE_FILE));
+
+            credential.setSelectedAccount(account.getAccount());
+
+            driveService=new Drive.Builder(
+                    new NetHttpTransport(),
+                    JacksonFactory.getDefaultInstance(),
+                    credential)
+                    .setApplicationName("ClientKhata")
+                    .build();
+
+
+            Executor executor= Executors.newSingleThreadExecutor();
+            Task uploadFile= Tasks.call(executor,()->restoreData());
+            uploadFile.addOnSuccessListener(System.out::println).addOnFailureListener(System.out::println);
+
         } catch (ApiException e) {
             // Signed out, show unauthenticated UI.
             Log.w(TAG, "handleSignInResult:error", e);
             updateUI(null);
         }
+    }
+
+    private String createFolderInDrive(String companydata) {
+        File file = null;
+        try {
+            File fileMetadata = new File();
+            fileMetadata.setName(companydata);
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+            file = driveService.files().create(fileMetadata)
+                    .setFields("id")
+                    .execute();
+            Log.d("mk_logs",file.getId());
+        } catch (UserRecoverableAuthIOException e) {
+            startActivityForResult(e.getIntent(), RC_SIGN_IN);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file.getId();
+    }
+
+    private String searchCompanyDataFolder(){
+        String pageToken = null;
+        try {
+            do {
+                FileList result = null;
+                result = driveService.files().list()
+                        .setQ("mimeType='application/vnd.google-apps.folder'")
+                        .setSpaces("drive")
+                        .setFields("nextPageToken, files(id, name)")
+                        .setPageToken(pageToken)
+                        .execute();
+                for (File file : result.getFiles()) {
+                    System.out.printf("Found file: %s (%s)\n",
+                            file.getName(), file.getId());
+                    if(file.getName().equals("Companydata"))
+                        return file.getId();
+                }
+                pageToken = result.getNextPageToken();
+            } while (pageToken != null);
+        }catch (UserRecoverableAuthIOException e) {
+            startActivityForResult(e.getIntent(), RC_SIGN_IN);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public String uploadSqlitDbFile(){
+        String folderId=searchCompanyDataFolder();
+        if(folderId==null){
+            folderId=createFolderInDrive("Companydata");
+        }
+        String fileId=getDbFileId();
+        File file=null;
+        try {
+            java.io.File filePath = ProjectUtils.getDBFile();
+            FileContent mediaContent = new FileContent("application/x-sqlite3", filePath);
+
+            if(fileId==null){
+                File fileMetadata = new File();
+                fileMetadata.setParents(Collections.singletonList(folderId));
+                fileMetadata.setName(DBParameters.DB_NAME);
+
+                file = driveService.files().create(fileMetadata, mediaContent)
+                        .setFields("id, parents")
+                        .execute();
+            }else{
+                File currentFile = driveService.files().get(fileId).execute();
+                currentFile.setName(DBParameters.DB_NAME);
+
+                File fileMetadata = new File();
+                fileMetadata.setName(currentFile.getName());
+                fileMetadata.setParents(currentFile.getParents());
+
+                file = driveService.files().update(fileId, fileMetadata, mediaContent).execute();
+            }
+        }catch (UserRecoverableAuthIOException e) {
+            startActivityForResult(e.getIntent(), RC_SIGN_IN);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file.getId();
+    }
+
+    public String restoreData(){
+        String fileId=getDbFileId();
+        if(fileId==null){
+            return "File not exist in drive";
+        }
+        try {
+            Arrays.asList(ProjectUtils.getDataFolder().listFiles()).forEach(file-> System.out.println(file.getName()));
+
+            OutputStream outputStream = new FileOutputStream(ProjectUtils.getDBFile());
+            driveService.files().get(fileId).executeMediaAndDownloadTo(outputStream);
+            outputStream.flush();
+            outputStream.close();
+            Arrays.asList(ProjectUtils.getDataFolder().listFiles()).forEach(file-> System.out.println(file.getName()));
+
+            return "Success";
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Failure";
+        }
+    }
+
+    private String getDbFileId() {
+        String pageToken = null;
+        try {
+            do {
+                FileList result = null;
+                result = driveService.files().list()
+                        .setQ("mimeType='application/x-sqlite3'")
+                        .setSpaces("drive")
+                        .setFields("nextPageToken, files(id, name)")
+                        .setPageToken(pageToken)
+                        .execute();
+                for (File file : result.getFiles()) {
+                    System.out.printf("Found file: %s (%s)\n",
+                            file.getName(), file.getId());
+                    if(file.getName().equals(DBParameters.DB_NAME))
+                        return file.getId();
+                }
+                pageToken = result.getNextPageToken();
+            } while (pageToken != null);
+        }catch (UserRecoverableAuthIOException e) {
+            startActivityForResult(e.getIntent(), RC_SIGN_IN);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     // [END handleSignInResult]
 
