@@ -2,7 +2,6 @@ package com.mukul.companyAccounts;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,21 +13,16 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -38,20 +32,13 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import adapterClasses.ClientListRecylerViewAdapder;
 import driveBackup.BackupSchedular;
-import googleSignIn.SignInActivityWithDrive;
 import modals.Client;
 import dao.DbHandler;
 import dbServices.ClientDbServices;
@@ -190,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_filter) {
+        /*if (id == R.id.action_filter) {
             Dialog dialog = new Dialog(MainActivity.this);
             dialog.setContentView(R.layout.client_filter_dialoge);
 
@@ -260,14 +247,14 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
             intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
             startActivity(intent);
             return true;
-        }
+        }*/
         return true;
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
+        getMenuInflater().inflate(R.menu.transection_context_menu, menu);
     }
 
     @Override
@@ -342,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission was granted from popup, call savepdf method
                     Log.d("mk_logs","Directory created");
-                    ProjectUtils.getExternalDataFolder();
+                    ProjectUtils.getBillFolders();
                 } else {
                     //permission was denied from popup, show error message
                     Toast.makeText(this, "Storage Permission denied...!", Toast.LENGTH_SHORT).show();
@@ -374,11 +361,11 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
                                                         Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);
             } else {
-                ProjectUtils.getExternalDataFolder();
+                ProjectUtils.getBillFolders();
             }
         } else {
             //system OS < Marshmallow, call save pdf method
-            ProjectUtils.getExternalDataFolder();
+            ProjectUtils.getBillFolders();
         }
     }
 

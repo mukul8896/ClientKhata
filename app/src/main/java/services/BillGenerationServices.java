@@ -35,9 +35,7 @@ public class BillGenerationServices {
     private Document document;
 
     public void generateBill(Bill bill) throws Exception {
-
         BillUtils utils = new BillUtils(bill);
-
         initializeDocument(utils.getFile(bill.getBill_year()));
 
         addHearder();
@@ -97,7 +95,7 @@ public class BillGenerationServices {
         table.addCell(cell_bank_detail_header);
 
         try {
-            String path = ProjectUtils.getExternalDataFolder().getPath()+File.separator + "signature.png";
+            String path = ProjectUtils.getBillFolders().getPath()+File.separator + "signature.png";
             Image img = Image.getInstance(path);
             PdfPCell signature_cell = new PdfPCell(img,true);
             signature_cell.setBorderWidth(0);

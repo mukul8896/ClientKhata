@@ -19,35 +19,33 @@ import java.util.Collections;
 import java.util.List;
 
 import adapterClasses.TransectionListRecyclerViewAdapter;
-import dao.DbHandler;
+import modals.Bill;
 import modals.Client;
 import modals.Transection;
 import dbServices.ClientDbServices;
 import dbServices.TransectionDbServices;
 
 public class TransectionFragment extends Fragment implements TransectionListRecyclerViewAdapter.ItemEventListner{
-    private List<Transection> transectionList;
-    private Integer client_id;
     private TransectionListRecyclerViewAdapter adapter;
     private Client client;
     private int index;
+    private List<Transection> transectionList;
 
-    public static TransectionFragment newInstance(Integer clientId) {
-        TransectionFragment fragment = new TransectionFragment();
-        Bundle bundle2 = new Bundle();
-        bundle2.putInt("ClientId", clientId);
-        fragment.setArguments(bundle2);
-        return fragment;
+    private static TransectionFragment transectionFragment;
+
+    public static TransectionFragment newInstance(List<Transection> billList, Client client) {
+        return new TransectionFragment(billList,client);
+    }
+
+    public TransectionFragment(List<Transection> transectionList,Client client) {
+        this.transectionList=transectionList;
+        this.client=client;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TransectionFragment.class.getSimpleName(), "inside onCreate");
-
-        client_id = getArguments().getInt("ClientId");
-        transectionList = TransectionDbServices.getClientsTransections(client_id);
-        client = ClientDbServices.getClient(client_id);
         Collections.sort(transectionList);
     }
 
@@ -73,7 +71,7 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
             public void onClick(View v) {
                 Intent intent_to_add_transec = new Intent(getActivity().getApplicationContext(),
                         AddTransecActivity.class);
-                intent_to_add_transec.putExtra("id", client_id);
+                intent_to_add_transec.putExtra("id", client.getId());
                 Log.i(TransectionFragment.class.getSimpleName(), "about to starrt transection add activity");
                 startActivity(intent_to_add_transec);
             }
@@ -97,7 +95,7 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getActivity().getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.transection_context_menu, menu);
     }
 
     @Override
@@ -122,7 +120,7 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
             Intent intent = new Intent(getActivity(), AddTransecActivity.class);
             Bundle data = new Bundle();
             data.putString("mode", "Edit");
-            data.putInt("clientid", client_id);
+            data.putInt("clientid", client.getId());
             data.putInt("transecid", transectionList.get(index).getTransecId());
             intent.putExtra("data", data);
             startActivity(intent);

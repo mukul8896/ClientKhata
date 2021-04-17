@@ -42,7 +42,7 @@ public class TransectionDbServices {
             ClientDbServices.updateClientBalance(clientId, amount, 1);
     }
 
-    public static List<Transection> getClientsTransections(int clientId) {
+    public static List<Transection> getClientsTransections(int clientId,String financialyear) {
         List<Transection> list = new ArrayList<>();
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE+" where " +DBParameters.KEY_TRANSECTION_CLIENTID+ "="+clientId;
         SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
@@ -57,7 +57,24 @@ public class TransectionDbServices {
                 transection.setDate(ProjectUtils.parseStringToDate(cursor.getString(3),"MMMM dd, yyyy"));
                 transection.setTransecId(Integer.parseInt(cursor.getString(0)));
                 transection.setBill_details(cursor.getString(7));
-                list.add(transection);
+                if(financialyear.equalsIgnoreCase("all"))
+                    list.add(transection);
+                else{
+                    int year=Integer.parseInt(financialyear.split("-")[0].trim());
+
+                    Calendar calendar=Calendar.getInstance();
+                    calendar.set(year,Calendar.APRIL,1);
+                    Date first_date= calendar.getTime();
+
+                    calendar.set(year+1,Calendar.MARCH,31);
+                    Date last_date=calendar.getTime();
+
+                    if((transection.getDate().after(first_date) && transection.getDate().before(last_date))
+                            || ProjectUtils.isDatesEqual(transection.getDate(), first_date)
+                            || ProjectUtils.isDatesEqual(transection.getDate(), last_date)){
+                        list.add(transection);
+                    }
+                }
             }while(cursor.moveToNext());
         }
         return list;

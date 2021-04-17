@@ -24,36 +24,32 @@ import java.util.List;
 
 import adapterClasses.BillListRecyclerViewAdapter;
 import modals.Bill;
+import modals.Client;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
 import utils.BillUtils;
 import utils.ProjectUtils;
 
 public class ClientBillListFragment extends Fragment implements BillListRecyclerViewAdapter.ItemEventListner {
-    private Integer client_id;
-    private List<Bill> bill_list;
     private BillListRecyclerViewAdapter adapter;
     private int index;
     private Dialog dialog;
+    private Client client;
+    private List<Bill> billList;
+    private static ClientBillListFragment clientBillListFragment;
 
-    public static ClientBillListFragment newInstance(Integer clientId) {
-
-        ClientBillListFragment fragment = new ClientBillListFragment();
-        Bundle bundle2 = new Bundle();
-        bundle2.putInt("ClientId", clientId);
-        fragment.setArguments(bundle2);
-        return fragment;
+    public static ClientBillListFragment newInstance(List<Bill> billList,Client client) {
+        return new ClientBillListFragment(billList,client);
     }
 
-    public ClientBillListFragment() {
+    public ClientBillListFragment(List<Bill> billList,Client client) {
+        this.billList=billList;
+        this.client=client;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        client_id = getArguments().getInt("ClientId");
-        bill_list = BillDbServices.getBillList(client_id);
     }
 
     @Override
@@ -65,7 +61,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new BillListRecyclerViewAdapter(this.getContext(),  bill_list, ClientBillListFragment.this);
+        adapter = new BillListRecyclerViewAdapter(this.getContext(),  billList, ClientBillListFragment.this);
         recyclerView.setAdapter(adapter);
 
         registerForContextMenu(recyclerView);
@@ -100,7 +96,6 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
                 dialog.show();
             }
         });
-
         return rootView;
     }
 
@@ -109,7 +104,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.share) {
-            BillUtils utils = new BillUtils(bill_list.get(index));
+            BillUtils utils = new BillUtils(billList.get(index));
             try {
                 utils.sharePdfFile(getActivity());
             } catch (Exception e) {
@@ -119,7 +114,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
         } else if (id == R.id.edit_bill) {
             Intent intent = new Intent(getActivity(),
                     BillEditActivity.class);
-            intent.putExtra("bill_id", bill_list.get(index).getBillId());
+            intent.putExtra("bill_id", billList.get(index).getBillId());
             startActivity(intent);
             Log.i(ClientBillListFragment.class.getSimpleName(), "Inside generated bill fragment");
         }
@@ -133,7 +128,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
 
     @Override
     public void onClick(View view, int position) {
-        BillUtils utils = new BillUtils(bill_list.get(position));
+        BillUtils utils = new BillUtils(billList.get(position));
         utils.openPdfFile(getActivity());
     }
 
@@ -162,7 +157,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
                 Date to_date = new Date(to_date_picer.getYear() - 1900, to_date_picer.getMonth(), to_date_picer.getDayOfMonth());
                 bill.setTo_date(to_date);
 
-                bill.setClient_id(client_id);
+                bill.setClient_id(client.getId());
 
                 String financial_year = ProjectUtils.getFinancialYear(to_date);
                 bill.setBill_year(financial_year);
@@ -183,7 +178,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
         @Override
         protected void onPostExecute(String s) {
             if (s.equals("success")) {
-                bill_list.add(bill);
+                billList.add(bill);
                 adapter.notifyDataSetChanged();
                 Toast.makeText(getActivity(), "Bill generated successfully!!", Toast.LENGTH_SHORT).show();
             } else {

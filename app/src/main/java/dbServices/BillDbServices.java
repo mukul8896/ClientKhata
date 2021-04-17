@@ -108,7 +108,7 @@ public class BillDbServices {
         }
     }
 
-    public static List<Bill> getBillList(Integer clientId) {
+    public static List<Bill> getBillList(Integer clientId,String financialYear) {
         List<Bill> bill_list = new ArrayList<>();
         String query = "select * from "+DBParameters.DB_BILL_TABLE+" where "+DBParameters.KEY_BILL_CLIENTID+"='" + clientId + "'";
         try(SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
@@ -123,7 +123,13 @@ public class BillDbServices {
                     bill.setBill_year(cursor.getString(2));
                     bill.setGenerationDate(cursor.getString(7));
                     bill.setBillShared(cursor.getInt(6) == 1);
-                    bill_list.add(bill);
+
+                    if(financialYear.equalsIgnoreCase("all"))
+                        bill_list.add(bill);
+                    else{
+                        if(bill.getBill_year().equalsIgnoreCase(financialYear))
+                            bill_list.add(bill);
+                    }
                 }while(cursor.moveToNext());
             }
         }catch (Exception e){

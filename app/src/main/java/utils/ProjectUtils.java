@@ -19,22 +19,23 @@ import dao.DBParameters;
 
 public class ProjectUtils {
 
+    public static File getAppFolder(){
+        return new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts");
+    }
+
     public static File getDataBaseFolder() {
-        File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
+        File dir = new File(getAppFolder(),"databases");
         if (!dir.exists()) {
             dir.mkdir();
         }
         return dir;
     }
 
-    public static File getExternalDataFolder() {
-        File dir = Environment.getExternalStorageDirectory();
-        File folder = new File(Environment.getExternalStorageDirectory() , "ClientsData");
+    public static File getBillFolders() {
+        File folder = new File(getAppFolder() , "ClientBills");
         if (!folder.exists()) {
-            Log.d(ProjectUtils.class.getSimpleName(),"Folder created:"+folder.mkdir());
+            Log.d(ProjectUtils.class.getSimpleName(),folder.getPath()+" created: "+folder.mkdir());
         }
-        Arrays.asList(dir.listFiles()).forEach(f-> System.out.println(f.getName()));
-        Log.d(ProjectUtils.class.getSimpleName(),"Folder path: "+folder.getPath());
         return folder;
     }
 

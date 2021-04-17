@@ -50,7 +50,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         }
         updateButton = (Button) findViewById(R.id.update_bill);
 
-        transection_lstView = (RecyclerView) findViewById(R.id.transection_list);
+        transection_lstView = (RecyclerView) findViewById(R.id.listview_for_edit_bill_transection);
         transection_lstView.setHasFixedSize(true);
         transection_lstView.setLayoutManager(new LinearLayoutManager(BillEditActivity.this));
 
@@ -71,7 +71,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
+        getMenuInflater().inflate(R.menu.transection_context_menu, menu);
     }
 
     @Override

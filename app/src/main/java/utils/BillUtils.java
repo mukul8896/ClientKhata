@@ -29,12 +29,8 @@ public class BillUtils {
         return details;
     }
 
-    /*public List<Transection> getParticulars() throws Exception {
-        return BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date());
-    }*/
-
     public File getFile(String bill_year) {
-        File dir = new File(ProjectUtils.getExternalDataFolder().getPath() + File.separator + bill_year);
+        File dir = new File(ProjectUtils.getBillFolders().getPath() + File.separator + bill_year);
         if (!dir.exists()) {
             dir.mkdir();
         }
