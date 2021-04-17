@@ -34,7 +34,7 @@ public class BillUtils {
     }*/
 
     public File getFile(String bill_year) {
-        File dir = new File(ProjectUtils.getBillsFolder().getPath() + File.separator + bill_year);
+        File dir = new File(ProjectUtils.getExternalDataFolder().getPath() + File.separator + bill_year);
         if (!dir.exists()) {
             dir.mkdir();
         }

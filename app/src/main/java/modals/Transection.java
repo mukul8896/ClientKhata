@@ -76,4 +76,17 @@ public class Transection implements Comparable<Transection> {
         else
             return 0;
     }
+
+    @Override
+    public String toString() {
+        return "Transection{" +
+                "transecId=" + transecId +
+                ", clientId=" + clientId +
+                ", date=" + date +
+                ", transecType='" + transecType + '\'' +
+                ", desc='" + desc + '\'' +
+                ", amount=" + amount +
+                ", bill_details='" + bill_details + '\'' +
+                '}';
+    }
 }

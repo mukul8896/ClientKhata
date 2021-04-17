@@ -1,7 +1,9 @@
 package com.mukul.companyAccounts;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,10 +23,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -34,12 +38,20 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import adapterClasses.ClientListRecylerViewAdapder;
+import driveBackup.BackupSchedular;
+import googleSignIn.SignInActivityWithDrive;
 import modals.Client;
 import dao.DbHandler;
 import dbServices.ClientDbServices;
@@ -69,6 +81,9 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Log.i(MainActivity.class.getSimpleName(), "In onCreate");
+
+        /*start alarm*/
+        //setAlarm();
 
         /* requesting permission for application */
         requestPermission();
@@ -143,12 +158,13 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
             }
         });
     }
+
     List<Client> filteredClientList=clientsList;
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        MenuItem item = menu.findItem(R.id.action_search);
 
+        MenuItem item = menu.findItem(R.id.main_action_search);
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setQueryHint("Enter Client Name...");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -239,7 +255,10 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
             startActivity(intent);
             return true;
         } else if(item.getItemId()==R.id.action_backup){
-
+            Intent intent = new Intent(MainActivity.this,
+                    SignInActivityWithDrive.class);
+            intent.putExtra("password",getPreferences(Context.MODE_PRIVATE).getString("app_password", ""));
+            startActivity(intent);
             return true;
         }
         return true;
@@ -323,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //permission was granted from popup, call savepdf method
                     Log.d("mk_logs","Directory created");
-                    ProjectUtils.getBillsFolder();
+                    ProjectUtils.getExternalDataFolder();
                 } else {
                     //permission was denied from popup, show error message
                     Toast.makeText(this, "Storage Permission denied...!", Toast.LENGTH_SHORT).show();
@@ -355,11 +374,11 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
                                                         Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);
             } else {
-                ProjectUtils.getBillsFolder();
+                ProjectUtils.getExternalDataFolder();
             }
         } else {
             //system OS < Marshmallow, call save pdf method
-            ProjectUtils.getBillsFolder();
+            ProjectUtils.getExternalDataFolder();
         }
     }
 
@@ -410,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(GeneratedBillFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }
@@ -499,5 +518,13 @@ public class MainActivity extends AppCompatActivity implements ClientListRecyler
         Log.d("mk_logs","Long Clicked on:"+clientsList.get(position));
         index = position;
         return false;
+    }
+
+    private void setAlarm() {
+        Intent intent = new Intent(this, BackupSchedular.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 100, intent, 0);
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+2000, pendingIntent);
     }
 }

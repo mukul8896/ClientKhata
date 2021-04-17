@@ -8,32 +8,27 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Collections;
 import java.util.List;
 
-import adapterClasses.TransectionListAdapter;
+import adapterClasses.TransectionListRecyclerViewAdapter;
 import dao.DbHandler;
 import modals.Client;
 import modals.Transection;
 import dbServices.ClientDbServices;
 import dbServices.TransectionDbServices;
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class TransectionFragment extends Fragment {
-    private ListView transection_lstView;
+public class TransectionFragment extends Fragment implements TransectionListRecyclerViewAdapter.ItemEventListner{
     private List<Transection> transectionList;
     private Integer client_id;
-    private TransectionListAdapter adapter;
+    private TransectionListRecyclerViewAdapter adapter;
     private Client client;
     private int index;
 
@@ -46,15 +41,13 @@ public class TransectionFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TransectionFragment.class.getSimpleName(), "inside onCreate");
 
         client_id = getArguments().getInt("ClientId");
         transectionList = TransectionDbServices.getClientsTransections(client_id);
-
         client = ClientDbServices.getClient(client_id);
-
         Collections.sort(transectionList);
     }
 
@@ -63,28 +56,16 @@ public class TransectionFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.i(TransectionFragment.class.getSimpleName(), "inside onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_transections, container, false);
-        transection_lstView = (ListView) rootView.findViewById(R.id.transection_list);
-        adapter = new TransectionListAdapter(getActivity().getApplicationContext(), R.layout.transection_list_item, transectionList);
-        transection_lstView.setAdapter(adapter);
 
-        registerForContextMenu(transection_lstView);
+        RecyclerView recyclerView = rootView.findViewById(R.id.transection_list);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        transection_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
-                index = position;
-                return false;
-            }
-        });
+        adapter = new TransectionListRecyclerViewAdapter(this.getContext(),  transectionList, TransectionFragment.this);
+        recyclerView.setAdapter(adapter);
 
-        transection_lstView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (transectionList.get(position).getBill_details() != null && !transectionList.get(position).getBill_details().isEmpty())
-                    Toast.makeText(getActivity().getApplicationContext(), transectionList.get(position).getBill_details(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        registerForContextMenu(recyclerView);
+
 
         Button add_new_transection = (Button) rootView.findViewById(R.id.add_transection_btn);
         add_new_transection.setOnClickListener(new View.OnClickListener() {
@@ -97,8 +78,20 @@ public class TransectionFragment extends Fragment {
                 startActivity(intent_to_add_transec);
             }
         });
-
         return rootView;
+    }
+
+    @Override
+    public void onClick(View view, int position) {
+        if (transectionList.get(position).getBill_details() != null && !transectionList.get(position).getBill_details().isEmpty())
+            Toast.makeText(getActivity().getApplicationContext(), transectionList.get(position).getBill_details(), Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public boolean onLongClick(View view, int position) {
+        Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
+        index = position;
+        return false;
     }
 
     @Override

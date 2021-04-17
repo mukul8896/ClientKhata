@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -49,7 +50,7 @@ public class SummeryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_summery);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR)-1);
+        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
         year = ProjectUtils.getFinancialYear(calendar.getTime());
         getSupportActionBar().setTitle(year);
 
@@ -144,19 +145,19 @@ public class SummeryActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_summery, menu);
 
-        MenuItem item_year2 = menu.findItem(R.id.year2);
+        MenuItem item_year2 = menu.findItem(R.id.year1);
         item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
 
         Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) + 1);
-        MenuItem item_year3 = menu.findItem(R.id.year3);
+        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) -1);
+        MenuItem item_year3 = menu.findItem(R.id.year2);
         item_year3.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
 
-        MenuItem item_year1 = menu.findItem(R.id.year1);
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) - 1);
+        MenuItem item_year1 = menu.findItem(R.id.year3);
+        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) - 2);
         item_year1.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
 
-        MenuItem item = menu.findItem(R.id.action_search);
+        MenuItem item = menu.findItem(R.id.summery_action_search);
 
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setQueryHint("Enter Client Name...");
@@ -174,6 +175,8 @@ public class SummeryActivity extends AppCompatActivity {
                         filteredClientList.add(client);
                 }
                 adapter = new SummeryListAdapter(SummeryActivity.this, R.layout.summery_list_item_layout, filteredClientList, transectionlist);
+                if(listView==null)
+                    listView = (ListView) findViewById(R.id.sumery_list);
                 listView.setAdapter(adapter);
                 return true;
             }
@@ -184,15 +187,18 @@ public class SummeryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        year = item.getTitle().toString();
-        onRestart();
+        if(id != R.id.summery_action_search) {
+            year = item.getTitle().toString();
+            Log.d(SummeryActivity.class.getSimpleName(), year);
+            transectionlist = TransectionDbServices.getFinancialYearTransection(year);
+            onRestart();
+        }
         return true;
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        transectionlist = TransectionDbServices.getFinancialYearTransection(year);
         getSupportActionBar().setTitle(year);
         TextView credit = findViewById(R.id.total_credit);
         TextView debit = findViewById(R.id.total_debit);

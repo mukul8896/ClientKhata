@@ -29,38 +29,23 @@ import dbServices.BillDbServices;
 import utils.BillUtils;
 import utils.ProjectUtils;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link GeneratedBillFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class GeneratedBillFragment extends Fragment implements BillListRecyclerViewAdapter.ItemEventListner {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+public class ClientBillListFragment extends Fragment implements BillListRecyclerViewAdapter.ItemEventListner {
     private Integer client_id;
     private List<Bill> bill_list;
     private BillListRecyclerViewAdapter adapter;
     private int index;
     private Dialog dialog;
-    private RecyclerView recyclerView;
 
-    // TODO: Rename and change types and number of parameters
-    public static GeneratedBillFragment newInstance(Integer clientId) {
+    public static ClientBillListFragment newInstance(Integer clientId) {
 
-        GeneratedBillFragment fragment = new GeneratedBillFragment();
+        ClientBillListFragment fragment = new ClientBillListFragment();
         Bundle bundle2 = new Bundle();
         bundle2.putInt("ClientId", clientId);
         fragment.setArguments(bundle2);
         return fragment;
     }
 
-    public GeneratedBillFragment() {
+    public ClientBillListFragment() {
     }
 
     @Override
@@ -68,12 +53,7 @@ public class GeneratedBillFragment extends Fragment implements BillListRecyclerV
         super.onCreate(savedInstanceState);
 
         client_id = getArguments().getInt("ClientId");
-        try {
-            bill_list = BillDbServices.getBillList(client_id);
-        } catch (Exception e) {
-            Toast.makeText(getActivity(), "Someting went wrong !!", Toast.LENGTH_LONG).show();
-        }
-
+        bill_list = BillDbServices.getBillList(client_id);
     }
 
     @Override
@@ -81,12 +61,14 @@ public class GeneratedBillFragment extends Fragment implements BillListRecyclerV
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generated_bill, container, false);
 
-        recyclerView = rootView.findViewById(R.id.bill_recyclerview);
+        RecyclerView recyclerView = rootView.findViewById(R.id.bill_recyclerview);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new BillListRecyclerViewAdapter(this.getContext(),  bill_list,GeneratedBillFragment.this);
+        adapter = new BillListRecyclerViewAdapter(this.getContext(),  bill_list, ClientBillListFragment.this);
         recyclerView.setAdapter(adapter);
+
+        registerForContextMenu(recyclerView);
 
         Button generate_bill_btn = (Button) rootView.findViewById(R.id.generate_bill_btn);
         generate_bill_btn.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +121,7 @@ public class GeneratedBillFragment extends Fragment implements BillListRecyclerV
                     BillEditActivity.class);
             intent.putExtra("bill_id", bill_list.get(index).getBillId());
             startActivity(intent);
-            Log.i(GeneratedBillFragment.class.getSimpleName(), "Inside generated bill fragment");
+            Log.i(ClientBillListFragment.class.getSimpleName(), "Inside generated bill fragment");
         }
         return true;
     }
@@ -149,14 +131,10 @@ public class GeneratedBillFragment extends Fragment implements BillListRecyclerV
         getActivity().getMenuInflater().inflate(R.menu.bill_list_context_menu, menu);
     }
 
-    public void openPdfFile(int index) {
-        BillUtils utils = new BillUtils(bill_list.get(index));
-        utils.openPdfFile(getActivity());
-    }
-
     @Override
     public void onClick(View view, int position) {
-        openPdfFile(position);
+        BillUtils utils = new BillUtils(bill_list.get(position));
+        utils.openPdfFile(getActivity());
     }
 
     @Override
@@ -197,7 +175,7 @@ public class GeneratedBillFragment extends Fragment implements BillListRecyclerV
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(GeneratedBillFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }

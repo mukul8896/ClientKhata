@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.mukul.companyAccounts.GeneratedBillFragment;
+import com.mukul.companyAccounts.ClientBillListFragment;
 import com.mukul.companyAccounts.TransectionFragment;
 
 public class PageAdapter extends FragmentPagerAdapter {
@@ -25,7 +25,7 @@ public class PageAdapter extends FragmentPagerAdapter {
             case 0:
                 return TransectionFragment.newInstance(client_id);
             case 1:
-                return GeneratedBillFragment.newInstance(client_id);
+                return ClientBillListFragment.newInstance(client_id);
             default:
                 return null;
         }

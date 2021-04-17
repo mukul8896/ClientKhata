@@ -169,8 +169,6 @@ public class TransectionDbServices {
                         || ProjectUtils.isDatesEqual(transection.getDate(), last_date)){
                     list.add(transection);
                 }
-
-                list.add(transection);
             }while(cursor.moveToNext());
         }
         return list;

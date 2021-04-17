@@ -64,7 +64,7 @@ public class ClientListRecylerViewAdapder extends RecyclerView.Adapter<ClientLis
         public TextView balanceTag;
         public TextView fee;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);

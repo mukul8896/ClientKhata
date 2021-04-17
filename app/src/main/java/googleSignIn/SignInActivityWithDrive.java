@@ -1,12 +1,14 @@
 package googleSignIn;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -18,43 +20,35 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
-import com.google.api.client.http.FileContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import com.google.api.services.drive.model.File;
-import com.google.api.services.drive.model.FileList;
 import com.mukul.companyAccounts.R;
+import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import dao.DBParameters;
-import utils.ProjectUtils;
+import driveBackup.GoogleDriveHandler;
 
-/**
- * Activity to demonstrate basic retrieval of the Google user's ID, email address, and basic
- * profile, which also adds a request dialog to access the user's Google Drive.
- */
 public class SignInActivityWithDrive extends AppCompatActivity implements
         View.OnClickListener {
 
     private static final String TAG = "SignInActivity";
     private static final int RC_SIGN_IN = 9001;
 
+    private ImageView profileImageView;
     private GoogleSignInClient mGoogleSignInClient;
     private Drive driveService;
+    private GoogleDriveHandler backupHandler;
 
     private TextView mStatusTextView;
 
@@ -65,11 +59,15 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
 
         // Views
         mStatusTextView = findViewById(R.id.status);
+        profileImageView = findViewById(R.id.google_icon);
 
         // Button listeners
         findViewById(R.id.sign_in_button).setOnClickListener(this);
         findViewById(R.id.sign_out_button).setOnClickListener(this);
         findViewById(R.id.disconnect_button).setOnClickListener(this);
+        findViewById(R.id.backup_data).setOnClickListener(this);
+        findViewById(R.id.restore_data).setOnClickListener(this);
+
 
         // [START configure_signin]
         // Configure sign-in to request the user's ID, email address, and basic
@@ -92,16 +90,28 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
         // [END customize_button]
+
+        backupHandler=new GoogleDriveHandler();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-
         // Check if the user is already signed in and all required scopes are granted
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if (account != null && GoogleSignIn.hasPermissions(account, new Scope(Scopes.DRIVE_APPFOLDER))) {
             updateUI(account);
+            GoogleAccountCredential credential = GoogleAccountCredential
+                    .usingOAuth2(this, Collections.singleton(DriveScopes.DRIVE_FILE));
+
+            credential.setSelectedAccount(account.getAccount());
+
+            driveService=new Drive.Builder(
+                    new NetHttpTransport(),
+                    JacksonFactory.getDefaultInstance(),
+                    credential)
+                    .setApplicationName("ClientKhata")
+                    .build();
         } else {
             updateUI(null);
         }
@@ -140,145 +150,11 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
                     .build();
 
 
-            Executor executor= Executors.newSingleThreadExecutor();
-            Task uploadFile= Tasks.call(executor,()->restoreData());
-            uploadFile.addOnSuccessListener(System.out::println).addOnFailureListener(System.out::println);
-
         } catch (ApiException e) {
             // Signed out, show unauthenticated UI.
             Log.w(TAG, "handleSignInResult:error", e);
             updateUI(null);
         }
-    }
-
-    private String createFolderInDrive(String companydata) {
-        File file = null;
-        try {
-            File fileMetadata = new File();
-            fileMetadata.setName(companydata);
-            fileMetadata.setMimeType("application/vnd.google-apps.folder");
-            file = driveService.files().create(fileMetadata)
-                    .setFields("id")
-                    .execute();
-            Log.d("mk_logs",file.getId());
-        } catch (UserRecoverableAuthIOException e) {
-            startActivityForResult(e.getIntent(), RC_SIGN_IN);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file.getId();
-    }
-
-    private String searchCompanyDataFolder(){
-        String pageToken = null;
-        try {
-            do {
-                FileList result = null;
-                result = driveService.files().list()
-                        .setQ("mimeType='application/vnd.google-apps.folder'")
-                        .setSpaces("drive")
-                        .setFields("nextPageToken, files(id, name)")
-                        .setPageToken(pageToken)
-                        .execute();
-                for (File file : result.getFiles()) {
-                    System.out.printf("Found file: %s (%s)\n",
-                            file.getName(), file.getId());
-                    if(file.getName().equals("Companydata"))
-                        return file.getId();
-                }
-                pageToken = result.getNextPageToken();
-            } while (pageToken != null);
-        }catch (UserRecoverableAuthIOException e) {
-            startActivityForResult(e.getIntent(), RC_SIGN_IN);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public String uploadSqlitDbFile(){
-        String folderId=searchCompanyDataFolder();
-        if(folderId==null){
-            folderId=createFolderInDrive("Companydata");
-        }
-        String fileId=getDbFileId();
-        File file=null;
-        try {
-            java.io.File filePath = ProjectUtils.getDBFile();
-            FileContent mediaContent = new FileContent("application/x-sqlite3", filePath);
-
-            if(fileId==null){
-                File fileMetadata = new File();
-                fileMetadata.setParents(Collections.singletonList(folderId));
-                fileMetadata.setName(DBParameters.DB_NAME);
-
-                file = driveService.files().create(fileMetadata, mediaContent)
-                        .setFields("id, parents")
-                        .execute();
-            }else{
-                File currentFile = driveService.files().get(fileId).execute();
-                currentFile.setName(DBParameters.DB_NAME);
-
-                File fileMetadata = new File();
-                fileMetadata.setName(currentFile.getName());
-                fileMetadata.setParents(currentFile.getParents());
-
-                file = driveService.files().update(fileId, fileMetadata, mediaContent).execute();
-            }
-        }catch (UserRecoverableAuthIOException e) {
-            startActivityForResult(e.getIntent(), RC_SIGN_IN);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file.getId();
-    }
-
-    public String restoreData(){
-        String fileId=getDbFileId();
-        if(fileId==null){
-            return "File not exist in drive";
-        }
-        try {
-            Arrays.asList(ProjectUtils.getDataFolder().listFiles()).forEach(file-> System.out.println(file.getName()));
-
-            OutputStream outputStream = new FileOutputStream(ProjectUtils.getDBFile());
-            driveService.files().get(fileId).executeMediaAndDownloadTo(outputStream);
-            outputStream.flush();
-            outputStream.close();
-            Arrays.asList(ProjectUtils.getDataFolder().listFiles()).forEach(file-> System.out.println(file.getName()));
-
-            return "Success";
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "Failure";
-        }
-    }
-
-    private String getDbFileId() {
-        String pageToken = null;
-        try {
-            do {
-                FileList result = null;
-                result = driveService.files().list()
-                        .setQ("mimeType='application/x-sqlite3'")
-                        .setSpaces("drive")
-                        .setFields("nextPageToken, files(id, name)")
-                        .setPageToken(pageToken)
-                        .execute();
-                for (File file : result.getFiles()) {
-                    System.out.printf("Found file: %s (%s)\n",
-                            file.getName(), file.getId());
-                    if(file.getName().equals(DBParameters.DB_NAME))
-                        return file.getId();
-                }
-                pageToken = result.getNextPageToken();
-            } while (pageToken != null);
-        }catch (UserRecoverableAuthIOException e) {
-            startActivityForResult(e.getIntent(), RC_SIGN_IN);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
     // [END handleSignInResult]
 
@@ -314,19 +190,94 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
                     }
                 });
     }
-    // [END revokeAccess]
 
-    private void updateUI(@Nullable GoogleSignInAccount account) {
+    // [START downloadData]
+    private void downloadData() {
+        ProgressBar progressbar=(ProgressBar) findViewById(R.id.progressbar);
+        findViewById(R.id.backup_restore).setVisibility(View.GONE);
+        progressbar.setVisibility(View.VISIBLE);
+
+        Executor executor= Executors.newSingleThreadExecutor();
+        Task<Object> download= Tasks.call(executor,()->{
+            try {
+                return backupHandler.restoreData(driveService);
+            }catch (UserRecoverableAuthIOException e){
+                startActivityForResult(e.getIntent(), RC_SIGN_IN);
+                return "Failure";
+            }
+        });
+        download.addOnSuccessListener(new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                Log.d(TAG,"Download File success: "+(String)o);
+                progressbar.setVisibility(View.GONE);
+                findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                e.printStackTrace();
+                Log.d(TAG,"Download File fail ");
+                progressbar.setVisibility(View.GONE);
+                findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    // [START uploadData]
+    private void uploadData() {
+        ProgressBar progressbar=(ProgressBar) findViewById(R.id.progressbar);
+        findViewById(R.id.backup_restore).setVisibility(View.GONE);
+        progressbar.setVisibility(View.VISIBLE);
+
+        Executor executor= Executors.newSingleThreadExecutor();
+        Task uploadFile= Tasks.call(executor,()-> {
+            String id="";
+            try {
+                id=backupHandler.uploadSqlitDbFile(driveService);
+            } catch (UserRecoverableAuthIOException e) {
+                startActivityForResult(e.getIntent(), RC_SIGN_IN);
+            }
+            return id;
+        });
+        uploadFile.addOnSuccessListener(new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                Log.d(TAG,"Upload File success: "+(String)o);
+                progressbar.setVisibility(View.GONE);
+                findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG,"Upload File fail: ");
+                e.printStackTrace();
+                progressbar.setVisibility(View.GONE);
+                findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    private void updateUI(GoogleSignInAccount account) {
         if (account != null) {
             mStatusTextView.setText(getString(R.string.signed_in_fmt, account.getDisplayName()));
+            Uri uri = account.getPhotoUrl();
+            Picasso.with(SignInActivityWithDrive.this)
+                    .load(uri)
+                    .placeholder(android.R.drawable.sym_def_app_icon)
+                    .error(android.R.drawable.sym_def_app_icon)
+                    .into(profileImageView);
 
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+            findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
         } else {
             mStatusTextView.setText(R.string.signed_out);
 
+            profileImageView.setImageResource(R.drawable.googleg_color);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            findViewById(R.id.backup_restore).setVisibility(View.GONE);
         }
     }
 
@@ -341,6 +292,12 @@ public class SignInActivityWithDrive extends AppCompatActivity implements
                 break;
             case R.id.disconnect_button:
                 revokeAccess();
+                break;
+            case R.id.backup_data:
+                uploadData();
+                break;
+            case R.id.restore_data:
+                downloadData();
                 break;
         }
     }

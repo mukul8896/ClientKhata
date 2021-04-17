@@ -37,29 +37,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="googleSignIn.ChooserActivity"
-            android:label="ChooserActivity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
-        <activity
-            android:name="googleSignIn.SignInActivity"
-            android:label="@string/name_sign_in_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
-        <activity
             android:name="googleSignIn.SignInActivityWithDrive"
             android:label="@string/name_sign_in_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
-        <activity
-            android:name="googleSignIn.IdTokenActivity"
-            android:label="@string/name_id_token_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
-        <activity
-            android:name="googleSignIn.ServerAuthCodeActivity"
-            android:label="@string/name_auth_code_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
-        <activity
-            android:name="googleSignIn.RestApiActivity"
-            android:label="@string/name_rest_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity"></activity>
+            android:theme="@style/ThemeOverlay.MyNoTitleActivity" />
+
+        <receiver
+            android:name="driveBackup.BackupSchedular"
+            android:enabled="true"
+            android:exported="true" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

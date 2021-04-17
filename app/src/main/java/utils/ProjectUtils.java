@@ -1,22 +1,25 @@
 package utils;
 
-import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 
-import com.mukul.companyAccounts.GeneratedBillFragment;
+import com.mukul.companyAccounts.ClientBillListFragment;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import dao.DBParameters;
 
 public class ProjectUtils {
 
-    public static File getDataFolder() {
+    public static File getDataBaseFolder() {
         File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
         if (!dir.exists()) {
             dir.mkdir();
@@ -24,17 +27,19 @@ public class ProjectUtils {
         return dir;
     }
 
-    public static File getBillsFolder() {
-        File dir = getDataFolder();
-        File folder = new File(dir.getPath() + File.separator + "BillPdfs");
+    public static File getExternalDataFolder() {
+        File dir = Environment.getExternalStorageDirectory();
+        File folder = new File(Environment.getExternalStorageDirectory() , "ClientsData");
         if (!folder.exists()) {
-            folder.mkdir();
+            Log.d(ProjectUtils.class.getSimpleName(),"Folder created:"+folder.mkdir());
         }
+        Arrays.asList(dir.listFiles()).forEach(f-> System.out.println(f.getName()));
+        Log.d(ProjectUtils.class.getSimpleName(),"Folder path: "+folder.getPath());
         return folder;
     }
 
     public static File getDBFile(){
-        File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
+        File dir = getDataBaseFolder();
         return new File(dir.getPath()+File.separator+ DBParameters.DB_NAME);
     }
 
@@ -62,7 +67,7 @@ public class ProjectUtils {
             year1 = Integer.toString(cal_date.get(Calendar.YEAR) - 1);
             year2 = Integer.toString(cal_date.get(Calendar.YEAR));
         }
-        Log.i(GeneratedBillFragment.class.getSimpleName(), year1 + ":" + year2);
+        Log.i(ClientBillListFragment.class.getSimpleName(), year1 + ":" + year2);
         return year1 + "-" + year2.substring(2, year2.length());
     }
 
@@ -70,6 +75,12 @@ public class ProjectUtils {
         Date date = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
         return fmt.format(date);
+    }
+
+    public static String getDriveDbFileName(){
+        LocalDate date=LocalDate.now();
+        String name=date.getDayOfMonth()+"_"+date.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH)+"_"+date.getYear();
+        return name;
     }
 
     public static String parseDateToString(Date date,String pattern) {

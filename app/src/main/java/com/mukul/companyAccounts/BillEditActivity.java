@@ -7,28 +7,26 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import adapterClasses.TransectionListAdapter;
-import dao.DbHandler;
-import dbServices.ClientDbServices;
+import adapterClasses.TransectionListRecyclerViewAdapter;
 import modals.Bill;
 import modals.Transection;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
 import dbServices.TransectionDbServices;
 
-public class BillEditActivity extends AppCompatActivity {
-    private ListView transection_lstView;
-    private TransectionListAdapter adapter;
+public class BillEditActivity extends AppCompatActivity implements TransectionListRecyclerViewAdapter.ItemEventListner {
+    private RecyclerView transection_lstView;
+    private TransectionListRecyclerViewAdapter adapter;
     private List<Transection> transectionList;
     private Bill bill;
     private int index;
@@ -50,21 +48,15 @@ public class BillEditActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "Some error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
-
         updateButton = (Button) findViewById(R.id.update_bill);
-        transection_lstView = (ListView) findViewById(R.id.listview_for_edit_bill_transection);
-        adapter = new TransectionListAdapter(this, R.layout.transection_list_item, transectionList);
-        transection_lstView.setAdapter(adapter);
 
+        transection_lstView = (RecyclerView) findViewById(R.id.transection_list);
+        transection_lstView.setHasFixedSize(true);
+        transection_lstView.setLayoutManager(new LinearLayoutManager(BillEditActivity.this));
+
+        adapter = new TransectionListRecyclerViewAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
+        transection_lstView.setAdapter(adapter);
         registerForContextMenu(transection_lstView);
-        transection_lstView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
-                index = position;
-                return false;
-            }
-        });
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +102,18 @@ public class BillEditActivity extends AppCompatActivity {
         return super.onContextItemSelected(item);
     }
 
+    @Override
+    public void onClick(View view, int position) {
+
+    }
+
+    @Override
+    public boolean onLongClick(View view, int position) {
+        Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
+        index = position;
+        return false;
+    }
+
     private class PDFGenerationTask extends AsyncTask<String, String, String> {
         @Override
         protected String doInBackground(String... strings) {
@@ -119,7 +123,7 @@ public class BillEditActivity extends AppCompatActivity {
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(GeneratedBillFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }

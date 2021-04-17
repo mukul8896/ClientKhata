@@ -145,7 +145,7 @@
 
 
     <!--Sign in strings-->
-    <string name="title_text">Manage your Clients Database</string>
+    <string name="title_text">Manage your Database</string>
 
     <!-- Sign-in status messages -->
     <string name="signed_in_fmt">Signed in as: %s</string>
