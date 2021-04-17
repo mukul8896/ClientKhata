@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -42,8 +40,8 @@ import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import dao.DBParameters;
 import driveBackup.GoogleDriveHandler;
-import googleSignIn.SignInActivityWithDrive;
 
 public class SignInFragment extends Fragment implements
         View.OnClickListener {
@@ -182,27 +180,6 @@ public class SignInFragment extends Fragment implements
         }
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.sign_in_button:
-                signIn();
-                break;
-            case R.id.sign_out_button:
-                signOut();
-                break;
-            case R.id.disconnect_button:
-                revokeAccess();
-                break;
-            case R.id.backup_data:
-                uploadData();
-                break;
-            case R.id.restore_latest:
-                downloadData();
-                break;
-        }
-    }
-
     // [START signIn]
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -226,7 +203,7 @@ public class SignInFragment extends Fragment implements
         mGoogleSignInClient.revokeAccess().addOnCompleteListener(this.getActivity(),
                 new OnCompleteListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onComplete(Task<Void> task) {
                         // [START_EXCLUDE]
                         updateUI(null);
                         // [END_EXCLUDE]
@@ -235,7 +212,7 @@ public class SignInFragment extends Fragment implements
     }
 
     // [START downloadData]
-    private void downloadData() {
+    private void downloadData(String fileName) {
         ProgressBar progressbar=(ProgressBar) getView().findViewById(R.id.progressbar);
         getView().findViewById(R.id.backup_restore).setVisibility(View.GONE);
         progressbar.setVisibility(View.VISIBLE);
@@ -258,7 +235,7 @@ public class SignInFragment extends Fragment implements
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
+            public void onFailure(Exception e) {
                 e.printStackTrace();
                 Log.d(TAG,"Download File fail ");
                 progressbar.setVisibility(View.GONE);
@@ -301,4 +278,27 @@ public class SignInFragment extends Fragment implements
         });
     }
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.sign_in_button:
+                signIn();
+                break;
+            case R.id.sign_out_button:
+                signOut();
+                break;
+            case R.id.disconnect_button:
+                revokeAccess();
+                break;
+            case R.id.backup_data:
+                uploadData();
+                break;
+            case R.id.restore_latest:
+                downloadData(DBParameters.DB_NAME);
+                break;
+            case R.id.restore_old:
+                downloadData("");
+                break;
+        }
+    }
 }

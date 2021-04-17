@@ -82,7 +82,7 @@ public class SummeryFragment extends Fragment {
 
         updateHeader();
 
-        adapter = new SummeryListAdapter(this.getContext(), R.layout.summery_list_item_layout, clinetList, transectionlist);
+        adapter = new SummeryListAdapter(this.getContext(), R.layout.summery_list_item, clinetList, transectionlist);
         listView = (ListView) view.findViewById(R.id.sumery_list);
         listView.setAdapter(adapter);
 
@@ -153,7 +153,7 @@ public class SummeryFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu,MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_summery, menu);
+        inflater.inflate(R.menu.summery_options_menu, menu);
 
         MenuItem item_year2 = menu.findItem(R.id.year1);
         item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
@@ -183,7 +183,7 @@ public class SummeryFragment extends Fragment {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item_layout, filteredClientList, transectionlist);
+                adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item, filteredClientList, transectionlist);
                 listView.setAdapter(adapter);
                 return true;
             }
@@ -199,7 +199,7 @@ public class SummeryFragment extends Fragment {
             Log.d(SummeryFragment.class.getSimpleName(), year);
             transectionlist = TransectionDbServices.getFinancialYearTransection(year);
             updateHeader();
-            adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item_layout, clinetList, transectionlist);
+            adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item, clinetList, transectionlist);
             listView.setAdapter(adapter);
             adapter.notifyDataSetChanged();
         }

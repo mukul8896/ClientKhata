@@ -31,23 +31,22 @@ import android.widget.Toast;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mukul.companyAccounts.AddClientAvtivity;
 import com.mukul.companyAccounts.ClientActivity;
-import com.mukul.companyAccounts.ClientBillListFragment;
-import com.mukul.companyAccounts.MainActivity;
+import com.mukul.companyAccounts.BillTabFragment;
 import com.mukul.companyAccounts.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import adapterClasses.ClientListRecylerViewAdapder;
+import adapterClasses.ClientListAdapder;
 import dbServices.ClientDbServices;
 import modals.Client;
 
-public class ClientListFragment extends Fragment implements ClientListRecylerViewAdapder.ItemEventListner {
+public class ClientListFragment extends Fragment implements ClientListAdapder.ItemEventListner {
 
     private static ClientListFragment fragment;
     private List<Client> clientList;
     private RecyclerView recyclerlistView;
-    private ClientListRecylerViewAdapder adapter;
+    private ClientListAdapder adapter;
     private int index;
     private TextView total_balance;
     private  TextView total_fee;
@@ -101,7 +100,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
         recyclerlistView.setHasFixedSize(true);
         recyclerlistView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
 
-        adapter = new ClientListRecylerViewAdapder(getActivity().getApplicationContext(), clientList, this);
+        adapter = new ClientListAdapder(getActivity().getApplicationContext(), clientList, this);
         recyclerlistView.setAdapter(adapter);
         registerForContextMenu(recyclerlistView);
 
@@ -128,7 +127,6 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.delete) {
-            Log.i(MainActivity.class.getSimpleName(), "Delete button clicked");
             AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
             builder.setTitle("Alert !!");
             builder.setMessage("All data related to this client will be deleted.\n" +
@@ -136,14 +134,12 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        Log.i(MainActivity.class.getSimpleName(), "delete alert"+clientList.get(index).getName());
-                        ClientDbServices.deleteClient(clientList.get(index).getId());
-                        clientList.remove(index);
-                        adapter.notifyDataSetChanged();
-                    } catch (SQLiteConstraintException e) {
-                        Toast.makeText(getActivity().getApplicationContext(), "Clould not delete this client...!", Toast.LENGTH_SHORT).show();
-                    }
+                        if(ClientDbServices.deleteClient(clientList.get(index).getId())) {
+                            clientList.remove(index);
+                            adapter.notifyDataSetChanged();
+                        }else{
+                            Toast.makeText(ClientListFragment.this.getContext(), "Clould not delete this client...!", Toast.LENGTH_SHORT).show();
+                        }
                 }
             });
             builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -170,7 +166,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_main, menu);
+        inflater.inflate(R.menu.main_options_menu, menu);
 
         MenuItem item = menu.findItem(R.id.main_action_search);
         SearchView searchView = (SearchView) item.getActionView();
@@ -190,7 +186,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
                 }
                 total_balance.setText(getTotalBalance(filteredClientList));
                 total_fee.setText(getTotalFee(filteredClientList));
-                adapter = new ClientListRecylerViewAdapder(getActivity().getApplicationContext(), filteredClientList, ClientListFragment.this);
+                adapter = new ClientListAdapder(getActivity().getApplicationContext(), filteredClientList, ClientListFragment.this);
                 recyclerlistView.setAdapter(adapter);
                 return true;
             }
@@ -253,7 +249,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
                     clientList=ClientDbServices.getClientsList(interval,filter_type);
                     total_balance.setText(getTotalBalance(clientList));
                     total_fee.setText(getTotalFee(clientList));
-                    adapter = new ClientListRecylerViewAdapder(getActivity().getApplicationContext(), clientList, ClientListFragment.this);
+                    adapter = new ClientListAdapder(getActivity().getApplicationContext(), clientList, ClientListFragment.this);
                     recyclerlistView.setAdapter(adapter);
                     dialog.dismiss();
                 }
@@ -319,7 +315,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(BillTabFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }
@@ -331,7 +327,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
                 total_balance.setText(getTotalBalance(clientList));
                 if (recyclerlistView == null)
                     recyclerlistView = getView().findViewById(R.id.client_list_view);
-                adapter = new ClientListRecylerViewAdapder(ClientListFragment.this.getContext(), clientList, ClientListFragment.this);
+                adapter = new ClientListAdapder(ClientListFragment.this.getContext(), clientList, ClientListFragment.this);
                 recyclerlistView.setAdapter(adapter);
                 progressDoalog.dismiss();
             } else {
@@ -347,7 +343,7 @@ public class ClientListFragment extends Fragment implements ClientListRecylerVie
         clientList=ClientDbServices.getClientsList("all","Balance");
         total_balance.setText(getTotalBalance(clientList));
         total_fee.setText(getTotalFee(clientList));
-        adapter = new ClientListRecylerViewAdapder(getActivity().getApplicationContext(), clientList, ClientListFragment.this);
+        adapter = new ClientListAdapder(getActivity().getApplicationContext(), clientList, ClientListFragment.this);
         recyclerlistView.setAdapter(adapter);
     }
 }

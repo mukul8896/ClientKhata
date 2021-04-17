@@ -67,13 +67,15 @@ public class ClientDbServices {
         return filteredClientList;
     }
 
-    public static void deleteClient(int clientID) throws SQLiteConstraintException {
+    public static boolean deleteClient(int clientID) throws SQLiteConstraintException {
         try(SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();){
             db.delete(DBParameters.DB_CLIENT_TABLE, DBParameters.KEY_CLIENT_ID +"=?", new String[]{String.valueOf(clientID)});
             Log.d("mk_logs", "Deleted successfully ");
+            return true;
         }catch (Exception e){
-            e.printStackTrace();
             Log.d("mk_logs", "Error while deleting company");
+            e.printStackTrace();
+            return false;
         }
     }
 

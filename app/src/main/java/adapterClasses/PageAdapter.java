@@ -5,8 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.mukul.companyAccounts.ClientBillListFragment;
-import com.mukul.companyAccounts.TransectionFragment;
+import com.mukul.companyAccounts.BillTabFragment;
+import com.mukul.companyAccounts.TransectionTabFragment;
 
 import java.util.List;
 
@@ -35,9 +35,9 @@ public class PageAdapter extends FragmentPagerAdapter {
         Fragment fragment = null;
         switch (tabNum) {
             case 0:
-                return TransectionFragment.newInstance(transectionList,client);
+                return TransectionTabFragment.newInstance(transectionList,client);
             case 1:
-                return ClientBillListFragment.newInstance(billList,client);
+                return BillTabFragment.newInstance(billList,client);
             default:
                 return null;
         }

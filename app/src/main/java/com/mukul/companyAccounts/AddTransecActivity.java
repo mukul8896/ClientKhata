@@ -89,7 +89,6 @@ public class AddTransecActivity extends AppCompatActivity {
             }
         });
 
-        Log.i(MainActivity.class.getSimpleName(), "mukul 8");
         Button add_transec = (Button) findViewById(R.id.add_transec_submit_btn);
         add_transec.setOnClickListener(new View.OnClickListener() {
             @Override

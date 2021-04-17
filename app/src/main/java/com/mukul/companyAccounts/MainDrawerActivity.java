@@ -3,14 +3,12 @@ package com.mukul.companyAccounts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -18,7 +16,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -30,26 +27,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.material.navigation.NavigationView;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.drive.Drive;
-import com.google.api.services.drive.DriveScopes;
 import com.mukul.companyAccounts.ui.ClientListFragment;
 import com.mukul.companyAccounts.ui.SignInFragment;
 import com.mukul.companyAccounts.ui.SummeryFragment;
 import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
 
-import adapterClasses.ClientListRecylerViewAdapder;
 import dao.DbHandler;
 import dbServices.ClientDbServices;
 import dbServices.TransectionDbServices;
-import modals.Client;
 import utils.ProjectUtils;
 
 public class MainDrawerActivity extends AppCompatActivity {
@@ -152,7 +139,7 @@ public class MainDrawerActivity extends AppCompatActivity {
             case storage_request_code:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("mk_logs","Directory created");
-                    ProjectUtils.getBillFolders();
+                    ProjectUtils.getBillFolder();
                 } else {
                     Toast.makeText(this, "Storage Permission denied...!", Toast.LENGTH_SHORT).show();
                 }
@@ -187,7 +174,7 @@ public class MainDrawerActivity extends AppCompatActivity {
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE}
                         ,storage_request_code);
             } else {
-                ProjectUtils.getBillFolders();
+                ProjectUtils.getBillFolder();
                 Log.d("mk_logs","Already has storage permission");
             }
         } else {

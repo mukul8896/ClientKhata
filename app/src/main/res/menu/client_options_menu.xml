@@ -19,7 +19,6 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/client_all_tr"
-        android:icon="@drawable/ic_search_black_24dp"
         android:title="All"
         app:showAsAction="never" />
 

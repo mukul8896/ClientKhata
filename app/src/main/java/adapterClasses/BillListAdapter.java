@@ -12,33 +12,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mukul.companyAccounts.R;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import modals.Bill;
-import modals.Client;
 import utils.ProjectUtils;
 
-public class BillListRecyclerViewAdapter extends RecyclerView.Adapter<BillListRecyclerViewAdapter.ViewHolder> {
+public class BillListAdapter extends RecyclerView.Adapter<BillListAdapter.ViewHolder> {
 
     private Context context;
     private List<Bill> billList;
-    private BillListRecyclerViewAdapter.ItemEventListner eventListner;
+    private BillListAdapter.ItemEventListner eventListner;
 
-    public BillListRecyclerViewAdapter(Context context, List<Bill> billlist, BillListRecyclerViewAdapter.ItemEventListner eventListner){
+    public BillListAdapter(Context context, List<Bill> billlist, BillListAdapter.ItemEventListner eventListner){
         this.context = context;
         this.billList = billlist;
         this.eventListner = eventListner;
     }
 
     @Override
-    public BillListRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public BillListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.bill_list_item, parent, false);
-        return new BillListRecyclerViewAdapter.ViewHolder(view);
+        return new BillListAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(BillListRecyclerViewAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(BillListAdapter.ViewHolder holder, int position) {
         Bill bill = billList.get(position);
 
         holder.bill_no.setText(bill.getBill_year() + " | Bill No- " + bill.getBill_no());

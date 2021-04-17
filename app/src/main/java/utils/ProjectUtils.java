@@ -1,16 +1,14 @@
 package utils;
 
-import android.os.Environment;
 import android.util.Log;
 
-import com.mukul.companyAccounts.ClientBillListFragment;
+import com.mukul.companyAccounts.BillTabFragment;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -31,7 +29,7 @@ public class ProjectUtils {
         return dir;
     }
 
-    public static File getBillFolders() {
+    public static File getBillFolder() {
         File folder = new File(getAppFolder() , "ClientBills");
         if (!folder.exists()) {
             Log.d(ProjectUtils.class.getSimpleName(),folder.getPath()+" created: "+folder.mkdir());
@@ -68,7 +66,7 @@ public class ProjectUtils {
             year1 = Integer.toString(cal_date.get(Calendar.YEAR) - 1);
             year2 = Integer.toString(cal_date.get(Calendar.YEAR));
         }
-        Log.i(ClientBillListFragment.class.getSimpleName(), year1 + ":" + year2);
+        Log.i(BillTabFragment.class.getSimpleName(), year1 + ":" + year2);
         return year1 + "-" + year2.substring(2, year2.length());
     }
 

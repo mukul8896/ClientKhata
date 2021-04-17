@@ -17,16 +17,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import adapterClasses.TransectionListRecyclerViewAdapter;
+import adapterClasses.TransectionListAdapter;
 import modals.Bill;
 import modals.Transection;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
 import dbServices.TransectionDbServices;
 
-public class BillEditActivity extends AppCompatActivity implements TransectionListRecyclerViewAdapter.ItemEventListner {
+public class BillEditActivity extends AppCompatActivity implements TransectionListAdapter.ItemEventListner {
     private RecyclerView transection_lstView;
-    private TransectionListRecyclerViewAdapter adapter;
+    private TransectionListAdapter adapter;
     private List<Transection> transectionList;
     private Bill bill;
     private int index;
@@ -54,7 +54,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         transection_lstView.setHasFixedSize(true);
         transection_lstView.setLayoutManager(new LinearLayoutManager(BillEditActivity.this));
 
-        adapter = new TransectionListRecyclerViewAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
+        adapter = new TransectionListAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
         transection_lstView.setAdapter(adapter);
         registerForContextMenu(transection_lstView);
 
@@ -109,7 +109,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
 
     @Override
     public boolean onLongClick(View view, int position) {
-        Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
+        Log.i(TransectionTabFragment.class.getSimpleName(), "Logn press done");
         index = position;
         return false;
     }
@@ -123,7 +123,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(BillTabFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }

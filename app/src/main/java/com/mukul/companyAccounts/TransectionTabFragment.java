@@ -18,26 +18,24 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Collections;
 import java.util.List;
 
-import adapterClasses.TransectionListRecyclerViewAdapter;
-import modals.Bill;
+import adapterClasses.TransectionListAdapter;
 import modals.Client;
 import modals.Transection;
-import dbServices.ClientDbServices;
 import dbServices.TransectionDbServices;
 
-public class TransectionFragment extends Fragment implements TransectionListRecyclerViewAdapter.ItemEventListner{
-    private TransectionListRecyclerViewAdapter adapter;
+public class TransectionTabFragment extends Fragment implements TransectionListAdapter.ItemEventListner{
+    private TransectionListAdapter adapter;
     private Client client;
     private int index;
     private List<Transection> transectionList;
 
-    private static TransectionFragment transectionFragment;
+    private static TransectionTabFragment transectionTabFragment;
 
-    public static TransectionFragment newInstance(List<Transection> billList, Client client) {
-        return new TransectionFragment(billList,client);
+    public static TransectionTabFragment newInstance(List<Transection> billList, Client client) {
+        return new TransectionTabFragment(billList,client);
     }
 
-    public TransectionFragment(List<Transection> transectionList,Client client) {
+    public TransectionTabFragment(List<Transection> transectionList, Client client) {
         this.transectionList=transectionList;
         this.client=client;
     }
@@ -45,21 +43,21 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TransectionFragment.class.getSimpleName(), "inside onCreate");
+        Log.i(TransectionTabFragment.class.getSimpleName(), "inside onCreate");
         Collections.sort(transectionList);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.i(TransectionFragment.class.getSimpleName(), "inside onCreateView");
+        Log.i(TransectionTabFragment.class.getSimpleName(), "inside onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_transections, container, false);
 
         RecyclerView recyclerView = rootView.findViewById(R.id.transection_list);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new TransectionListRecyclerViewAdapter(this.getContext(),  transectionList, TransectionFragment.this);
+        adapter = new TransectionListAdapter(this.getContext(),  transectionList, TransectionTabFragment.this);
         recyclerView.setAdapter(adapter);
 
         registerForContextMenu(recyclerView);
@@ -72,7 +70,7 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
                 Intent intent_to_add_transec = new Intent(getActivity().getApplicationContext(),
                         AddTransecActivity.class);
                 intent_to_add_transec.putExtra("id", client.getId());
-                Log.i(TransectionFragment.class.getSimpleName(), "about to starrt transection add activity");
+                Log.i(TransectionTabFragment.class.getSimpleName(), "about to starrt transection add activity");
                 startActivity(intent_to_add_transec);
             }
         });
@@ -87,7 +85,7 @@ public class TransectionFragment extends Fragment implements TransectionListRecy
 
     @Override
     public boolean onLongClick(View view, int position) {
-        Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
+        Log.i(TransectionTabFragment.class.getSimpleName(), "Logn press done");
         index = position;
         return false;
     }

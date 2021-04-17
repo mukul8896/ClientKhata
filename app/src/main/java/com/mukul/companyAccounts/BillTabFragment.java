@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Date;
 import java.util.List;
 
-import adapterClasses.BillListRecyclerViewAdapter;
+import adapterClasses.BillListAdapter;
 import modals.Bill;
 import modals.Client;
 import services.BillGenerationServices;
@@ -30,19 +30,19 @@ import dbServices.BillDbServices;
 import utils.BillUtils;
 import utils.ProjectUtils;
 
-public class ClientBillListFragment extends Fragment implements BillListRecyclerViewAdapter.ItemEventListner {
-    private BillListRecyclerViewAdapter adapter;
+public class BillTabFragment extends Fragment implements BillListAdapter.ItemEventListner {
+    private BillListAdapter adapter;
     private int index;
     private Dialog dialog;
     private Client client;
     private List<Bill> billList;
-    private static ClientBillListFragment clientBillListFragment;
+    private static BillTabFragment billTabFragment;
 
-    public static ClientBillListFragment newInstance(List<Bill> billList,Client client) {
-        return new ClientBillListFragment(billList,client);
+    public static BillTabFragment newInstance(List<Bill> billList, Client client) {
+        return new BillTabFragment(billList,client);
     }
 
-    public ClientBillListFragment(List<Bill> billList,Client client) {
+    public BillTabFragment(List<Bill> billList, Client client) {
         this.billList=billList;
         this.client=client;
     }
@@ -61,7 +61,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new BillListRecyclerViewAdapter(this.getContext(),  billList, ClientBillListFragment.this);
+        adapter = new BillListAdapter(this.getContext(),  billList, BillTabFragment.this);
         recyclerView.setAdapter(adapter);
 
         registerForContextMenu(recyclerView);
@@ -116,14 +116,14 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
                     BillEditActivity.class);
             intent.putExtra("bill_id", billList.get(index).getBillId());
             startActivity(intent);
-            Log.i(ClientBillListFragment.class.getSimpleName(), "Inside generated bill fragment");
+            Log.i(BillTabFragment.class.getSimpleName(), "Inside generated bill fragment");
         }
         return true;
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        getActivity().getMenuInflater().inflate(R.menu.bill_list_context_menu, menu);
+        getActivity().getMenuInflater().inflate(R.menu.bill_context_menu, menu);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class ClientBillListFragment extends Fragment implements BillListRecycler
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(BillTabFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mukul.companyAccounts.R;
@@ -15,13 +14,13 @@ import java.util.List;
 
 import modals.Client;
 
-public class ClientListRecylerViewAdapder extends RecyclerView.Adapter<ClientListRecylerViewAdapder.ViewHolder> {
+public class ClientListAdapder extends RecyclerView.Adapter<ClientListAdapder.ViewHolder> {
 
     private Context context;
     private List<Client> clientList;
     private ItemEventListner eventListner;
 
-    public ClientListRecylerViewAdapder(Context context, List<Client> clientList, ItemEventListner eventListner) {
+    public ClientListAdapder(Context context, List<Client> clientList, ItemEventListner eventListner) {
         this.context = context;
         this.clientList = clientList;
         this.eventListner = eventListner;
@@ -29,14 +28,14 @@ public class ClientListRecylerViewAdapder extends RecyclerView.Adapter<ClientLis
 
     // Where to get the single card as viewholder Object
     @Override
-    public ClientListRecylerViewAdapder.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ClientListAdapder.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.client_list_item, parent, false);
         return new ViewHolder(view);
     }
 
     // What will happen after we create the viewholder object
     @Override
-    public void onBindViewHolder(ClientListRecylerViewAdapder.ViewHolder holder, int position) {
+    public void onBindViewHolder(ClientListAdapder.ViewHolder holder, int position) {
         Client client = clientList.get(position);
 
         holder.clientName_txt.setText(client.getName());
