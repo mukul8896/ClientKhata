@@ -162,12 +162,15 @@ public class Migration {
         return list;
     }
 
-    public static List<Bill> getBill(Integer sqClientId,Integer msclientId) {
+    public static List<Bill> getBill(String name) {
+        int msid=Migration.getmsClientId(name);
+        int sqid=Migration.getsqClientId(name);
         List<Bill> bill_list = new ArrayList<>();
         try {
             Connection con = getConnection();
             Statement st = con.createStatement();
-            ResultSet rs = st.executeQuery("select * from Bill where ClientId='" + msclientId + "'");
+            ResultSet rs = st.executeQuery("select * from Bill where ClientID='"+msid+"'");
+            Log.d("mk_logs",name);
             while (rs.next()) {
                 Bill bill = new Bill();
                 bill.setBill_no(rs.getInt("BillNo"));
@@ -181,16 +184,13 @@ public class Migration {
 
                 bill.setGenerationDate(rs.getString("GenerationDate"));
 
-                bill.setClient_id(sqClientId);
+                bill.setClient_id(sqid);
 
                 if (rs.getInt("IsShared") == 1)
                     bill.setBillShared(true);
                 else
                     bill.setBillShared(false);
-                System.out.println(bill);
-                System.out.println(msclientId);
                 BillDbServices.addBill(bill);
-
             }
             con.close();
             return bill_list;
@@ -202,6 +202,17 @@ public class Migration {
         return bill_list;
     }
 
+    public static boolean deleteBills(){
+        try(SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();){
+            db.delete(DBParameters.DB_BILL_TABLE, null, null);
+            Log.d("mk_logs", "Deleted successfully ");
+            return true;
+        }catch (Exception e){
+            Log.d("mk_logs", "Error while deleting company");
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 }
 

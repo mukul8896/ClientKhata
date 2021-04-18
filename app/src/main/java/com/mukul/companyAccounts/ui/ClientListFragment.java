@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adapterClasses.ClientListAdapder;
+import dao.Migration;
 import dbServices.ClientDbServices;
 import modals.Client;
 
@@ -110,10 +111,6 @@ public class ClientListFragment extends Fragment implements ClientListAdapder.It
                 Intent intent = new Intent(getActivity().getApplicationContext(),
                         AddClientAvtivity.class);
                 startActivity(intent);
-                /*List<String> names = Migration.msClientname();
-                for(String name:names){
-                    Migration.getBill(Migration.getmsClientId(name),Migration.getsqClientId(name));
-                }*/
             }
         });
 

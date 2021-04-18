@@ -137,19 +137,7 @@ public class TransectionTabFragment extends Fragment implements TransectionListA
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        getActivity().getMenuInflater().inflate(R.menu.client_options_menu, menu);
-
-        MenuItem item_year2 = menu.findItem(R.id.client_year1);
-        item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
-
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) -1);
-        MenuItem item_year3 = menu.findItem(R.id.client_year2);
-        item_year3.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
-
-        MenuItem item_year1 = menu.findItem(R.id.client_year3);
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) - 2);
-        item_year1.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
+        getActivity().getMenuInflater().inflate(R.menu.client_fragment_add, menu);
     }
 
     @Override
@@ -161,12 +149,6 @@ public class TransectionTabFragment extends Fragment implements TransectionListA
             intent_to_add_transec.putExtra("id", client.getId());
             Log.i(TransectionTabFragment.class.getSimpleName(), "about to starrt transection add activity");
             startActivity(intent_to_add_transec);
-        }else{
-            String financialYear = item.getTitle().toString();
-            transectionList = TransectionDbServices.getClientsTransections(client.getId(),financialYear);
-            ((ClientActivity)getActivity()).getSupportActionBar().setSubtitle(financialYear);
-            adapter = new TransectionListAdapter(this.getContext(),  transectionList, TransectionTabFragment.this);
-            recyclerView.setAdapter(adapter);
         }
         return super.onOptionsItemSelected(item);
     }

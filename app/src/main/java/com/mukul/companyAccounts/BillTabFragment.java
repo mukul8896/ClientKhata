@@ -180,19 +180,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        getActivity().getMenuInflater().inflate(R.menu.client_options_menu, menu);
-
-        MenuItem item_year2 = menu.findItem(R.id.client_year1);
-        item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
-
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) -1);
-        MenuItem item_year3 = menu.findItem(R.id.client_year2);
-        item_year3.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
-
-        MenuItem item_year1 = menu.findItem(R.id.client_year3);
-        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) - 2);
-        item_year1.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
+        getActivity().getMenuInflater().inflate(R.menu.client_fragment_add, menu);
     }
 
     @Override
@@ -223,12 +211,6 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
                 }
             });
             dialog.show();
-        }else {
-            String financialYear = item.getTitle().toString();
-            billList = BillDbServices.getBillList(client.getId(), financialYear);
-            ((ClientActivity) getActivity()).getSupportActionBar().setSubtitle(financialYear);
-            adapter = new BillListAdapter(this.getContext(), billList, BillTabFragment.this);
-            recyclerView.setAdapter(adapter);
         }
         return super.onOptionsItemSelected(item);
     }

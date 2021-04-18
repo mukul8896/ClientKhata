@@ -76,6 +76,7 @@ public class TransectionDbServices {
                         list.add(transection);
                     }
                 }
+                Collections.sort(list);
             }while(cursor.moveToNext());
         }
         return list;
