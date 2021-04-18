@@ -21,7 +21,7 @@
         <activity android:name=".BillEditActivity"
             android:theme="@style/ClientTheme"/>
         <activity android:name=".ClientActivity"
-            android:theme="@style/ClientTheme"/>
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".AddTransecActivity"
             android:label="Add Transection"
@@ -31,7 +31,7 @@
             android:name=".AddClientAvtivity"
             android:label="Add Client"
             android:theme="@style/ClientTheme"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainDrawerActivity" />
         <activity
             android:name=".MainDrawerActivity"
             android:icon="@drawable/app_logo"
@@ -43,10 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="googleSignIn.SignInActivityWithDrive"
-            android:label="@string/name_sign_in_activity"
-            android:theme="@style/ThemeOverlay.MyNoTitleActivity" />
 
         <receiver
             android:name="driveBackup.BackupSchedular"

@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -27,7 +28,7 @@ import dbServices.TransectionDbServices;
 public class AddTransecActivity extends AppCompatActivity {
     private EditText date_edit_txt;
     private EditText amt_edit_txt;
-    private EditText desc_edit_txt;
+    private AutoCompleteTextView desc_edit_txt;
     private DatePickerDialog picker;
     private Integer client_id;
     private Spinner spinner;
@@ -51,8 +52,12 @@ public class AddTransecActivity extends AppCompatActivity {
         }
 
         spinner = (Spinner) findViewById(R.id.transec_type);
+
         amt_edit_txt = (EditText) findViewById(R.id.transec_amount);
-        desc_edit_txt = (EditText) findViewById(R.id.transec_desc);
+
+        desc_edit_txt = (AutoCompleteTextView) findViewById(R.id.transec_desc);
+        desc_edit_txt.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_dropdown_item_1line,TransectionDbServices.getAllUniqueDescription(client_id)));
+
         date_edit_txt = (EditText) findViewById(R.id.transec_date);
 
         String[] spinner_list = new String[]{"Credit", "Debit"};

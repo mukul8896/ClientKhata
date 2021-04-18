@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
 import com.mukul.companyAccounts.BillTabFragment;
 import com.mukul.companyAccounts.TransectionTabFragment;
@@ -14,7 +15,7 @@ import modals.Bill;
 import modals.Client;
 import modals.Transection;
 
-public class PageAdapter extends FragmentPagerAdapter {
+public class PageAdapter extends FragmentStatePagerAdapter {
     private int tabCount;
     private Client client;
     private String financialyear;
@@ -32,7 +33,6 @@ public class PageAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int tabNum) {
-        Fragment fragment = null;
         switch (tabNum) {
             case 0:
                 return TransectionTabFragment.newInstance(transectionList,client);
@@ -52,4 +52,5 @@ public class PageAdapter extends FragmentPagerAdapter {
     public int getItemPosition(@NonNull Object object) {
         return POSITION_NONE;
     }
+
 }

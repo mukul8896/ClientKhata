@@ -297,7 +297,7 @@ public class SignInFragment extends Fragment implements
                 downloadData(DBParameters.DB_NAME);
                 break;
             case R.id.restore_old:
-                downloadData("");
+                //downloadData("");
                 break;
         }
     }

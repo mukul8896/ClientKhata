@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,16 +17,22 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import adapterClasses.BillListAdapter;
+import adapterClasses.TransectionListAdapter;
+import dbServices.TransectionDbServices;
 import modals.Bill;
 import modals.Client;
+import modals.Transection;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
 import utils.BillUtils;
@@ -37,14 +45,27 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     private Client client;
     private List<Bill> billList;
     private static BillTabFragment billTabFragment;
+    private RecyclerView recyclerView;
 
     public static BillTabFragment newInstance(List<Bill> billList, Client client) {
-        return new BillTabFragment(billList,client);
+        if(billTabFragment==null)
+            billTabFragment=new BillTabFragment(billList,client);
+        else{
+            billTabFragment.setClient(client);
+            billTabFragment.setBillList(billList);
+        }
+        return billTabFragment;
     }
 
     public BillTabFragment(List<Bill> billList, Client client) {
         this.billList=billList;
         this.client=client;
+    }
+    public void setClient(Client client){
+        this.client=client;
+    }
+    public void setBillList(List<Bill> billList){
+        this.billList=billList;
     }
 
     @Override
@@ -56,8 +77,8 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_generated_bill, container, false);
-
-        RecyclerView recyclerView = rootView.findViewById(R.id.bill_recyclerview);
+        setHasOptionsMenu(true);
+        recyclerView = rootView.findViewById(R.id.bill_recyclerview);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -65,37 +86,6 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         recyclerView.setAdapter(adapter);
 
         registerForContextMenu(recyclerView);
-
-        Button generate_bill_btn = (Button) rootView.findViewById(R.id.generate_bill_btn);
-        generate_bill_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog = new Dialog(getActivity());
-                dialog.setContentView(R.layout.download_bill_dialoge);
-                TextView submit = (TextView) dialog.findViewById(R.id.bill_doigole_submit);
-                submit.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        try {
-                            PDFGenerationTask task = new PDFGenerationTask();
-                            task.execute();
-                            dialog.dismiss();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-                TextView cancel = (TextView) dialog.findViewById(R.id.bill_dialoge_cancel);
-                cancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-                dialog.show();
-            }
-        });
         return rootView;
     }
 
@@ -185,5 +175,61 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
                 Toast.makeText(getActivity(), "Some error while bill generation !!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        getActivity().getMenuInflater().inflate(R.menu.client_options_menu, menu);
+
+        MenuItem item_year2 = menu.findItem(R.id.client_year1);
+        item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) -1);
+        MenuItem item_year3 = menu.findItem(R.id.client_year2);
+        item_year3.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
+
+        MenuItem item_year1 = menu.findItem(R.id.client_year3);
+        cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR) - 2);
+        item_year1.setTitle(ProjectUtils.getFinancialYear(cal.getTime()));
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id==R.id.client_add_action){
+            dialog = new Dialog(getActivity());
+            dialog.setContentView(R.layout.download_bill_dialoge);
+            TextView submit = (TextView) dialog.findViewById(R.id.bill_doigole_submit);
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        PDFGenerationTask task = new PDFGenerationTask();
+                        task.execute();
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            TextView cancel = (TextView) dialog.findViewById(R.id.bill_dialoge_cancel);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+        }else {
+            String financialYear = item.getTitle().toString();
+            billList = BillDbServices.getBillList(client.getId(), financialYear);
+            ((ClientActivity) getActivity()).getSupportActionBar().setSubtitle(financialYear);
+            adapter = new BillListAdapter(this.getContext(), billList, BillTabFragment.this);
+            recyclerView.setAdapter(adapter);
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

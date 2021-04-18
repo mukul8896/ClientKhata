@@ -21,5 +21,9 @@
         android:id="@+id/client_all_tr"
         android:title="All"
         app:showAsAction="never" />
-
+    <item
+        android:id="@+id/client_add_action"
+        android:title="ADD"
+        android:icon="@drawable/ic_add_white_24dp"
+        app:showAsAction="always" />
 </menu>

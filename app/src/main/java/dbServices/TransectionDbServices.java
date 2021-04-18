@@ -190,4 +190,22 @@ public class TransectionDbServices {
         }
         return list;
     }
+
+    public static List<String> getAllUniqueDescription(int client_id){
+        List<String> suggetionlist=new ArrayList<>();
+        String query = "select distinct "+DBParameters.KEY_TRANSECTION_DESC+" from "+DBParameters.DB_TRANSECTION_TABLE+" where "+DBParameters.KEY_TRANSECTION_CLIENTID+" = '"+client_id+"'";
+        Log.d("mk_logs", query);
+        try(SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
+            Cursor cursor = db.rawQuery(query, null);){
+            if(cursor.moveToFirst()){
+                do{
+                    suggetionlist.add(cursor.getString(0));
+                }while(cursor.moveToNext());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.d("mk_logs", "Error while getting suggetion list");
+        }
+        return suggetionlist;
+    }
 }
