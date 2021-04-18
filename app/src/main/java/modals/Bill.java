@@ -75,4 +75,18 @@ public class Bill {
     public String getGenerationDate() {
         return this.generation_date;
     }
+
+    @Override
+    public String toString() {
+        return "Bill{" +
+                "billId=" + billId +
+                ", bill_no=" + bill_no +
+                ", bill_year='" + bill_year + '\'' +
+                ", client_id=" + client_id +
+                ", to_date=" + to_date +
+                ", from_date=" + from_date +
+                ", isBillShared=" + isBillShared +
+                ", generation_date='" + generation_date + '\'' +
+                '}';
+    }
 }

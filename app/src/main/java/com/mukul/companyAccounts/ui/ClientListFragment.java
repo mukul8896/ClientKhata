@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -111,6 +110,10 @@ public class ClientListFragment extends Fragment implements ClientListAdapder.It
                 Intent intent = new Intent(getActivity().getApplicationContext(),
                         AddClientAvtivity.class);
                 startActivity(intent);
+                /*List<String> names = Migration.msClientname();
+                for(String name:names){
+                    Migration.getBill(Migration.getmsClientId(name),Migration.getsqClientId(name));
+                }*/
             }
         });
 
@@ -186,7 +189,8 @@ public class ClientListFragment extends Fragment implements ClientListAdapder.It
                 }
                 total_balance.setText(getTotalBalance(filteredClientList));
                 total_fee.setText(getTotalFee(filteredClientList));
-                adapter = new ClientListAdapder(getActivity().getApplicationContext(), filteredClientList, ClientListFragment.this);
+                clientList = filteredClientList;
+                adapter = new ClientListAdapder(getActivity().getApplicationContext(), clientList, ClientListFragment.this);
                 recyclerlistView.setAdapter(adapter);
                 return true;
             }

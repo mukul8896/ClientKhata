@@ -23,19 +23,20 @@ import utils.ProjectUtils;
 
 public class TransectionDbServices {
 
-    public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception {
-        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
-        values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
-        values.put(DBParameters.KEY_TRANSECTION_DATE, date);
-        values.put(DBParameters.KEY_TRANSECTION_DESC, desc);
-        values.put(DBParameters.KEY_TRANSECTION_TYPE,type);
+    public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception{
+        try(SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();){
+            ContentValues values = new ContentValues();
+            values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
+            values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
+            values.put(DBParameters.KEY_TRANSECTION_DATE, date);
+            values.put(DBParameters.KEY_TRANSECTION_DESC, desc);
+            values.put(DBParameters.KEY_TRANSECTION_TYPE,type);
 
-        db.insert(DBParameters.DB_TRANSECTION_TABLE, null, values);
-        Log.d("mk_logs", "Transection Successfully added");
-        db.close();
-
+            db.insert(DBParameters.DB_TRANSECTION_TABLE, null, values);
+            Log.d("mk_logs", "Transection Successfully added");
+        }catch (Exception e){
+            throw e;
+        }
         if (type.equals("Credit"))
             ClientDbServices.updateClientBalance(clientId, amount, -1);
         else
