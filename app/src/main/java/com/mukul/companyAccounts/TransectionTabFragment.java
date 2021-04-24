@@ -143,7 +143,7 @@ public class TransectionTabFragment extends Fragment implements TransectionListA
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id==R.id.client_add_action){
+        if(id==R.id.client_addtransection_action){
             Intent intent_to_add_transec = new Intent(getActivity().getApplicationContext(),
                     AddTransecActivity.class);
             intent_to_add_transec.putExtra("id", client.getId());

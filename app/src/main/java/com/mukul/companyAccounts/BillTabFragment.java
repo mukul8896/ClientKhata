@@ -186,7 +186,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id==R.id.client_add_action){
+        if(id==R.id.client_addtransection_action){
             dialog = new Dialog(getActivity());
             dialog.setContentView(R.layout.download_bill_dialoge);
             TextView submit = (TextView) dialog.findViewById(R.id.bill_doigole_submit);

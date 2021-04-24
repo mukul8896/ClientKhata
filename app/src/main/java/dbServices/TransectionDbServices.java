@@ -193,10 +193,9 @@ public class TransectionDbServices {
         return list;
     }
 
-    public static List<String> getAllUniqueDescription(int client_id){
+    public static List<String> getAllUniqueDescription(){
         List<String> suggetionlist=new ArrayList<>();
-        String query = "select distinct "+DBParameters.KEY_TRANSECTION_DESC+" from "+DBParameters.DB_TRANSECTION_TABLE+" where "+DBParameters.KEY_TRANSECTION_CLIENTID+" = '"+client_id+"'";
-        Log.d("mk_logs", query);
+        String query = "select distinct "+DBParameters.KEY_TRANSECTION_DESC+" from "+DBParameters.DB_TRANSECTION_TABLE;
         try(SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
             Cursor cursor = db.rawQuery(query, null);){
             if(cursor.moveToFirst()){

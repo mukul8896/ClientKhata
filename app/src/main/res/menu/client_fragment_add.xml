@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mukul.companyAccounts.ClientActivity">
     <item
-        android:id="@+id/client_add_action"
+        android:id="@+id/client_addtransection_action"
         android:title="ADD"
         android:icon="@drawable/ic_add_white_24dp"
         app:showAsAction="always" />

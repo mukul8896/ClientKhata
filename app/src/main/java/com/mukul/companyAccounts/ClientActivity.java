@@ -40,7 +40,7 @@ public class ClientActivity extends AppCompatActivity {
     private Integer client_id;
     private Client client;
     private String financialYear = "All";
-    private int currentPage;
+    private int currentPage = 0;
     private List<Transection> transectionList;
     private List<Bill> billList;
 
@@ -116,7 +116,7 @@ public class ClientActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id!=R.id.client_add_action){
+        if(id!=R.id.client_addtransection_action){
             String financialYear = item.getTitle().toString();
             billList = BillDbServices.getBillList(client_id,financialYear);
             transectionList = TransectionDbServices.getClientsTransections(client_id,financialYear);

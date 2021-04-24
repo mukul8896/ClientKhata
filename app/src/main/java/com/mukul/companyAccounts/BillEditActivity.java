@@ -45,6 +45,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
             String bill_details = bill.getBill_year() + " | Bill No-" + bill.getBill_no();
             toolbar.setTitle(bill_details);
             transectionList = BillDbServices.getBillTransection(bill_details);
+            Log.i(BillEditActivity.class.getSimpleName(),transectionList.toString());
         } catch (Exception e) {
             Toast.makeText(this, "Some error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -133,6 +134,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
             if (s.equals("success")) {
                 Toast.makeText(BillEditActivity.this, "Bill updated successfully!!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(BillEditActivity.this, ClientActivity.class);
+                intent.putExtra("currentTab",1);
                 intent.putExtra("id", bill.getClient_id());
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);

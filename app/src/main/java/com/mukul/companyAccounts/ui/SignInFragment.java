@@ -290,7 +290,7 @@ public class SignInFragment extends Fragment implements
         });
     }
 
-    TreeMap<String,Map<String,String>> dbFilesmap=new TreeMap<>();
+    TreeMap<String,String> dbFilesmap=new TreeMap<>();
     public void downloadOldDB(){
         getView().findViewById(R.id.backup_restore).setVisibility(View.GONE);
         ProgressBar progressBar = (ProgressBar) getView().findViewById(R.id.progressbar);
@@ -326,10 +326,8 @@ public class SignInFragment extends Fragment implements
                             Executor executor= Executors.newSingleThreadExecutor();
                             Task restoreOld= Tasks.call(executor,()-> {
                                 try {
-                                    Map<String,String> data= dbFilesmap.get(adapter.getItem(position));
-                                    String fileId = new ArrayList<>(data.keySet()).get(0);
-                                    System.out.println("File ID is : "+fileId);
-                                    backupHandler.restoreOldFile(driveService,fileId);
+                                    System.out.println("File ID is : "+dbFilesmap.get(adapter.getItem(position)));
+                                    backupHandler.restoreOldFile(driveService,dbFilesmap.get(adapter.getItem(position)));
                                 } catch (UserRecoverableAuthIOException e) {
                                     startActivityForResult(e.getIntent(), RC_SIGN_IN);
                                 }

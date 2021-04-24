@@ -130,8 +130,8 @@ public class GoogleDriveHandler {
         return file.getId();
     }
 
-    public TreeMap<String,Map<String,String>> getAllDBFilesMap(Drive driveService) throws UserRecoverableAuthIOException {
-        TreeMap<String,Map<String,String>> dbFiles=new TreeMap<>();
+    public TreeMap<String,String> getAllDBFilesMap(Drive driveService) throws UserRecoverableAuthIOException {
+        TreeMap<String,String> dbFiles=new TreeMap<>();
         String folderId=searchFolderByName(driveService,folderName);
         String pageToken = null;
         try {
@@ -147,9 +147,7 @@ public class GoogleDriveHandler {
                     System.out.printf("Found file: %s (%s)\n",
                             file.getName(), file.getId());
                     if(!file.getName().equals(DBParameters.DB_NAME)){
-                        Map<String,String> map=new HashMap<>();
-                        map.put(file.getId(),file.getName());
-                        dbFiles.put(getdateFromMillies(file.getName()),map);
+                        dbFiles.put(getdateFromMillies(file.getName()),file.getId());
                     }
                 }
                 pageToken = result.getNextPageToken();
