@@ -14,17 +14,8 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/enter_transection_details"
-        android:textAlignment="center"
-        android:layout_marginTop="20dp"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimary"/>
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:text="@string/amount"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:textColor="@color/text_black"/>
@@ -44,10 +35,9 @@
         android:layout_marginRight="10dp"
         android:layout_marginTop="15dp"
         android:textColor="@color/text_black"/>
-    <EditText
+    <AutoCompleteTextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
         android:id="@+id/transec_desc"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"/>

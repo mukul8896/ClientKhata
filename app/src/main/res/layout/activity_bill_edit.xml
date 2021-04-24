@@ -15,7 +15,7 @@
         android:textSize="18sp"
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"/>
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0sp"
         android:id="@+id/listview_for_edit_bill_transection"

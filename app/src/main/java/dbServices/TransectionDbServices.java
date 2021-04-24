@@ -23,26 +23,27 @@ import utils.ProjectUtils;
 
 public class TransectionDbServices {
 
-    public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception {
-        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
-        values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
-        values.put(DBParameters.KEY_TRANSECTION_DATE, date);
-        values.put(DBParameters.KEY_TRANSECTION_DESC, desc);
-        values.put(DBParameters.KEY_TRANSECTION_TYPE,type);
+    public static void addTransectioin(Integer amount, Integer clientId, String desc, String date, String type) throws Exception{
+        try(SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();){
+            ContentValues values = new ContentValues();
+            values.put(DBParameters.KEY_TRANSECTION_CLIENTID, clientId);
+            values.put(DBParameters.KEY_TRANSECTION_AMOUNT, amount);
+            values.put(DBParameters.KEY_TRANSECTION_DATE, date);
+            values.put(DBParameters.KEY_TRANSECTION_DESC, desc);
+            values.put(DBParameters.KEY_TRANSECTION_TYPE,type);
 
-        db.insert(DBParameters.DB_TRANSECTION_TABLE, null, values);
-        Log.d("mk_logs", "Transection Successfully added");
-        db.close();
-
+            db.insert(DBParameters.DB_TRANSECTION_TABLE, null, values);
+            Log.d("mk_logs", "Transection Successfully added");
+        }catch (Exception e){
+            throw e;
+        }
         if (type.equals("Credit"))
             ClientDbServices.updateClientBalance(clientId, amount, -1);
         else
             ClientDbServices.updateClientBalance(clientId, amount, 1);
     }
 
-    public static List<Transection> getClientsTransections(int clientId) {
+    public static List<Transection> getClientsTransections(int clientId,String financialyear) {
         List<Transection> list = new ArrayList<>();
         String query = "select * from "+DBParameters.DB_TRANSECTION_TABLE+" where " +DBParameters.KEY_TRANSECTION_CLIENTID+ "="+clientId;
         SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
@@ -57,7 +58,25 @@ public class TransectionDbServices {
                 transection.setDate(ProjectUtils.parseStringToDate(cursor.getString(3),"MMMM dd, yyyy"));
                 transection.setTransecId(Integer.parseInt(cursor.getString(0)));
                 transection.setBill_details(cursor.getString(7));
-                list.add(transection);
+                if(financialyear.equalsIgnoreCase("all"))
+                    list.add(transection);
+                else{
+                    int year=Integer.parseInt(financialyear.split("-")[0].trim());
+
+                    Calendar calendar=Calendar.getInstance();
+                    calendar.set(year,Calendar.APRIL,1);
+                    Date first_date= calendar.getTime();
+
+                    calendar.set(year+1,Calendar.MARCH,31);
+                    Date last_date=calendar.getTime();
+
+                    if((transection.getDate().after(first_date) && transection.getDate().before(last_date))
+                            || ProjectUtils.isDatesEqual(transection.getDate(), first_date)
+                            || ProjectUtils.isDatesEqual(transection.getDate(), last_date)){
+                        list.add(transection);
+                    }
+                }
+                Collections.sort(list);
             }while(cursor.moveToNext());
         }
         return list;
@@ -172,5 +191,22 @@ public class TransectionDbServices {
             }while(cursor.moveToNext());
         }
         return list;
+    }
+
+    public static List<String> getAllUniqueDescription(){
+        List<String> suggetionlist=new ArrayList<>();
+        String query = "select distinct "+DBParameters.KEY_TRANSECTION_DESC+" from "+DBParameters.DB_TRANSECTION_TABLE;
+        try(SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
+            Cursor cursor = db.rawQuery(query, null);){
+            if(cursor.moveToFirst()){
+                do{
+                    suggetionlist.add(cursor.getString(0));
+                }while(cursor.moveToNext());
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.d("mk_logs", "Error while getting suggetion list");
+        }
+        return suggetionlist;
     }
 }

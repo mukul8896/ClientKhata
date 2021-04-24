@@ -15,16 +15,4 @@
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
         android:layout_weight="@android:integer/status_bar_notification_info_maxnum"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/generate_new_bill"
-        android:textColor="@color/calendar_bg"
-        android:id="@+id/generate_bill_btn"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="10dp"
-        android:textStyle="bold"
-        android:background="@drawable/drawable_add_transec_btn"
-        android:textSize="@dimen/add_transection_button_text" />
 </LinearLayout>

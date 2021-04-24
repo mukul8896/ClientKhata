@@ -17,16 +17,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import adapterClasses.TransectionListRecyclerViewAdapter;
+import adapterClasses.TransectionListAdapter;
 import modals.Bill;
 import modals.Transection;
 import services.BillGenerationServices;
 import dbServices.BillDbServices;
 import dbServices.TransectionDbServices;
 
-public class BillEditActivity extends AppCompatActivity implements TransectionListRecyclerViewAdapter.ItemEventListner {
+public class BillEditActivity extends AppCompatActivity implements TransectionListAdapter.ItemEventListner {
     private RecyclerView transection_lstView;
-    private TransectionListRecyclerViewAdapter adapter;
+    private TransectionListAdapter adapter;
     private List<Transection> transectionList;
     private Bill bill;
     private int index;
@@ -45,16 +45,17 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
             String bill_details = bill.getBill_year() + " | Bill No-" + bill.getBill_no();
             toolbar.setTitle(bill_details);
             transectionList = BillDbServices.getBillTransection(bill_details);
+            Log.i(BillEditActivity.class.getSimpleName(),transectionList.toString());
         } catch (Exception e) {
             Toast.makeText(this, "Some error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         updateButton = (Button) findViewById(R.id.update_bill);
 
-        transection_lstView = (RecyclerView) findViewById(R.id.transection_list);
+        transection_lstView = (RecyclerView) findViewById(R.id.listview_for_edit_bill_transection);
         transection_lstView.setHasFixedSize(true);
         transection_lstView.setLayoutManager(new LinearLayoutManager(BillEditActivity.this));
 
-        adapter = new TransectionListRecyclerViewAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
+        adapter = new TransectionListAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
         transection_lstView.setAdapter(adapter);
         registerForContextMenu(transection_lstView);
 
@@ -71,7 +72,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        getMenuInflater().inflate(R.menu.transection_list_context_menu, menu);
+        getMenuInflater().inflate(R.menu.transection_context_menu, menu);
     }
 
     @Override
@@ -109,7 +110,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
 
     @Override
     public boolean onLongClick(View view, int position) {
-        Log.i(TransectionFragment.class.getSimpleName(), "Logn press done");
+        Log.i(TransectionTabFragment.class.getSimpleName(), "Logn press done");
         index = position;
         return false;
     }
@@ -119,11 +120,11 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         protected String doInBackground(String... strings) {
             try {
                 BillGenerationServices services=new BillGenerationServices();
-                services.generateBill(bill);
+                services.generateBill(bill,BillEditActivity.this.getApplicationContext());
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();
-                Log.i(ClientBillListFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                Log.i(BillTabFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
                 return "not success";
             }
         }
@@ -133,6 +134,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
             if (s.equals("success")) {
                 Toast.makeText(BillEditActivity.this, "Bill updated successfully!!", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(BillEditActivity.this, ClientActivity.class);
+                intent.putExtra("currentTab",1);
                 intent.putExtra("id", bill.getClient_id());
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);

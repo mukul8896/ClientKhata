@@ -58,8 +58,7 @@ public class AddClientAvtivity extends AppCompatActivity {
                         ClientDbServices.addClient(client_name.getText().toString(), address.getText().toString(), Integer.parseInt(fee.getText().toString()),contact.getText().toString());
                     Toast.makeText(AddClientAvtivity.this, "Client Added Successfully !!", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(AddClientAvtivity.this,
-                            MainActivity.class);
-                    intent.putExtra("app_password",password);
+                            MainDrawerActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } catch (Exception e) {

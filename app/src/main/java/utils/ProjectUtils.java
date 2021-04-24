@@ -1,40 +1,53 @@
 package utils;
 
-import android.os.Environment;
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.mukul.companyAccounts.ClientBillListFragment;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.Scope;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.mukul.companyAccounts.BillTabFragment;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
 import dao.DBParameters;
+import driveBackup.GoogleDriveHandler;
 
 public class ProjectUtils {
 
+    public static File getAppFolder(){
+        return new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts");
+    }
+
     public static File getDataBaseFolder() {
-        File dir = new File("/data"+File.separator+"data"+File.separator+"com.mukul.companyAccounts"+File.separator+"databases");
+        File dir = new File(getAppFolder(),"databases");
         if (!dir.exists()) {
             dir.mkdir();
         }
         return dir;
     }
 
-    public static File getExternalDataFolder() {
-        File dir = Environment.getExternalStorageDirectory();
-        File folder = new File(Environment.getExternalStorageDirectory() , "ClientsData");
+    public static File getBillFolder() {
+        File folder = new File(getAppFolder() , "ClientBills");
         if (!folder.exists()) {
-            Log.d(ProjectUtils.class.getSimpleName(),"Folder created:"+folder.mkdir());
+            Log.d(ProjectUtils.class.getSimpleName(),folder.getPath()+" created: "+folder.mkdir());
         }
-        Arrays.asList(dir.listFiles()).forEach(f-> System.out.println(f.getName()));
-        Log.d(ProjectUtils.class.getSimpleName(),"Folder path: "+folder.getPath());
         return folder;
     }
 
@@ -67,7 +80,7 @@ public class ProjectUtils {
             year1 = Integer.toString(cal_date.get(Calendar.YEAR) - 1);
             year2 = Integer.toString(cal_date.get(Calendar.YEAR));
         }
-        Log.i(ClientBillListFragment.class.getSimpleName(), year1 + ":" + year2);
+        Log.i(BillTabFragment.class.getSimpleName(), year1 + ":" + year2);
         return year1 + "-" + year2.substring(2, year2.length());
     }
 

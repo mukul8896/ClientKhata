@@ -2,12 +2,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.mukul.companyAccounts.ClientActivity">
-    <item android:id="@+id/download_bill"
-        android:title="@string/generate_bill"
-        android:icon="@android:drawable/ic_menu_save"
-        app:showAsAction="never"/>
-    <item android:id="@+id/billing_history"
-        android:title="@string/bil_history"
-        android:icon="@android:drawable/ic_menu_save"
-        app:showAsAction="never"/>
+    <item
+        android:id="@+id/client_year1"
+        android:orderInCategory="100"
+        android:title="NA"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/client_year2"
+        android:orderInCategory="100"
+        android:title="NA"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/client_year3"
+        android:orderInCategory="100"
+        android:title="NA"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/client_all_tr"
+        android:title="All"
+        app:showAsAction="never" />
 </menu>

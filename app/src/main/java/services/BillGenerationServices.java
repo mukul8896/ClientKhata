@@ -1,5 +1,10 @@
 package services;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -13,7 +18,9 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
+import com.mukul.companyAccounts.R;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -22,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import driveBackup.GoogleDriveHandler;
 import modals.Bill;
 import modals.Client;
 import modals.Transection;
@@ -34,10 +42,8 @@ import utils.ProjectUtils;
 public class BillGenerationServices {
     private Document document;
 
-    public void generateBill(Bill bill) throws Exception {
-
+    public void generateBill(Bill bill, Context context) throws Exception {
         BillUtils utils = new BillUtils(bill);
-
         initializeDocument(utils.getFile(bill.getBill_year()));
 
         addHearder();
@@ -53,7 +59,7 @@ public class BillGenerationServices {
         String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
         addParticulers(previous, BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date()), bill_detail);
 
-        addFooterInfo();
+        addFooterInfo(context);
 
         closeDocument();
     }
@@ -62,7 +68,7 @@ public class BillGenerationServices {
         document.close();
     }
 
-    private void addFooterInfo() throws DocumentException {
+    private void addFooterInfo(Context context) throws DocumentException {
         Paragraph paragraph = new Paragraph();
         paragraph.setIndentationLeft(50);
 
@@ -97,8 +103,11 @@ public class BillGenerationServices {
         table.addCell(cell_bank_detail_header);
 
         try {
-            String path = ProjectUtils.getExternalDataFolder().getPath()+File.separator + "signature.png";
-            Image img = Image.getInstance(path);
+            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.signature);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            byte[] bitMapData = stream.toByteArray();
+            Image img = Image.getInstance(bitMapData);
             PdfPCell signature_cell = new PdfPCell(img,true);
             signature_cell.setBorderWidth(0);
             signature_cell.setHorizontalAlignment(Element.ALIGN_RIGHT);

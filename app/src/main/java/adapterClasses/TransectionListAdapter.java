@@ -11,19 +11,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mukul.companyAccounts.R;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import modals.Transection;
 import utils.ProjectUtils;
 
-public class TransectionListRecyclerViewAdapter extends RecyclerView.Adapter<TransectionListRecyclerViewAdapter.ViewHolder> {
+public class TransectionListAdapter extends RecyclerView.Adapter<TransectionListAdapter.ViewHolder> {
 
     private Context context;
     List<Transection> transectionList;
-    private TransectionListRecyclerViewAdapter.ItemEventListner eventListner;
+    private TransectionListAdapter.ItemEventListner eventListner;
 
-    public TransectionListRecyclerViewAdapter(Context context, List<Transection>  transectionList, TransectionListRecyclerViewAdapter.ItemEventListner eventListner) {
+    public TransectionListAdapter(Context context, List<Transection>  transectionList, TransectionListAdapter.ItemEventListner eventListner) {
         this.context = context;
         this.transectionList = transectionList;
         this.eventListner = eventListner;
@@ -31,13 +30,13 @@ public class TransectionListRecyclerViewAdapter extends RecyclerView.Adapter<Tra
 
     // Where to get the single card as viewholder Object
     @Override
-    public TransectionListRecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TransectionListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.transection_list_item, parent, false);
-        return new TransectionListRecyclerViewAdapter.ViewHolder(view);
+        return new TransectionListAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(TransectionListRecyclerViewAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(TransectionListAdapter.ViewHolder holder, int position) {
         Transection transection = transectionList.get(position);
 
         holder.date_text.setText(ProjectUtils.parseDateToString(transection.getDate(),"MMMM dd, yyyy"));

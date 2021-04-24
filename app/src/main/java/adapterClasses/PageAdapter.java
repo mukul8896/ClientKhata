@@ -4,28 +4,40 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.mukul.companyAccounts.ClientBillListFragment;
-import com.mukul.companyAccounts.TransectionFragment;
+import com.mukul.companyAccounts.BillTabFragment;
+import com.mukul.companyAccounts.TransectionTabFragment;
 
-public class PageAdapter extends FragmentPagerAdapter {
+import java.util.List;
+
+import modals.Bill;
+import modals.Client;
+import modals.Transection;
+
+public class PageAdapter extends FragmentStatePagerAdapter {
     private int tabCount;
-    private Integer client_id;
+    private Client client;
+    private String financialyear;
 
-    public PageAdapter(FragmentManager fm, int tabCount, Integer client_id) {
+    private List<Transection> transectionList;
+    private List<Bill> billList;
+
+    public PageAdapter(FragmentManager fm, int tabCount, List<Transection> transectionList, List<Bill> billList, Client client) {
         super(fm);
         this.tabCount = tabCount;
-        this.client_id = client_id;
+        this.transectionList = transectionList;
+        this.billList = billList;
+        this.client = client;
     }
 
     @Override
     public Fragment getItem(int tabNum) {
-        Fragment fragment = null;
         switch (tabNum) {
             case 0:
-                return TransectionFragment.newInstance(client_id);
+                return TransectionTabFragment.newInstance(transectionList,client);
             case 1:
-                return ClientBillListFragment.newInstance(client_id);
+                return BillTabFragment.newInstance(billList,client);
             default:
                 return null;
         }
@@ -40,4 +52,5 @@ public class PageAdapter extends FragmentPagerAdapter {
     public int getItemPosition(@NonNull Object object) {
         return POSITION_NONE;
     }
+
 }

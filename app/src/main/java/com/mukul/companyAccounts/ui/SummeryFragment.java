@@ -1,25 +1,32 @@
-package com.mukul.companyAccounts;
+package com.mukul.companyAccounts.ui;
 
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.content.FileProvider;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.mukul.companyAccounts.BuildConfig;
+import com.mukul.companyAccounts.MainDrawerActivity;
+import com.mukul.companyAccounts.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,68 +35,69 @@ import java.util.Calendar;
 import java.util.List;
 
 import adapterClasses.SummeryListAdapter;
-import dao.DbHandler;
+import dbServices.TransectionDbServices;
 import modals.Client;
 import modals.Transection;
-import dbServices.TransectionDbServices;
 import services.AnnualSummeryServices;
 import utils.ProjectUtils;
 
-
-public class SummeryActivity extends AppCompatActivity {
-    private String year;
+public class SummeryFragment extends Fragment {
+    private List<Client> clinetList;
+    private List<Transection> transectionlist;
     private ListView listView;
     private SummeryListAdapter adapter;
-    private List<Client> clinetList;
-    private List<Client> filteredClientList;
-    private List<Transection> transectionlist;
+    private String year;
+    private TextView credit;
+    private TextView debit;
+    private TextView due;
+
+    private static SummeryFragment summeryFragment;
+
+    public SummeryFragment(List<Client> clientList,List<Transection> transectionlist,String year) {
+        this.clinetList=clientList;
+        this.transectionlist=transectionlist;
+        this.year=year;
+    }
+
+    public static SummeryFragment newInstance(List<Client> clientList,List<Transection> transectionlist,String year) {
+        if(summeryFragment==null)
+            summeryFragment =  new SummeryFragment(clientList,transectionlist,year);
+        return summeryFragment;
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_summery);
+    }
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, calendar.get(Calendar.YEAR));
-        year = ProjectUtils.getFinancialYear(calendar.getTime());
-        getSupportActionBar().setTitle(year);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_summery, container, false);
+        setHasOptionsMenu(true);
 
-        clinetList = getIntent().getParcelableArrayListExtra("clientList");
-        transectionlist = TransectionDbServices.getFinancialYearTransection(year);
+        credit = view.findViewById(R.id.total_credit);
+        debit = view.findViewById(R.id.total_debit);
+        due = view.findViewById(R.id.total_due);
 
-        TextView credit = findViewById(R.id.total_credit);
-        TextView debit = findViewById(R.id.total_debit);
-        TextView due = findViewById(R.id.total_due);
+        updateHeader();
 
-        int total_credit = 0;
-        int total_debit = 0;
-        for (Transection transection : transectionlist) {
-            if (transection.getTransecType().equals("Credit"))
-                total_credit += transection.getAmount();
-            if (transection.getTransecType().equals("Debit"))
-                total_debit += transection.getAmount();
-        }
-        int total_due = total_debit - total_credit;
-        credit.setText(total_credit + "");
-        debit.setText(total_debit + "");
-        due.setText(total_due + "");
-
-        adapter = new SummeryListAdapter(SummeryActivity.this, R.layout.summery_list_item_layout, clinetList, transectionlist);
-        listView = (ListView) findViewById(R.id.sumery_list);
+        adapter = new SummeryListAdapter(this.getContext(), R.layout.summery_list_item, clinetList, transectionlist);
+        listView = (ListView) view.findViewById(R.id.sumery_list);
         listView.setAdapter(adapter);
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.summery_download_fab);
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.summery_download_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog alertDialog = new AlertDialog.Builder(SummeryActivity.this).create();
-                LayoutInflater inflater = LayoutInflater.from(SummeryActivity.this);
+                AlertDialog alertDialog = new AlertDialog.Builder(SummeryFragment.this.getContext()).create();
+                LayoutInflater inflater = LayoutInflater.from(SummeryFragment.this.getContext());
                 View dialogeview = inflater.inflate(R.layout.summery_fab_dialoge, null);
                 alertDialog.setView(dialogeview);
                 alertDialog.setTitle("Choose File Type");
                 String[] arr = new String[]{"Excel", "PDF"};
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SummeryActivity.this, android.R.layout.simple_list_item_1, Arrays.asList(arr));
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(SummeryFragment.this.getContext(), android.R.layout.simple_list_item_1, Arrays.asList(arr));
                 ListView listview = dialogeview.findViewById(R.id.summer_file_type_list);
                 listview.setAdapter(arrayAdapter);
                 listview.setOnItemClickListener((parent, view1, position, id) -> {
@@ -99,7 +107,7 @@ public class SummeryActivity extends AppCompatActivity {
                         if (position == Arrays.asList(arr).indexOf("PDF")) {
                             alertDialog.dismiss();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                Uri uri = FileProvider.getUriForFile(SummeryActivity.this, BuildConfig.APPLICATION_ID + ".provider", report_file);
+                                Uri uri = FileProvider.getUriForFile(SummeryFragment.this.getContext(), BuildConfig.APPLICATION_ID + ".provider", report_file);
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setDataAndType(uri, "application/pdf");
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -116,7 +124,7 @@ public class SummeryActivity extends AppCompatActivity {
                         } else {
                             alertDialog.dismiss();
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                Uri uri = FileProvider.getUriForFile(SummeryActivity.this, BuildConfig.APPLICATION_ID + ".provider", report_file);
+                                Uri uri = FileProvider.getUriForFile(SummeryFragment.this.getContext(), BuildConfig.APPLICATION_ID + ".provider", report_file);
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
                                 intent.setDataAndType(uri, "application/vnd.ms-excel");
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
@@ -133,17 +141,19 @@ public class SummeryActivity extends AppCompatActivity {
                         }
                     }catch (Exception e){
                         e.printStackTrace();
-                        Toast.makeText(SummeryActivity.this, "Some Error Occured !!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(SummeryFragment.this.getContext(), "Some Error Occured !!", Toast.LENGTH_SHORT).show();
                     }
                 });
                 alertDialog.show();
             }
         });
+        return view;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_summery, menu);
+    public void onCreateOptionsMenu(Menu menu,MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.summery_options_menu, menu);
 
         MenuItem item_year2 = menu.findItem(R.id.year1);
         item_year2.setTitle(ProjectUtils.getFinancialYear(Calendar.getInstance().getTime()));
@@ -166,44 +176,37 @@ public class SummeryActivity extends AppCompatActivity {
             public boolean onQueryTextSubmit(String query) {
                 return false;
             }
-
             @Override
             public boolean onQueryTextChange(String newText) {
-                filteredClientList = new ArrayList<>();
+                 List<Client> filteredClientList = new ArrayList<>();
                 for (Client client : clinetList) {
                     if (client.getName().toLowerCase().startsWith(newText.toLowerCase()))
                         filteredClientList.add(client);
                 }
-                adapter = new SummeryListAdapter(SummeryActivity.this, R.layout.summery_list_item_layout, filteredClientList, transectionlist);
-                if(listView==null)
-                    listView = (ListView) findViewById(R.id.sumery_list);
+                adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item, filteredClientList, transectionlist);
                 listView.setAdapter(adapter);
                 return true;
             }
         });
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id != R.id.summery_action_search) {
             year = item.getTitle().toString();
-            Log.d(SummeryActivity.class.getSimpleName(), year);
+            ((MainDrawerActivity)getActivity()).getSupportActionBar().setTitle("Summery | "+year);
+            Log.d(SummeryFragment.class.getSimpleName(), year);
             transectionlist = TransectionDbServices.getFinancialYearTransection(year);
-            onRestart();
+            updateHeader();
+            adapter = new SummeryListAdapter(SummeryFragment.this.getContext(), R.layout.summery_list_item, clinetList, transectionlist);
+            listView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        getSupportActionBar().setTitle(year);
-        TextView credit = findViewById(R.id.total_credit);
-        TextView debit = findViewById(R.id.total_debit);
-        TextView due = findViewById(R.id.total_due);
-
+    private void updateHeader(){
         int total_credit = 0;
         int total_debit = 0;
         for (Transection transection : transectionlist) {
@@ -216,10 +219,5 @@ public class SummeryActivity extends AppCompatActivity {
         credit.setText(total_credit + "");
         debit.setText(total_debit + "");
         due.setText(total_due + "");
-
-        adapter = new SummeryListAdapter(SummeryActivity.this, R.layout.summery_list_item_layout, clinetList, transectionlist);
-        if (listView == null)
-            listView = (ListView) findViewById(R.id.sumery_list);
-        listView.setAdapter(adapter);
     }
 }
