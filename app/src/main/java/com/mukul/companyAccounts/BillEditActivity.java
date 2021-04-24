@@ -119,7 +119,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         protected String doInBackground(String... strings) {
             try {
                 BillGenerationServices services=new BillGenerationServices();
-                services.generateBill(bill);
+                services.generateBill(bill,BillEditActivity.this.getApplicationContext());
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();

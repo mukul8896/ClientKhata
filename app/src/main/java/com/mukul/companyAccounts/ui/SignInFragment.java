@@ -4,16 +4,21 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -36,9 +41,16 @@ import com.google.api.services.drive.DriveScopes;
 import com.mukul.companyAccounts.R;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import dao.DBParameters;
 import driveBackup.GoogleDriveHandler;
@@ -82,7 +94,7 @@ public class SignInFragment extends Fragment implements
         view.findViewById(R.id.disconnect_button).setOnClickListener(this);
         view.findViewById(R.id.backup_data).setOnClickListener(this);
         view.findViewById(R.id.restore_latest).setOnClickListener(this);
-
+        view.findViewById(R.id.restore_old).setOnClickListener(this);
 
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -212,7 +224,7 @@ public class SignInFragment extends Fragment implements
     }
 
     // [START downloadData]
-    private void downloadData(String fileName) {
+    private void downloadLatestDB(String fileName) {
         ProgressBar progressbar=(ProgressBar) getView().findViewById(R.id.progressbar);
         getView().findViewById(R.id.backup_restore).setVisibility(View.GONE);
         progressbar.setVisibility(View.VISIBLE);
@@ -220,7 +232,7 @@ public class SignInFragment extends Fragment implements
         Executor executor= Executors.newSingleThreadExecutor();
         Task<Object> download= Tasks.call(executor,()->{
             try {
-                return backupHandler.restoreData(driveService);
+                return backupHandler.restoreLatestFile(driveService);
             }catch (UserRecoverableAuthIOException e){
                 startActivityForResult(e.getIntent(), RC_SIGN_IN);
                 return "Failure";
@@ -278,6 +290,86 @@ public class SignInFragment extends Fragment implements
         });
     }
 
+    TreeMap<String,Map<String,String>> dbFilesmap=new TreeMap<>();
+    public void downloadOldDB(){
+        getView().findViewById(R.id.backup_restore).setVisibility(View.GONE);
+        ProgressBar progressBar = (ProgressBar) getView().findViewById(R.id.progressbar);
+        progressBar.setVisibility(View.VISIBLE);
+        Spinner spinner = (Spinner) getView().findViewById(R.id.db_version_spinner);
+
+        Executor executor= Executors.newSingleThreadExecutor();
+        Task getAllDblist= Tasks.call(executor,()-> {
+            try {
+                dbFilesmap=backupHandler.getAllDBFilesMap(driveService);
+                System.out.println(dbFilesmap);
+            } catch (UserRecoverableAuthIOException e) {
+                startActivityForResult(e.getIntent(), RC_SIGN_IN);
+            }
+            return "success";
+        });
+        getAllDblist.addOnSuccessListener(new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                Log.d(TAG,"List of files: "+(String)o);
+                progressBar.setVisibility(View.GONE);
+                List<String> file_date_name=dbFilesmap.keySet().stream().collect(Collectors.toList());
+                file_date_name.add(0,"--SELECT FILE OF DATE--");
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(SignInFragment.this.getContext(), android.R.layout.simple_spinner_dropdown_item, file_date_name);
+                spinner.setAdapter(adapter);
+                spinner.setVisibility(View.VISIBLE);
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        if(position!=0){
+                            spinner.setVisibility(View.GONE);
+                            progressBar.setVisibility(View.VISIBLE);
+                            Executor executor= Executors.newSingleThreadExecutor();
+                            Task restoreOld= Tasks.call(executor,()-> {
+                                try {
+                                    Map<String,String> data= dbFilesmap.get(adapter.getItem(position));
+                                    String fileId = new ArrayList<>(data.keySet()).get(0);
+                                    System.out.println("File ID is : "+fileId);
+                                    backupHandler.restoreOldFile(driveService,fileId);
+                                } catch (UserRecoverableAuthIOException e) {
+                                    startActivityForResult(e.getIntent(), RC_SIGN_IN);
+                                }
+                                return id;
+                            });
+                            restoreOld.addOnSuccessListener(new OnSuccessListener() {
+                                @Override
+                                public void onSuccess(Object o) {
+                                    progressBar.setVisibility(View.GONE);
+                                    spinner.setVisibility(View.GONE);
+                                    SignInFragment.this.getView().findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+                                    Toast.makeText(SignInFragment.this.getContext(),"Data downloaded successfully !!",Toast.LENGTH_LONG).show();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    progressBar.setVisibility(View.GONE);
+                                    spinner.setVisibility(View.GONE);
+                                    SignInFragment.this.getView().findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+                                    Toast.makeText(SignInFragment.this.getContext(),"Data downloaded failure !!",Toast.LENGTH_LONG).show();
+                                }
+                            });
+                        }
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {}
+                });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG,"Unable get list of db files !!");
+                e.printStackTrace();
+                progressBar.setVisibility(View.GONE);
+                getView().findViewById(R.id.backup_restore).setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -294,10 +386,10 @@ public class SignInFragment extends Fragment implements
                 uploadData();
                 break;
             case R.id.restore_latest:
-                downloadData(DBParameters.DB_NAME);
+                downloadLatestDB(DBParameters.DB_NAME);
                 break;
             case R.id.restore_old:
-                //downloadData("");
+                downloadOldDB();
                 break;
         }
     }

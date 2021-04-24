@@ -155,7 +155,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
                 bill.setGenerationDate(ProjectUtils.getFormatedDate());
 
                 BillGenerationServices services = new BillGenerationServices();
-                services.generateBill(bill);
+                services.generateBill(bill,BillTabFragment.this.getContext());
                 BillDbServices.addBill(bill);
                 return "success";
             } catch (Exception e) {

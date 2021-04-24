@@ -27,19 +27,28 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException;
 import com.mukul.companyAccounts.AddClientAvtivity;
 import com.mukul.companyAccounts.ClientActivity;
 import com.mukul.companyAccounts.BillTabFragment;
 import com.mukul.companyAccounts.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import adapterClasses.ClientListAdapder;
 import dao.Migration;
 import dbServices.ClientDbServices;
 import modals.Client;
+import utils.ProjectUtils;
 
 public class ClientListFragment extends Fragment implements ClientListAdapder.ItemEventListner {
 
