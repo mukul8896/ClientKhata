@@ -24,6 +24,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public class BillGenerationServices {
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
-        addHearder();
+        addHearder(context);
 
         addBillDetails(utils.getBillDetails());
 
@@ -78,10 +79,10 @@ public class BillGenerationServices {
         table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
         table.setWidthPercentage(90);
         Font font_head = new Font();
-        font_head.setSize(12);
+        font_head.setSize(10);
         font_head.setStyle(Font.BOLD);
 
-        Phrase phrase_bill_heading = new Phrase("PLEASE ISSUE CHEQUE IN THE NAME OF 'SHUBHAM KUMAR'",font_head);
+        Phrase phrase_bill_heading = new Phrase("PLEASE ISSUE CHEQUE IN THE NAME OF 'RACHIT BHATIA'",font_head);
         PdfPCell cell_bill_heading = new PdfPCell(phrase_bill_heading);
         cell_bill_heading.setBorderWidth(0);
         cell_bill_heading.setFixedHeight(20);
@@ -102,146 +103,71 @@ public class BillGenerationServices {
         cell_bank_detail_header.setBorderWidth(0);
         table.addCell(cell_bank_detail_header);
 
-        try {
-            Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.signature);
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            byte[] bitMapData = stream.toByteArray();
-            Image img = Image.getInstance(bitMapData);
-            PdfPCell signature_cell = new PdfPCell(img,true);
-            signature_cell.setBorderWidth(0);
-            signature_cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            signature_cell.setVerticalAlignment(Element.ALIGN_BOTTOM);
-            signature_cell.setRowspan(5);
-            table.addCell(signature_cell);
+        Font font = new Font();
+        font.setStyle(Font.BOLD);
+        font.setSize(10);
+        Font font1=new Font();
+        font1.setSize(10);
 
-            Font font = new Font();
-            font.setStyle(Font.BOLD);
-            font.setSize(10);
-            Font font1=new Font();
-            font1.setSize(10);
+        PdfPCell cell_empty = new PdfPCell(new Phrase(""));
+        cell_empty.setBorderWidth(0);
+        table.addCell(cell_empty);
 
-            List<Chunk> list=new ArrayList<>();
-            Chunk chunk=new Chunk("A/C NO:- ",font1);
-            Chunk chunk1=new Chunk("50100409345461",font);
-            list.add(chunk);list.add(chunk1);
-            Phrase phrase_acount_details=new Phrase();
-            phrase_acount_details.addAll(list);
-            PdfPCell cell_account_no = new PdfPCell(phrase_acount_details);
-            cell_account_no.setBorderWidth(0);
-            table.addCell(cell_account_no);
+        List<Chunk> list=new ArrayList<>();
+        Chunk chunk=new Chunk("A/C NO:- ",font1);
+        Chunk chunk1=new Chunk("50100384065528",font);
+        list.add(chunk);list.add(chunk1);
+        Phrase phrase_acount_details=new Phrase();
+        phrase_acount_details.addAll(list);
+        PdfPCell cell_account_no = new PdfPCell(phrase_acount_details);
+        cell_account_no.setBorderWidth(0);
+        cell_account_no.setColspan(2);
+        table.addCell(cell_account_no);
 
-            Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
-            Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
-            Phrase phrase_ifsc=new Phrase();
-            phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
-            PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
-            cell_ifsc.setBorderWidth(0);
-            table.addCell(cell_ifsc);
+        Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
+        Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
+        Phrase phrase_ifsc=new Phrase();
+        phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
+        PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
+        cell_ifsc.setBorderWidth(0);
+        cell_ifsc.setColspan(2);
+        table.addCell(cell_ifsc);
 
-            Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
-            Chunk chunk_bank2=new Chunk("HDFC BANK",font);
-            Phrase phrase_bank=new Phrase();
-            phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
-            PdfPCell cell_bank = new PdfPCell(phrase_bank);
-            cell_bank.setBorderWidth(0);
-            table.addCell(cell_bank);
+        Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
+        Chunk chunk_bank2=new Chunk("HDFC BANK",font);
+        Phrase phrase_bank=new Phrase();
+        phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
+        PdfPCell cell_bank = new PdfPCell(phrase_bank);
+        cell_bank.setBorderWidth(0);
+        cell_bank.setColspan(2);
+        table.addCell(cell_bank);
 
 
-            Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
-            Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR",font);
-            Phrase phrase_bank_address=new Phrase();
-            phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
-            PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);
-            cell_bank_address.setBorderWidth(0);
-            table.addCell(cell_bank_address);
+        Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
+        Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR, DELHI - 110009",font);
+        Phrase phrase_bank_address=new Phrase();
+        phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
+        PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);
+        cell_bank_address.setBorderWidth(0);
+        cell_bank_address.setColspan(2);
+        table.addCell(cell_bank_address);
 
 
-            Chunk chunk_ac_holder1=new Chunk("A/C HOLDER NAME:- ",font1);
-            Chunk chunk_ac_holder2=new Chunk("SHUBHAM KUMAR",font);
-            Phrase phrase_ac_dolder=new Phrase();
-            phrase_ac_dolder.addAll(Arrays.asList(chunk_ac_holder1,chunk_ac_holder2));
-            PdfPCell cell_ac_holder = new PdfPCell(phrase_ac_dolder);
-            cell_ac_holder.setBorderWidth(0);
-            table.addCell(cell_ac_holder);
+        Chunk chunk_ac_holder1=new Chunk("A/C HOLDER NAME:- ",font1);
+        Chunk chunk_ac_holder2=new Chunk("RACHIT BHATIA",font);
+        Phrase phrase_ac_dolder=new Phrase();
+        phrase_ac_dolder.addAll(Arrays.asList(chunk_ac_holder1,chunk_ac_holder2));
+        PdfPCell cell_ac_holder = new PdfPCell(phrase_ac_dolder);
+        cell_ac_holder.setBorderWidth(0);
+        table.addCell(cell_ac_holder);
 
 
-            Chunk signature=new Chunk("SIGNATURE",font);
-            Phrase phrase_signature=new Phrase(signature);
-            PdfPCell cell_signature = new PdfPCell(phrase_signature);
-            cell_signature.setBorderWidth(0);
-            cell_signature.setHorizontalAlignment(Element.ALIGN_CENTER);
-            table.addCell(cell_signature);
-        } catch(Exception e){
-            e.printStackTrace();
-
-            Font font = new Font();
-            font.setStyle(Font.BOLD);
-            font.setSize(10);
-            Font font1=new Font();
-            font1.setSize(10);
-
-
-            PdfPCell cell_empty = new PdfPCell(new Phrase(""));
-            cell_empty.setBorderWidth(0);
-            table.addCell(cell_empty);
-
-            List<Chunk> list=new ArrayList<>();
-            Chunk chunk=new Chunk("A/C NO:- ",font1);
-            Chunk chunk1=new Chunk("50100409345461",font);
-            list.add(chunk);list.add(chunk1);
-            Phrase phrase_acount_details=new Phrase();
-            phrase_acount_details.addAll(list);
-            PdfPCell cell_account_no = new PdfPCell(phrase_acount_details);
-            cell_account_no.setBorderWidth(0);
-            cell_account_no.setColspan(2);
-            table.addCell(cell_account_no);
-
-            Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
-            Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
-            Phrase phrase_ifsc=new Phrase();
-            phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
-            PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
-            cell_ifsc.setBorderWidth(0);
-            cell_ifsc.setColspan(2);
-            table.addCell(cell_ifsc);
-
-            Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
-            Chunk chunk_bank2=new Chunk("HDFC BANK",font);
-            Phrase phrase_bank=new Phrase();
-            phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
-            PdfPCell cell_bank = new PdfPCell(phrase_bank);
-            cell_bank.setBorderWidth(0);
-            cell_bank.setColspan(2);
-            table.addCell(cell_bank);
-
-
-            Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
-            Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR",font);
-            Phrase phrase_bank_address=new Phrase();
-            phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
-            PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);
-            cell_bank_address.setBorderWidth(0);
-            cell_bank_address.setColspan(2);
-            table.addCell(cell_bank_address);
-
-
-            Chunk chunk_ac_holder1=new Chunk("A/C HOLDER NAME:- ",font1);
-            Chunk chunk_ac_holder2=new Chunk("SHUBHAM KUMAR",font);
-            Phrase phrase_ac_dolder=new Phrase();
-            phrase_ac_dolder.addAll(Arrays.asList(chunk_ac_holder1,chunk_ac_holder2));
-            PdfPCell cell_ac_holder = new PdfPCell(phrase_ac_dolder);
-            cell_ac_holder.setBorderWidth(0);
-            table.addCell(cell_ac_holder);
-
-
-            Chunk signature=new Chunk("SIGNATURE",font);
-            Phrase phrase_signature=new Phrase(signature);
-            PdfPCell cell_signature = new PdfPCell(phrase_signature);
-            cell_signature.setBorderWidth(0);
-            cell_signature.setHorizontalAlignment(Element.ALIGN_RIGHT);
-            table.addCell(cell_signature);
-        }
+        Chunk signature=new Chunk("SIGNATURE",font);
+        Phrase phrase_signature=new Phrase(signature);
+        PdfPCell cell_signature = new PdfPCell(phrase_signature);
+        cell_signature.setBorderWidth(0);
+        cell_signature.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(cell_signature);
 
         paragraph.add(table);
 
@@ -391,37 +317,71 @@ public class BillGenerationServices {
         paragraph.add(table);
 
         document.add(paragraph);
-
     }
 
-    private void addHearder() throws DocumentException {
+    private void addHearder(Context context) throws DocumentException, IOException {
         Paragraph paragraph = new Paragraph(20);
-        paragraph.setAlignment(Paragraph.ALIGN_CENTER);
+        paragraph.setIndentationLeft(50);
+
+        PdfPTable table = new PdfPTable(new float[]{1, 3});
+        table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
+        table.setWidthPercentage(90);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.ca_logo);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] bitMapData = stream.toByteArray();
+        Image img = Image.getInstance(bitMapData);
+        PdfPCell ca_logo_cell = new PdfPCell(img,false);
+        ca_logo_cell.setFixedHeight(80);
+        ca_logo_cell.setBorderWidth(0);
+        ca_logo_cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        ca_logo_cell.setVerticalAlignment(Element.ALIGN_CENTER);
+        ca_logo_cell.setRowspan(4);
+        table.addCell(ca_logo_cell);
 
         Font headerfont = new Font(FontFamily.HELVETICA);
         headerfont.setStyle(Font.BOLD);
         headerfont.setColor(0, 112, 192);
         headerfont.setSize(12);
 
-        Chunk chunk = new Chunk("SHUBHAM  KUMAR TAX CONSULTANCY");
-        chunk.setFont(headerfont);
-        paragraph.add(chunk);
+        Phrase phrase_bill_heading = new Phrase("Rachit Bhatia & Associates",headerfont);
+        PdfPCell cell_bill_heading = new PdfPCell(phrase_bill_heading);
+        cell_bill_heading.setBorderWidth(0);
+        cell_bill_heading.setFixedHeight(20);
+        cell_bill_heading.setColspan(2);
+        cell_bill_heading.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(cell_bill_heading);
 
-        paragraph.add(Chunk.NEWLINE);
+        Phrase phrase_charted_accountant = new Phrase("Chartered Accountants",headerfont);
+        PdfPCell cell_charted_accountant = new PdfPCell(phrase_charted_accountant);
+        cell_charted_accountant.setBorderWidth(0);
+        cell_charted_accountant.setFixedHeight(20);
+        cell_charted_accountant.setColspan(2);
+        cell_charted_accountant.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(cell_charted_accountant);
 
-        Chunk chunk2 = new Chunk("A-11, KAMAL VHIAR, BURARI, DELHI-110084, INDIA");
-        chunk2.setFont(headerfont);
-        paragraph.add(chunk2);
-
-        paragraph.add(Chunk.NEWLINE);
+        Phrase phrase_address = new Phrase("23-A Gujrawala Town Part-2, Delhi-110009, INDIA",headerfont);
+        PdfPCell cell_address = new PdfPCell(phrase_address);
+        cell_address.setBorderWidth(0);
+        cell_address.setFixedHeight(20);
+        cell_address.setColspan(2);
+        cell_address.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(cell_address);
 
         Font panfont = new Font(FontFamily.HELVETICA);
         panfont.setStyle(Font.BOLD);
         panfont.setSize(10);
 
-        Chunk chunk3 = new Chunk("PAN NO:- EKIPK1251B");
-        chunk3.setFont(panfont);
-        paragraph.add(chunk3);
+        Phrase phrase_pan = new Phrase("PAN NO:- APPPB8231A",panfont);
+        PdfPCell cell_pan = new PdfPCell(phrase_pan);
+        cell_pan.setBorderWidth(0);
+        cell_pan.setFixedHeight(20);
+        cell_pan.setColspan(2);
+        cell_pan.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        table.addCell(cell_pan);
+
+        paragraph.add(table);
 
         document.add(paragraph);
 
