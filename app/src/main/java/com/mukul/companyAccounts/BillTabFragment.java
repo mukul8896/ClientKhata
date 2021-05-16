@@ -149,7 +149,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
 
                 bill.setClient_id(client.getId());
 
-                String financial_year = ProjectUtils.getFinancialYear(to_date);
+                String financial_year = ProjectUtils.getFinancialYear(new Date());
                 bill.setBill_year(financial_year);
                 bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
                 bill.setGenerationDate(ProjectUtils.getFormatedDate());
