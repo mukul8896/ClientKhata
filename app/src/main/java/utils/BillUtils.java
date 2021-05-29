@@ -43,6 +43,14 @@ public class BillUtils {
         return file;
     }
 
+    public boolean deleteBill(){
+        File file = getFile(bill.getBill_year());
+        if(!file.exists())
+            return true;
+        else
+            return file.delete();
+    }
+
     public void sharePdfFile(Context context) throws Exception {
         Intent intent = new Intent(Intent.ACTION_SEND);
         File file = getFile(bill.getBill_year());

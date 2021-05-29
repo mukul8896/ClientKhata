@@ -10,10 +10,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -54,10 +58,33 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         transection_lstView = (RecyclerView) findViewById(R.id.listview_for_edit_bill_transection);
         transection_lstView.setHasFixedSize(true);
         transection_lstView.setLayoutManager(new LinearLayoutManager(BillEditActivity.this));
-
         adapter = new TransectionListAdapter(BillEditActivity.this,  transectionList, BillEditActivity.this);
         transection_lstView.setAdapter(adapter);
         registerForContextMenu(transection_lstView);
+        ItemTouchHelper touchHelper=new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                Transection removeTrans=transectionList.get(viewHolder.getAdapterPosition());
+                transectionList.remove(position);
+                adapter.notifyItemRemoved(position);
+                Snackbar.make(transection_lstView,"Transection removed", Snackbar.LENGTH_LONG)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                transectionList.add(position, removeTrans);
+                                adapter.notifyItemInserted(position);
+                                TransectionDbServices.removeBillDetails(transectionList.get(position));
+                            }
+                        }).show();
+            }
+        });
+        if(transectionList.size()>1)
+            touchHelper.attachToRecyclerView(transection_lstView);
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,7 +147,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         protected String doInBackground(String... strings) {
             try {
                 BillGenerationServices services=new BillGenerationServices();
-                services.generateBill(bill,BillEditActivity.this.getApplicationContext());
+                services.updateBill(bill,BillEditActivity.this.getApplicationContext());
                 return "success";
             } catch (Exception e) {
                 e.printStackTrace();

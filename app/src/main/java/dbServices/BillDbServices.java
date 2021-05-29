@@ -2,6 +2,7 @@ package dbServices;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
@@ -123,7 +124,7 @@ public class BillDbServices {
                     bill.setBill_year(cursor.getString(2));
                     bill.setGenerationDate(cursor.getString(7));
                     bill.setBillShared(cursor.getInt(6) == 1);
-
+                    bill.setClient_id(clientId);
                     if(financialYear.equalsIgnoreCase("all"))
                         bill_list.add(bill);
                     else{
@@ -184,5 +185,33 @@ public class BillDbServices {
         }
         Collections.sort(transections);
         return transections;
+    }
+
+    public static boolean deleteBill(int billId) throws SQLiteConstraintException {
+        Bill bill = getBill(billId);
+        String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
+        List<Transection> transections=getBillTransection(bill_detail);
+        transections.forEach(TransectionDbServices::removeBillDetails);
+        try(SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();){
+            db.delete(DBParameters.DB_BILL_TABLE, DBParameters.KEY_BILL_ID +"=?", new String[]{String.valueOf(billId)});
+            Log.d("mk_logs", "Deleted successfully ");
+            return true;
+        }catch (Exception e){
+            Log.d("mk_logs", "Error while deleting company");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean isBillExist(String bill_year,Integer bill_number){
+        int count=0;
+        String query = "select * from "+DBParameters.DB_BILL_TABLE+" where "+DBParameters.KEY_BILL_NO+"='" + bill_number + "' and "+DBParameters.KEY_BILL_YEAR+"='"+bill_year+"'";
+        try(SQLiteDatabase db = DbHandler.getInstance().getReadableDatabase();
+            Cursor cursor = db.rawQuery(query, null);){
+            count = cursor.getCount();
+        }catch (Exception e){
+            Log.d("mk_logs","Error in getBillTransection");
+        }
+        return count > 0;
     }
 }

@@ -209,4 +209,15 @@ public class TransectionDbServices {
         }
         return suggetionlist;
     }
+
+    public static int removeBillDetails(Transection transection){
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DBParameters.KEY_TRANSECTION_BILLDETAILS, "");
+        //Lets update now
+        int rowsEffected=db.update(DBParameters.DB_TRANSECTION_TABLE, values, DBParameters.KEY_TRANSECTION_ID + "=?",
+                new String[]{String.valueOf(transection.getTransecId())});
+        db.close();
+        return rowsEffected;
+    }
 }

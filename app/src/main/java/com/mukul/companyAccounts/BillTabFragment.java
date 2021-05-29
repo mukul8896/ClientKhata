@@ -1,6 +1,8 @@
 package com.mukul.companyAccounts;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,14 +16,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mukul.companyAccounts.ui.ClientListFragment;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,6 +37,7 @@ import java.util.List;
 
 import adapterClasses.BillListAdapter;
 import adapterClasses.TransectionListAdapter;
+import dbServices.ClientDbServices;
 import dbServices.TransectionDbServices;
 import modals.Bill;
 import modals.Client;
@@ -61,6 +70,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         this.billList=billList;
         this.client=client;
     }
+
     public void setClient(Client client){
         this.client=client;
     }
@@ -104,9 +114,36 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         } else if (id == R.id.edit_bill) {
             Intent intent = new Intent(getActivity(),
                     BillEditActivity.class);
+            Log.i(BillTabFragment.class.getSimpleName(), billList.get(index).toString());
             intent.putExtra("bill_id", billList.get(index).getBillId());
             startActivity(intent);
             Log.i(BillTabFragment.class.getSimpleName(), "Inside generated bill fragment");
+        }else if (id == R.id.delete_bill) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getContext());
+            builder.setTitle("Alert !!");
+            builder.setMessage("Do you want to continue to delete bill "+billList.get(index).getBill_year()+" | Bill No-"+billList.get(index).getBill_no()+" ?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if(BillDbServices.deleteBill(billList.get(index).getBillId())) {
+                        BillUtils utils = new BillUtils(billList.get(index));
+                        utils.deleteBill();
+                        billList.remove(index);
+                        adapter.notifyDataSetChanged();
+                    }else{
+                        Toast.makeText(BillTabFragment.this.getContext(), "Clould not delete this bill...!", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.cancel();
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return true;
         }
         return true;
     }
@@ -119,6 +156,12 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     @Override
     public void onClick(View view, int position) {
         BillUtils utils = new BillUtils(billList.get(position));
+        Bill bill=billList.get(position);
+        File file = utils.getFile(bill.getBill_year());
+        if(!file.exists()) {
+            BillrestoreTask task = new BillrestoreTask(bill);
+            task.execute();
+        }
         utils.openPdfFile(getActivity());
     }
 
@@ -128,32 +171,149 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         return false;
     }
 
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        getActivity().getMenuInflater().inflate(R.menu.client_fragment_add, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id==R.id.client_addtransection_action){
+            dialog = new Dialog(getActivity());
+            dialog.setContentView(R.layout.download_bill_dialoge);
+
+            Bill bill = new Bill();
+            EditText fromDateEditText = (EditText) dialog.findViewById(R.id.from_date);
+            EditText todateEditText = (EditText) dialog.findViewById(R.id.to_date);
+            EditText billDateEditText = (EditText) dialog.findViewById(R.id.bill_date);
+            EditText billNumber = (EditText) dialog.findViewById(R.id.bill_number);
+
+            fromDateEditText.setShowSoftInputOnFocus(false);
+            fromDateEditText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+                    Calendar cldr = Calendar.getInstance();
+                    int day = cldr.get(Calendar.DAY_OF_MONTH);
+                    int month = cldr.get(Calendar.MONTH);
+                    int year = cldr.get(Calendar.YEAR);
+                    DatePickerDialog picker = new DatePickerDialog(BillTabFragment.this.getContext(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            //date_edit_txt.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                            Date date = new Date(year - 1900, month, dayOfMonth);
+                            bill.setFrom_date(date);
+                            fromDateEditText.setText(fmt.format(date));
+                        }
+                    }, year, month, day);
+                    picker.show();
+                }
+            });
+
+            todateEditText.setShowSoftInputOnFocus(false);
+            todateEditText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+                    Calendar cldr = Calendar.getInstance();
+                    int day = cldr.get(Calendar.DAY_OF_MONTH);
+                    int month = cldr.get(Calendar.MONTH);
+                    int year = cldr.get(Calendar.YEAR);
+                    DatePickerDialog picker = new DatePickerDialog(BillTabFragment.this.getContext(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            //date_edit_txt.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                            Date date = new Date(year - 1900, month, dayOfMonth);
+                            bill.setTo_date(date);
+                            todateEditText.setText(fmt.format(date));
+                        }
+                    }, year, month, day);
+                    picker.show();
+                }
+            });
+
+            billDateEditText.setShowSoftInputOnFocus(false);
+            billDateEditText.setText(ProjectUtils.getFormatedDate());
+            bill.setGenerationDate(ProjectUtils.getFormatedDate());
+            billDateEditText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Calendar cldr = Calendar.getInstance();
+                    int day = cldr.get(Calendar.DAY_OF_MONTH);
+                    int month = cldr.get(Calendar.MONTH);
+                    int year = cldr.get(Calendar.YEAR);
+                    DatePickerDialog picker = new DatePickerDialog(BillTabFragment.this.getContext(), new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                            //date_edit_txt.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
+                            Date date = new Date(year - 1900, month, dayOfMonth);
+                            bill.setGenerationDate(ProjectUtils.parseDateToString(date,"MMMM dd, yyyy"));
+                            billDateEditText.setText(ProjectUtils.parseDateToString(date,"MMMM dd, yyyy"));
+                        }
+                    }, year, month, day);
+                    picker.show();
+                }
+            });
+
+            String financial_year = ProjectUtils.getFinancialYear(new Date());
+            bill.setBill_year(financial_year);
+
+            int nextBillNo = BillDbServices.getMaxBillNo(financial_year) + 1;
+            billNumber.setText(String.valueOf(nextBillNo));
+
+            bill.setClient_id(client.getId());
+
+            TextView submit = (TextView) dialog.findViewById(R.id.bill_doigole_submit);
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    try {
+                        bill.setBill_no(Integer.parseInt(billNumber.getText().toString()));
+                        if(BillDbServices.isBillExist(bill.getBill_year(),bill.getBill_no()))
+                            throw new Exception("Bill with number "+bill.getBill_no()+" already created");
+                        if(bill.getBill_no() > nextBillNo)
+                            throw new Exception("Bill number "+bill.getBill_no()+" do not match the series");
+                        if(bill.getFrom_date()==null || bill.getTo_date()==null)
+                            throw new Exception("From and To date cannot be empty");
+                        if(bill.getFrom_date().after(bill.getTo_date()))
+                            throw new Exception("From date cannot be after To date");
+                        Log.i(BillTabFragment.class.getSimpleName(), bill.toString());
+                        PDFGenerationTask task = new PDFGenerationTask(bill);
+                        task.execute();
+                        dialog.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+            TextView cancel = (TextView) dialog.findViewById(R.id.bill_dialoge_cancel);
+            cancel.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+            dialog.show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private class PDFGenerationTask extends AsyncTask<String, String, String> {
         private Bill bill;
 
-        @Override
-        protected void onPreExecute() {
-            bill = new Bill();
+        public PDFGenerationTask(Bill bill){
+            this.bill=bill;
         }
+
+        @Override
+        protected void onPreExecute() { }
 
         @Override
         protected String doInBackground(String... strings) {
             try {
-                final DatePicker from_date_picer = (DatePicker) dialog.findViewById(R.id.from_date);
-                final DatePicker to_date_picer = (DatePicker) dialog.findViewById(R.id.to_date);
-
-                Date from_date = new Date(from_date_picer.getYear() - 1900, from_date_picer.getMonth(), from_date_picer.getDayOfMonth());
-                bill.setFrom_date(from_date);
-                Date to_date = new Date(to_date_picer.getYear() - 1900, to_date_picer.getMonth(), to_date_picer.getDayOfMonth());
-                bill.setTo_date(to_date);
-
-                bill.setClient_id(client.getId());
-
-                String financial_year = ProjectUtils.getFinancialYear(new Date());
-                bill.setBill_year(financial_year);
-                bill.setBill_no(BillDbServices.getMaxBillNo(financial_year) + 1);
-                bill.setGenerationDate(ProjectUtils.getFormatedDate());
-
                 BillGenerationServices services = new BillGenerationServices();
                 services.generateBill(bill,BillTabFragment.this.getContext());
                 BillDbServices.addBill(bill);
@@ -177,41 +337,27 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         }
     }
 
-    @Override
-    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        getActivity().getMenuInflater().inflate(R.menu.client_fragment_add, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if(id==R.id.client_addtransection_action){
-            dialog = new Dialog(getActivity());
-            dialog.setContentView(R.layout.download_bill_dialoge);
-            TextView submit = (TextView) dialog.findViewById(R.id.bill_doigole_submit);
-            submit.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        PDFGenerationTask task = new PDFGenerationTask();
-                        task.execute();
-                        dialog.dismiss();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            TextView cancel = (TextView) dialog.findViewById(R.id.bill_dialoge_cancel);
-            cancel.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    dialog.dismiss();
-                }
-            });
-            dialog.show();
+    private class BillrestoreTask extends AsyncTask<String, String, String> {
+        private Bill bill;
+        public BillrestoreTask(Bill bill){
+            this.bill=bill;
         }
-        return super.onOptionsItemSelected(item);
+        @Override
+        protected void onPreExecute() { }
+
+        @Override
+        protected String doInBackground(String... strings) {
+            try {
+                BillGenerationServices services = new BillGenerationServices();
+                services.updateBill(bill,BillTabFragment.this.getContext());
+                return "success";
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(BillTabFragment.class.getSimpleName(), e.getMessage() + "Error while bill generation");
+                return "not success";
+            }
+        }
+        @Override
+        protected void onPostExecute(String s) {}
     }
 }

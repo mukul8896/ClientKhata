@@ -68,6 +68,7 @@ public class ClientActivity extends AppCompatActivity {
         TabItem generatedBillTab = (TabItem) findViewById(R.id.generated_bill_tab);
 
         billList = BillDbServices.getBillList(client_id,financialYear);
+        billList.forEach(bill-> System.out.println(bill.toString()));
         transectionList = TransectionDbServices.getClientsTransections(client_id,financialYear);
         pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),transectionList,billList,client);
         viewPager.setAdapter(pageAdapter);
