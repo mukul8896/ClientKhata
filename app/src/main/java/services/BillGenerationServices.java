@@ -64,6 +64,28 @@ public class BillGenerationServices {
         closeDocument();
     }
 
+    public void updateBill(Bill bill, Context context) throws Exception {
+        BillUtils utils = new BillUtils(bill);
+        initializeDocument(utils.getFile(bill.getBill_year()));
+
+        addHearder();
+
+        addBillDetails(utils.getBillDetails());
+
+        Client client = ClientDbServices.getClient(bill.getClient_id());
+        addClientDetails(client.getName(), client.getAddress());
+
+
+        String previous = BillDbServices.getPreviousBalance(bill.getClient_id(), bill.getFrom_date()) + "";
+
+        String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
+        addParticulers(previous, BillDbServices.getBillTransection(bill_detail), bill_detail);
+
+        addFooterInfo(context);
+
+        closeDocument();
+    }
+
     private void closeDocument() {
         document.close();
     }
