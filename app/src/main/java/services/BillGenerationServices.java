@@ -69,7 +69,7 @@ public class BillGenerationServices {
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
-        addHearder();
+        addHearder(context);
 
         addBillDetails(utils.getBillDetails());
 
