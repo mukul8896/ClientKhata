@@ -23,21 +23,22 @@ public class PageAdapter extends FragmentStatePagerAdapter {
     private List<Transection> transectionList;
     private List<Bill> billList;
 
-    public PageAdapter(FragmentManager fm, int tabCount, List<Transection> transectionList, List<Bill> billList, Client client) {
+    public PageAdapter(FragmentManager fm, int tabCount, List<Transection> transectionList, List<Bill> billList, Client client,String financialyear) {
         super(fm);
         this.tabCount = tabCount;
         this.transectionList = transectionList;
         this.billList = billList;
         this.client = client;
+        this.financialyear=financialyear;
     }
 
     @Override
     public Fragment getItem(int tabNum) {
         switch (tabNum) {
             case 0:
-                return TransectionTabFragment.newInstance(transectionList,client);
+                return TransectionTabFragment.newInstance(transectionList,client,financialyear);
             case 1:
-                return BillTabFragment.newInstance(billList,client);
+                return BillTabFragment.newInstance(billList,client,financialyear);
             default:
                 return null;
         }

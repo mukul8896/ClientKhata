@@ -55,20 +55,23 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     private List<Bill> billList;
     private static BillTabFragment billTabFragment;
     private RecyclerView recyclerView;
+    private String financialyear;
 
-    public static BillTabFragment newInstance(List<Bill> billList, Client client) {
+    public static BillTabFragment newInstance(List<Bill> billList, Client client, String financialyear) {
         if(billTabFragment==null)
-            billTabFragment=new BillTabFragment(billList,client);
+            billTabFragment=new BillTabFragment(billList,client,financialyear);
         else{
             billTabFragment.setClient(client);
             billTabFragment.setBillList(billList);
+            billTabFragment.setFinancialyear(financialyear);
         }
         return billTabFragment;
     }
 
-    public BillTabFragment(List<Bill> billList, Client client) {
+    public BillTabFragment(List<Bill> billList, Client client,String financialyear) {
         this.billList=billList;
         this.client=client;
+        this.financialyear=financialyear;
     }
 
     public void setClient(Client client){
@@ -76,6 +79,9 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     }
     public void setBillList(List<Bill> billList){
         this.billList=billList;
+    }
+    public void setFinancialyear(String financialyear) {
+        this.financialyear = financialyear;
     }
 
     @Override
@@ -104,8 +110,14 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
     public boolean onContextItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.share) {
-            BillUtils utils = new BillUtils(billList.get(index));
             try {
+                Bill bill=billList.get(index);
+                BillUtils utils = new BillUtils(bill);
+                File file = utils.getFile(bill.getBill_year());
+                if(!file.exists()) {
+                    BillRestoreTask task = new BillRestoreTask(bill);
+                    task.execute();
+                }
                 utils.sharePdfFile(getActivity());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -114,7 +126,7 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         } else if (id == R.id.edit_bill) {
             Intent intent = new Intent(getActivity(),
                     BillEditActivity.class);
-            Log.i(BillTabFragment.class.getSimpleName(), billList.get(index).toString());
+            billList = BillDbServices.getBillList(client.getId(),financialyear);
             intent.putExtra("bill_id", billList.get(index).getBillId());
             startActivity(intent);
             Log.i(BillTabFragment.class.getSimpleName(), "Inside generated bill fragment");
@@ -159,9 +171,10 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         Bill bill=billList.get(position);
         File file = utils.getFile(bill.getBill_year());
         if(!file.exists()) {
-            BillrestoreTask task = new BillrestoreTask(bill);
+            BillRestoreTask task = new BillRestoreTask(bill);
             task.execute();
         }
+
         utils.openPdfFile(getActivity());
     }
 
@@ -337,9 +350,9 @@ public class BillTabFragment extends Fragment implements BillListAdapter.ItemEve
         }
     }
 
-    private class BillrestoreTask extends AsyncTask<String, String, String> {
+    private class BillRestoreTask extends AsyncTask<String, String, String> {
         private Bill bill;
-        public BillrestoreTask(Bill bill){
+        public BillRestoreTask(Bill bill){
             this.bill=bill;
         }
         @Override

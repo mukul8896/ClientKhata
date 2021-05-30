@@ -36,22 +36,25 @@ public class TransectionTabFragment extends Fragment implements TransectionListA
     private int index;
     private List<Transection> transectionList;
     private RecyclerView recyclerView;
+    private String financialyear;
 
     private static TransectionTabFragment transectionTabFragment;
 
-    public static TransectionTabFragment newInstance(List<Transection> transectionList, Client client) {
+    public static TransectionTabFragment newInstance(List<Transection> transectionList, Client client, String financialyear) {
         if(transectionTabFragment==null)
-            transectionTabFragment=new TransectionTabFragment(transectionList,client);
+            transectionTabFragment=new TransectionTabFragment(transectionList,client,financialyear);
         else{
             transectionTabFragment.setClient(client);
             transectionTabFragment.setTransectionList(transectionList);
+            transectionTabFragment.setFinancialyear(financialyear);
         }
         return transectionTabFragment;
     }
 
-    public TransectionTabFragment(List<Transection> transectionList, Client client) {
+    public TransectionTabFragment(List<Transection> transectionList, Client client, String financialyear) {
         this.transectionList=transectionList;
         this.client=client;
+        this.financialyear=financialyear;
     }
 
     public void setClient(Client client){
@@ -60,6 +63,10 @@ public class TransectionTabFragment extends Fragment implements TransectionListA
     public void setTransectionList(List<Transection> transectionList){
         this.transectionList=transectionList;
     }
+    public void setFinancialyear(String financialyear) {
+        this.financialyear = financialyear;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
