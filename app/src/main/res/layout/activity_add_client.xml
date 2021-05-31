@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mukul.client_billing_activity.AddClientAvtivity"
+    tools:context="com.mukul.companyAccounts.AddClientAvtivity"
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
     <LinearLayout
@@ -12,22 +12,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:text="@string/enter_client_details"
-        android:gravity="center"
-        android:layout_marginTop="10sp"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/colorPrimary"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/name"
         android:id="@+id/name_lbl"
-        android:layout_marginTop="10sp"
+        android:layout_marginTop="15sp"
         android:layout_marginRight="10sp"
         android:layout_marginLeft="10sp"
         android:textColor="@color/text_black"/>

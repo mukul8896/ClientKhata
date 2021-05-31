@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.mukul.client_billing_activity.BillEditActivity"
+    tools:context="com.mukul.companyAccounts.BillEditActivity"
     android:orientation="vertical">
     <TextView
         android:layout_width="wrap_content"
@@ -15,7 +15,7 @@
         android:textSize="18sp"
         android:textColor="@color/colorPrimary"
         android:textStyle="bold"/>
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="0sp"
         android:id="@+id/listview_for_edit_bill_transection"
