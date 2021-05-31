@@ -42,12 +42,17 @@ import utils.ProjectUtils;
 
 public class BillGenerationServices {
     private Document document;
+    private String bill_formate;
 
     public void generateBill(Bill bill, Context context) throws Exception {
+        this.bill_formate="Rachit";
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
-        addHearder(context);
+        if(bill_formate.equals("Shubham"))
+            addHearder();
+        else
+            addHearder(context);
 
         addBillDetails(utils.getBillDetails());
 
@@ -60,16 +65,23 @@ public class BillGenerationServices {
         String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
         addParticulers(previous, BillDbServices.getBillParticulars(bill.getClient_id(), bill.getFrom_date(), bill.getTo_date()), bill_detail);
 
-        addFooterInfo(context);
+        if(bill_formate.equals("Shubham"))
+            addFooterInfoShubham(context);
+        else
+            addFooterInfoRachit(context);
 
         closeDocument();
     }
 
     public void updateBill(Bill bill, Context context) throws Exception {
+        this.bill_formate="Rachit";
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
-        addHearder(context);
+        if(bill_formate.equals("Shubham"))
+            addHearder();
+        else
+            addHearder(context);
 
         addBillDetails(utils.getBillDetails());
 
@@ -82,7 +94,10 @@ public class BillGenerationServices {
         String bill_detail=bill.getBill_year() + " | Bill No-" + bill.getBill_no();
         addParticulers(previous, BillDbServices.getBillTransection(bill_detail), bill_detail);
 
-        addFooterInfo(context);
+        if(bill_formate.equals("Shubham"))
+            addFooterInfoShubham(context);
+        else
+            addFooterInfoRachit(context);
 
         closeDocument();
     }
@@ -91,7 +106,7 @@ public class BillGenerationServices {
         document.close();
     }
 
-    private void addFooterInfo(Context context) throws DocumentException {
+    private void addFooterInfoRachit(Context context) throws DocumentException {
         Paragraph paragraph = new Paragraph();
         paragraph.setIndentationLeft(50);
 
@@ -458,4 +473,155 @@ public class BillGenerationServices {
         PdfWriter.getInstance(document, new FileOutputStream(file));
         document.open();
     }
+
+    private void addFooterInfoShubham(Context context) throws DocumentException, IOException {
+        Paragraph paragraph = new Paragraph();
+        paragraph.setIndentationLeft(50);
+
+        paragraph.add(Chunk.NEWLINE);
+
+        PdfPTable table = new PdfPTable(new float[]{3, 2});
+        table.setHorizontalAlignment(PdfPTable.ALIGN_LEFT);
+        table.setWidthPercentage(90);
+        Font font_head = new Font();
+        font_head.setSize(12);
+        font_head.setStyle(Font.BOLD);
+
+        Phrase phrase_bill_heading = new Phrase("PLEASE ISSUE CHEQUE IN THE NAME OF 'SHUBHAM KUMAR'",font_head);
+        PdfPCell cell_bill_heading = new PdfPCell(phrase_bill_heading);
+        cell_bill_heading.setBorderWidth(0);
+        cell_bill_heading.setFixedHeight(20);
+        cell_bill_heading.setColspan(2);
+        table.addCell(cell_bill_heading);
+
+        PdfPCell empty = new PdfPCell(new Phrase(""));
+        empty.setBorderWidth(0);
+        empty.setFixedHeight(20);
+        empty.setColspan(2);
+        table.addCell(empty);
+
+        Font font_bank_detail_header = new Font();
+        font_bank_detail_header.setStyle(Font.BOLD|Font.UNDERLINE);
+        font_bank_detail_header.setSize(10);
+        Phrase phrase_bank_detail_header = new Phrase("MY BANK ACCOUNT DETAILS IS AS FOLLOWS:-",font_bank_detail_header);
+        PdfPCell cell_bank_detail_header = new PdfPCell(phrase_bank_detail_header);
+        cell_bank_detail_header.setBorderWidth(0);
+        table.addCell(cell_bank_detail_header);
+
+        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.signature);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] bitMapData = stream.toByteArray();
+        Image img = Image.getInstance(bitMapData);
+        PdfPCell signature_cell = new PdfPCell(img,true);
+        signature_cell.setBorderWidth(0);
+        signature_cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        signature_cell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+        signature_cell.setRowspan(5);
+        table.addCell(signature_cell);
+
+        Font font = new Font();
+        font.setStyle(Font.BOLD);
+        font.setSize(10);
+        Font font1=new Font();
+        font1.setSize(10);
+
+        List<Chunk> list=new ArrayList<>();
+        Chunk chunk=new Chunk("A/C NO:- ",font1);
+        Chunk chunk1=new Chunk("50100409345461",font);
+        list.add(chunk);list.add(chunk1);
+        Phrase phrase_acount_details=new Phrase();
+        phrase_acount_details.addAll(list);
+        PdfPCell cell_account_no = new PdfPCell(phrase_acount_details);
+        cell_account_no.setBorderWidth(0);
+        table.addCell(cell_account_no);
+
+        Chunk chunk_ifsc1=new Chunk("IFSC CODE:- ",font1);
+        Chunk chunk_ifsc2=new Chunk("HDFC0004074",font);
+        Phrase phrase_ifsc=new Phrase();
+        phrase_ifsc.addAll(Arrays.asList(chunk_ifsc1,chunk_ifsc2));
+        PdfPCell cell_ifsc = new PdfPCell(phrase_ifsc);
+        cell_ifsc.setBorderWidth(0);
+        table.addCell(cell_ifsc);
+
+        Chunk chunk_bank1=new Chunk("BANK NAME:- ",font1);
+        Chunk chunk_bank2=new Chunk("HDFC BANK",font);
+        Phrase phrase_bank=new Phrase();
+        phrase_bank.addAll(Arrays.asList(chunk_bank1,chunk_bank2));
+        PdfPCell cell_bank = new PdfPCell(phrase_bank);
+        cell_bank.setBorderWidth(0);
+        table.addCell(cell_bank);
+
+
+        Chunk chunk_bank_address1=new Chunk("BANK ADDRESS:-  ",font1);
+        Chunk chunk_bank_address2=new Chunk("DERAWAL NAGAR",font);
+        Phrase phrase_bank_address=new Phrase();
+        phrase_bank_address.addAll(Arrays.asList(chunk_bank_address1,chunk_bank_address2));
+        PdfPCell cell_bank_address = new PdfPCell(phrase_bank_address);
+        cell_bank_address.setBorderWidth(0);
+        table.addCell(cell_bank_address);
+
+
+        Chunk chunk_ac_holder1=new Chunk("A/C HOLDER NAME:- ",font1);
+        Chunk chunk_ac_holder2=new Chunk("SHUBHAM KUMAR",font);
+        Phrase phrase_ac_dolder=new Phrase();
+        phrase_ac_dolder.addAll(Arrays.asList(chunk_ac_holder1,chunk_ac_holder2));
+        PdfPCell cell_ac_holder = new PdfPCell(phrase_ac_dolder);
+        cell_ac_holder.setBorderWidth(0);
+        table.addCell(cell_ac_holder);
+
+
+        Chunk signature=new Chunk("SIGNATURE",font);
+        Phrase phrase_signature=new Phrase(signature);
+        PdfPCell cell_signature = new PdfPCell(phrase_signature);
+        cell_signature.setBorderWidth(0);
+        cell_signature.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell_signature);
+        paragraph.add(table);
+
+        document.add(paragraph);
+
+    }
+
+    private void addHearder() throws DocumentException {
+        Paragraph paragraph = new Paragraph(20);
+        paragraph.setAlignment(Paragraph.ALIGN_CENTER);
+
+        Font headerfont = new Font(FontFamily.HELVETICA);
+        headerfont.setStyle(Font.BOLD);
+        headerfont.setColor(0, 112, 192);
+        headerfont.setSize(12);
+
+        Chunk chunk = new Chunk("SHUBHAM  KUMAR TAX CONSULTANCY");
+        chunk.setFont(headerfont);
+        paragraph.add(chunk);
+
+        paragraph.add(Chunk.NEWLINE);
+
+        Chunk chunk2 = new Chunk("A-11, KAMAL VHIAR, BURARI, DELHI-110084, INDIA");
+        chunk2.setFont(headerfont);
+        paragraph.add(chunk2);
+
+        paragraph.add(Chunk.NEWLINE);
+
+        Font panfont = new Font(FontFamily.HELVETICA);
+        panfont.setStyle(Font.BOLD);
+        panfont.setSize(10);
+
+        Chunk chunk3 = new Chunk("PAN NO:- EKIPK1251B");
+        chunk3.setFont(panfont);
+        paragraph.add(chunk3);
+
+        document.add(paragraph);
+
+        LineSeparator separator = new LineSeparator();
+        separator.setPercentage(80f);
+        separator.setAlignment(LineSeparator.ALIGN_CENTER);
+
+        document.add(Chunk.NEWLINE);
+
+        document.add(separator);
+
+    }
+
 }

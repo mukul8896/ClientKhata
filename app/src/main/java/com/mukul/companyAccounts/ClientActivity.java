@@ -70,7 +70,7 @@ public class ClientActivity extends AppCompatActivity {
         billList = BillDbServices.getBillList(client_id,financialYear);
         billList.forEach(bill-> System.out.println(bill.toString()));
         transectionList = TransectionDbServices.getClientsTransections(client_id,financialYear);
-        pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),transectionList,billList,client);
+        pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),transectionList,billList,client,financialYear);
         viewPager.setAdapter(pageAdapter);
 
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
@@ -121,7 +121,7 @@ public class ClientActivity extends AppCompatActivity {
             String financialYear = item.getTitle().toString();
             billList = BillDbServices.getBillList(client_id,financialYear);
             transectionList = TransectionDbServices.getClientsTransections(client_id,financialYear);
-            pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),transectionList,billList,client);
+            pageAdapter = new PageAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),transectionList,billList,client,financialYear);
             viewPager.setAdapter(pageAdapter);
             viewPager.setCurrentItem(currentPage);
             getSupportActionBar().setSubtitle(financialYear);

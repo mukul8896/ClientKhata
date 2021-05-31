@@ -220,4 +220,15 @@ public class TransectionDbServices {
         db.close();
         return rowsEffected;
     }
+
+    public static int addBillDetails(Transection transection,String bill_details){
+        SQLiteDatabase db = DbHandler.getInstance().getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(DBParameters.KEY_TRANSECTION_BILLDETAILS, bill_details);
+        //Lets update now
+        int rowsEffected=db.update(DBParameters.DB_TRANSECTION_TABLE, values, DBParameters.KEY_TRANSECTION_ID + "=?",
+                new String[]{String.valueOf(transection.getTransecId())});
+        db.close();
+        return rowsEffected;
+    }
 }

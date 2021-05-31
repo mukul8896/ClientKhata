@@ -36,6 +36,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
     private int index;
     private ActionBar toolbar;
     private Button updateButton;
+    private String bill_details;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
         Log.i(BillEditActivity.class.getSimpleName(), "Bill Id-" + getIntent().getIntExtra("bill_id", 0));
         try {
             bill = BillDbServices.getBill(getIntent().getIntExtra("bill_id", 0));
-            String bill_details = bill.getBill_year() + " | Bill No-" + bill.getBill_no();
+            bill_details = bill.getBill_year() + " | Bill No-" + bill.getBill_no();
             toolbar.setTitle(bill_details);
             transectionList = BillDbServices.getBillTransection(bill_details);
             Log.i(BillEditActivity.class.getSimpleName(),transectionList.toString());
@@ -69,8 +70,10 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
-                Transection removeTrans=transectionList.get(viewHolder.getAdapterPosition());
+                Transection removeTrans=transectionList.get(position);
+                Log.i(BillEditActivity.class.getSimpleName(),removeTrans.toString());
                 transectionList.remove(position);
+                TransectionDbServices.removeBillDetails(removeTrans);
                 adapter.notifyItemRemoved(position);
                 Snackbar.make(transection_lstView,"Transection removed", Snackbar.LENGTH_LONG)
                         .setAction("Undo", new View.OnClickListener() {
@@ -78,7 +81,7 @@ public class BillEditActivity extends AppCompatActivity implements TransectionLi
                             public void onClick(View view) {
                                 transectionList.add(position, removeTrans);
                                 adapter.notifyItemInserted(position);
-                                TransectionDbServices.removeBillDetails(transectionList.get(position));
+                                TransectionDbServices.addBillDetails(removeTrans,bill_details);
                             }
                         }).show();
             }
