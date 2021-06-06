@@ -28,6 +28,7 @@ import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.material.navigation.NavigationView;
 import com.mukul.companyAccounts.ui.ClientListFragment;
+import com.mukul.companyAccounts.ui.SettingFragment;
 import com.mukul.companyAccounts.ui.SignInFragment;
 import com.mukul.companyAccounts.ui.SummeryFragment;
 import com.squareup.picasso.Picasso;
@@ -121,6 +122,7 @@ public class MainDrawerActivity extends AppCompatActivity {
                         break;
                     case R.id.nav_settings:
                         Log.d(MainDrawerActivity.class.getSimpleName(),"Nav Settings");
+                        fragment = SettingFragment.newInstance();
                         drawerLayout.closeDrawer(GravityCompat.START);
                         break;
                 }

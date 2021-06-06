@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 
-public class Client implements Parcelable {
+public class Client implements Parcelable, Comparable<Client> {
     String name;
     String address;
     String contact;
@@ -146,5 +146,10 @@ public class Client implements Parcelable {
                 ", balance=" + balance +
                 ", id=" + id +
                 '}';
+    }
+
+    @Override
+    public int compareTo(Client client) {
+        return this.getName().compareTo(client.getName());
     }
 }

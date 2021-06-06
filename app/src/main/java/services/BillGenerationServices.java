@@ -42,10 +42,9 @@ import utils.ProjectUtils;
 
 public class BillGenerationServices {
     private Document document;
-    private String bill_formate;
+    private static String bill_formate = "Shubham";
 
     public void generateBill(Bill bill, Context context) throws Exception {
-        this.bill_formate="Rachit";
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
@@ -74,7 +73,6 @@ public class BillGenerationServices {
     }
 
     public void updateBill(Bill bill, Context context) throws Exception {
-        this.bill_formate="Rachit";
         BillUtils utils = new BillUtils(bill);
         initializeDocument(utils.getFile(bill.getBill_year()));
 
